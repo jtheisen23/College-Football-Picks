@@ -58,9 +58,14 @@ adjusted for the real chance of a push on whole numbers.
 
 ## Setup
 
+Needs Python 3.9 or newer — including the 3.9 that ships with macOS, so
+there is nothing to install first.
+
 ```bash
 git clone https://github.com/jtheisen23/College-Football-Picks
 cd College-Football-Picks
+python3 -m venv .venv && source .venv/bin/activate
+pip install --upgrade pip     # editable installs need pip 21.3+
 pip install -e .
 
 export CFBD_API_KEY=...      # free: https://collegefootballdata.com/key

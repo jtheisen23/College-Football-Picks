@@ -7,7 +7,7 @@ name = "cfbpicks"
 version = "0.1.0"
 description = "College football predictions engine: ingests games, power ratings and sportsbook lines, then recommends bets with a quantified edge."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 license = { text = "MIT" }
 dependencies = [
     "click>=8.1",
