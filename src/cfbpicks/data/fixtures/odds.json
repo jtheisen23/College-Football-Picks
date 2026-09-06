@@ -1,0 +1,1250 @@
+[
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Ohio State",
+    "away_team": "Michigan",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -10.0,
+            "price": -110
+          },
+          "away": {
+            "line": 10.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 59.0,
+            "price": -110
+          },
+          "under": {
+            "line": 59.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -331
+          },
+          "away": {
+            "line": null,
+            "price": 261
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -10.5,
+            "price": -110
+          },
+          "away": {
+            "line": 10.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 59.0,
+            "price": -110
+          },
+          "under": {
+            "line": 59.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -352
+          },
+          "away": {
+            "line": null,
+            "price": 275
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -9.5,
+            "price": -108
+          },
+          "away": {
+            "line": 9.5,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 58.5,
+            "price": -108
+          },
+          "under": {
+            "line": 58.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -312
+          },
+          "away": {
+            "line": null,
+            "price": 248
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Georgia",
+    "away_team": "Tennessee",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -13.5,
+            "price": -110
+          },
+          "away": {
+            "line": 13.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 55.5,
+            "price": -110
+          },
+          "under": {
+            "line": 55.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -527
+          },
+          "away": {
+            "line": null,
+            "price": 389
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -14.0,
+            "price": -110
+          },
+          "away": {
+            "line": 14.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 55.5,
+            "price": -110
+          },
+          "under": {
+            "line": 55.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -565
+          },
+          "away": {
+            "line": null,
+            "price": 412
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -13.0,
+            "price": -108
+          },
+          "away": {
+            "line": 13.0,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 55.0,
+            "price": -108
+          },
+          "under": {
+            "line": 55.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -493
+          },
+          "away": {
+            "line": null,
+            "price": 368
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Texas",
+    "away_team": "Mississippi",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -6.0,
+            "price": -110
+          },
+          "away": {
+            "line": 6.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 52.0,
+            "price": -110
+          },
+          "under": {
+            "line": 52.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -213
+          },
+          "away": {
+            "line": null,
+            "price": 174
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -6.5,
+            "price": -110
+          },
+          "away": {
+            "line": 6.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 52.0,
+            "price": -110
+          },
+          "under": {
+            "line": 52.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -225
+          },
+          "away": {
+            "line": null,
+            "price": 183
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -5.5,
+            "price": -108
+          },
+          "away": {
+            "line": 5.5,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 51.5,
+            "price": -108
+          },
+          "under": {
+            "line": 51.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -201
+          },
+          "away": {
+            "line": null,
+            "price": 165
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Alabama",
+    "away_team": "LSU",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -8.5,
+            "price": -110
+          },
+          "away": {
+            "line": 8.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 49.5,
+            "price": -110
+          },
+          "under": {
+            "line": 49.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -279
+          },
+          "away": {
+            "line": null,
+            "price": 224
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -9.0,
+            "price": -110
+          },
+          "away": {
+            "line": 9.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 50.0,
+            "price": -110
+          },
+          "under": {
+            "line": 50.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -296
+          },
+          "away": {
+            "line": null,
+            "price": 236
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -8.0,
+            "price": -108
+          },
+          "away": {
+            "line": 8.0,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 49.5,
+            "price": -108
+          },
+          "under": {
+            "line": 49.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -264
+          },
+          "away": {
+            "line": null,
+            "price": 213
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Oregon",
+    "away_team": "Washington State",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -22.0,
+            "price": -110
+          },
+          "away": {
+            "line": 22.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 47.0,
+            "price": -110
+          },
+          "under": {
+            "line": 47.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -2291
+          },
+          "away": {
+            "line": null,
+            "price": 1052
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -22.5,
+            "price": -110
+          },
+          "away": {
+            "line": 22.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 47.5,
+            "price": -110
+          },
+          "under": {
+            "line": 47.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -2608
+          },
+          "away": {
+            "line": null,
+            "price": 1121
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -21.5,
+            "price": -108
+          },
+          "away": {
+            "line": 21.5,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 47.0,
+            "price": -108
+          },
+          "under": {
+            "line": 47.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -2031
+          },
+          "away": {
+            "line": null,
+            "price": 988
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Penn State",
+    "away_team": "Iowa",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -15.5,
+            "price": -110
+          },
+          "away": {
+            "line": 15.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 59.5,
+            "price": -110
+          },
+          "under": {
+            "line": 59.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -696
+          },
+          "away": {
+            "line": null,
+            "price": 486
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -16.0,
+            "price": -110
+          },
+          "away": {
+            "line": 16.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 60.0,
+            "price": -110
+          },
+          "under": {
+            "line": 60.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -750
+          },
+          "away": {
+            "line": null,
+            "price": 515
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -15.0,
+            "price": -108
+          },
+          "away": {
+            "line": 15.0,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 59.0,
+            "price": -108
+          },
+          "under": {
+            "line": 59.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -648
+          },
+          "away": {
+            "line": null,
+            "price": 459
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Notre Dame",
+    "away_team": "Purdue",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -31.0,
+            "price": -110
+          },
+          "away": {
+            "line": 31.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 51.0,
+            "price": -110
+          },
+          "under": {
+            "line": 51.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -19900
+          },
+          "away": {
+            "line": null,
+            "price": 3423
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -31.5,
+            "price": -110
+          },
+          "away": {
+            "line": 31.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 51.5,
+            "price": -110
+          },
+          "under": {
+            "line": 51.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -19900
+          },
+          "away": {
+            "line": null,
+            "price": 3688
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -30.5,
+            "price": -108
+          },
+          "away": {
+            "line": 30.5,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 50.5,
+            "price": -108
+          },
+          "under": {
+            "line": 50.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -19900
+          },
+          "away": {
+            "line": null,
+            "price": 3179
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Clemson",
+    "away_team": "Duke",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -16.0,
+            "price": -110
+          },
+          "away": {
+            "line": 16.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 57.0,
+            "price": -110
+          },
+          "under": {
+            "line": 57.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -727
+          },
+          "away": {
+            "line": null,
+            "price": 503
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -16.5,
+            "price": -110
+          },
+          "away": {
+            "line": 16.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 57.0,
+            "price": -110
+          },
+          "under": {
+            "line": 57.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -784
+          },
+          "away": {
+            "line": null,
+            "price": 533
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -15.5,
+            "price": -108
+          },
+          "away": {
+            "line": 15.5,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 56.5,
+            "price": -108
+          },
+          "under": {
+            "line": 56.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -676
+          },
+          "away": {
+            "line": null,
+            "price": 475
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Miami",
+    "away_team": "Louisville",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -6.5,
+            "price": -110
+          },
+          "away": {
+            "line": 6.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 61.0,
+            "price": -110
+          },
+          "under": {
+            "line": 61.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -220
+          },
+          "away": {
+            "line": null,
+            "price": 180
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -7.0,
+            "price": -110
+          },
+          "away": {
+            "line": 7.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 61.5,
+            "price": -110
+          },
+          "under": {
+            "line": 61.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -232
+          },
+          "away": {
+            "line": null,
+            "price": 189
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -6.0,
+            "price": -108
+          },
+          "away": {
+            "line": 6.0,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 60.5,
+            "price": -108
+          },
+          "under": {
+            "line": 60.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -208
+          },
+          "away": {
+            "line": null,
+            "price": 170
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Utah",
+    "away_team": "Arizona",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -16.0,
+            "price": -110
+          },
+          "away": {
+            "line": 16.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 57.5,
+            "price": -110
+          },
+          "under": {
+            "line": 57.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -729
+          },
+          "away": {
+            "line": null,
+            "price": 504
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -16.5,
+            "price": -110
+          },
+          "away": {
+            "line": 16.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 57.5,
+            "price": -110
+          },
+          "under": {
+            "line": 57.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -786
+          },
+          "away": {
+            "line": null,
+            "price": 533
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -15.5,
+            "price": -108
+          },
+          "away": {
+            "line": 15.5,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 57.0,
+            "price": -108
+          },
+          "under": {
+            "line": 57.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -677
+          },
+          "away": {
+            "line": null,
+            "price": 476
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Kansas State",
+    "away_team": "Cincinnati",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -15.5,
+            "price": -110
+          },
+          "away": {
+            "line": 15.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 54.5,
+            "price": -110
+          },
+          "under": {
+            "line": 54.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -672
+          },
+          "away": {
+            "line": null,
+            "price": 473
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -16.0,
+            "price": -110
+          },
+          "away": {
+            "line": 16.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 54.5,
+            "price": -110
+          },
+          "under": {
+            "line": 54.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -723
+          },
+          "away": {
+            "line": null,
+            "price": 500
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -15.0,
+            "price": -108
+          },
+          "away": {
+            "line": 15.0,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 54.0,
+            "price": -108
+          },
+          "under": {
+            "line": 54.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -625
+          },
+          "away": {
+            "line": null,
+            "price": 447
+          }
+        }
+      }
+    }
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "home_team": "Boise State",
+    "away_team": "Vanderbilt",
+    "books": {
+      "DraftKings": {
+        "spread": {
+          "home": {
+            "line": -20.5,
+            "price": -110
+          },
+          "away": {
+            "line": 20.5,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 50.0,
+            "price": -110
+          },
+          "under": {
+            "line": 50.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -1579
+          },
+          "away": {
+            "line": null,
+            "price": 856
+          }
+        }
+      },
+      "FanDuel": {
+        "spread": {
+          "home": {
+            "line": -21.0,
+            "price": -110
+          },
+          "away": {
+            "line": 21.0,
+            "price": -110
+          }
+        },
+        "total": {
+          "over": {
+            "line": 50.5,
+            "price": -110
+          },
+          "under": {
+            "line": 50.5,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -1754
+          },
+          "away": {
+            "line": null,
+            "price": 911
+          }
+        }
+      },
+      "BetMGM": {
+        "spread": {
+          "home": {
+            "line": -20.0,
+            "price": -108
+          },
+          "away": {
+            "line": 20.0,
+            "price": -108
+          }
+        },
+        "total": {
+          "over": {
+            "line": 50.0,
+            "price": -108
+          },
+          "under": {
+            "line": 50.0,
+            "price": -110
+          }
+        },
+        "moneyline": {
+          "home": {
+            "line": null,
+            "price": -1429
+          },
+          "away": {
+            "line": null,
+            "price": 806
+          }
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,116 @@
+# cfbpicks configuration.
+#
+# Everything here has a working default — this file exists so you can tune
+# the model and the betting thresholds without touching code.
+#
+# API keys do NOT belong in this file. Put them in the environment:
+#   export CFBD_API_KEY=...      # free at collegefootballdata.com/key
+#   export ODDS_API_KEY=...      # the-odds-api.com
+# or in config.local.yaml, which is gitignored and overrides this file.
+
+database: cfbpicks.sqlite
+cache_dir: data/cache
+reports_dir: reports
+
+# How long a cached API response stays fresh, in seconds. Lines move, so
+# 15 minutes is a reasonable compromise between freshness and quota.
+cache_ttl_seconds: 900
+
+model:
+  # Modern FBS home-field advantage is worth about two to two and a half
+  # points, well down from the three-plus of a decade ago.
+  home_field_advantage: 2.2
+
+  # Standard deviation of actual margin around the closing spread. ~16 in
+  # college football, notably wider than the NFL's ~13.5. This single
+  # number drives every win probability, so change it carefully.
+  margin_sd: 16.0
+
+  # Same idea for totals.
+  total_sd: 13.5
+  league_average_total: 54.0
+
+  # Relative trust in each rating source when blending them into one
+  # power number. Sources not listed here still count, at weight 1.0.
+  rating_weights:
+    cfbd_sp_plus: 1.0      # SP+ is the strongest single predictor here
+    cfbd_srs: 0.5          # largely results-driven, so partially redundant
+    cfbd_elo: 0.5
+    massey: 0.75
+    sagarin: 0.75
+    manual: 1.0
+
+  # A team rated by fewer sources than this gets pulled toward average
+  # rather than trusted at face value.
+  min_sources_for_full_confidence: 2
+
+  # Rest matters, but not much: a bye week is worth roughly a point.
+  rest_advantage_per_day: 0.12
+  max_rest_adjustment: 1.5
+
+betting:
+  # Proportional de-vigging is fine for near-even markets; the power
+  # method handles the favourite-longshot bias on lopsided moneylines.
+  devig_method: proportional
+  moneyline_devig_method: power
+
+  # Staking. One unit is 1% of bankroll, and quarter-Kelly is the usual
+  # compromise between growth and surviving a bad month.
+  unit_fraction: 0.01
+  kelly_multiplier: 0.25
+  max_units: 3.0
+
+  # Minimum edge required before a bet is recommended at all. Raising
+  # min_prob_edge is the simplest way to get fewer, better bets.
+  min_prob_edge: 0.02          # 2 percentage points over the fair price
+  min_expected_value: 0.005    # half a percent per unit staked
+  min_point_edge_spread: 1.5   # the model must beat the number by this much
+  min_point_edge_total: 2.5
+
+  # Guard rails.
+  max_spread_line: 35.0        # ignore blowout numbers entirely
+  max_moneyline_margin: 21.0   # a normal model misprices heavy favourites
+  min_book_count: 1            # require this many books before pricing
+
+  markets: [spread, total, moneyline]
+
+  # Edge thresholds for the labels shown in the report.
+  tier_thresholds:
+    strong: 0.055
+    play: 0.035
+    lean: 0.02
+
+providers:
+  cfbd:
+    enabled: true
+    options:
+      ratings: [sp_plus, srs, elo]
+      division: fbs
+      # CFBD reports the number but not the juice, so spreads and totals
+      # from it are recorded at this standard price.
+      assumed_price: -110
+
+  odds_api:
+    enabled: true
+    options:
+      sport: americanfootball_ncaaf
+      regions: us
+      # Restrict to the books you can actually bet, e.g.
+      # books: [draftkings, fanduel, betmgm]
+      books: []
+
+  sagarin:
+    enabled: true
+    options:
+      url: http://sagarin.com/sports/cfsend.htm
+      # If the site is unreachable, save the page and point here instead:
+      # local_file: data/ratings/sagarin.htm
+
+  ratings:
+    enabled: true
+    options:
+      input_dir: data/ratings
+      sources: [massey]
+
+  fixtures:
+    enabled: true

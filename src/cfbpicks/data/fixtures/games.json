@@ -1,0 +1,122 @@
+[
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-19T16:00:00Z",
+    "home_team": "Ohio State",
+    "away_team": "Michigan",
+    "neutral_site": false,
+    "conference_game": true,
+    "venue": "Ohio State Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-19T18:00:00Z",
+    "home_team": "Georgia",
+    "away_team": "Tennessee",
+    "neutral_site": false,
+    "conference_game": false,
+    "venue": "Georgia Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-19T20:00:00Z",
+    "home_team": "Texas",
+    "away_team": "Mississippi",
+    "neutral_site": false,
+    "conference_game": false,
+    "venue": "Texas Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-19T22:00:00Z",
+    "home_team": "Alabama",
+    "away_team": "LSU",
+    "neutral_site": false,
+    "conference_game": true,
+    "venue": "Alabama Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-19T24:00:00Z",
+    "home_team": "Oregon",
+    "away_team": "Washington State",
+    "neutral_site": false,
+    "conference_game": false,
+    "venue": "Oregon Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-19T16:00:00Z",
+    "home_team": "Penn State",
+    "away_team": "Iowa",
+    "neutral_site": false,
+    "conference_game": false,
+    "venue": "Penn State Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-20T18:00:00Z",
+    "home_team": "Notre Dame",
+    "away_team": "Purdue",
+    "neutral_site": false,
+    "conference_game": true,
+    "venue": "Notre Dame Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-20T20:00:00Z",
+    "home_team": "Clemson",
+    "away_team": "Duke",
+    "neutral_site": false,
+    "conference_game": false,
+    "venue": "Clemson Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-20T22:00:00Z",
+    "home_team": "Miami",
+    "away_team": "Louisville",
+    "neutral_site": false,
+    "conference_game": false,
+    "venue": "Miami Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-20T24:00:00Z",
+    "home_team": "Utah",
+    "away_team": "Arizona",
+    "neutral_site": false,
+    "conference_game": true,
+    "venue": "Utah Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-20T16:00:00Z",
+    "home_team": "Kansas State",
+    "away_team": "Cincinnati",
+    "neutral_site": false,
+    "conference_game": false,
+    "venue": "Kansas State Stadium"
+  },
+  {
+    "season": 2026,
+    "week": 3,
+    "kickoff": "2026-09-20T18:00:00Z",
+    "home_team": "Boise State",
+    "away_team": "Vanderbilt",
+    "neutral_site": true,
+    "conference_game": false,
+    "venue": "Boise State Stadium"
+  }
+]
