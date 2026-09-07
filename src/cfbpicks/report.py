@@ -316,6 +316,16 @@ details { margin-top: 8px; }
 summary { cursor: pointer; color: var(--ink-2); font-size: 14px; padding: 6px 0; }
 footer { margin-top: 40px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 16px; }
 .empty { padding: 28px; color: var(--ink-2); }
+
+/* A standing caveat about the page as a whole -- sample data, a stale
+   fetch, a source that failed. Deliberately not a card: it qualifies
+   everything below rather than sitting alongside it as another object. */
+.note-bar {
+  margin: 20px 0 0; padding: 10px 14px;
+  border-left: 3px solid var(--tier-play);
+  background: var(--surface); color: var(--ink-2); font-size: 14px;
+  border-radius: 0 8px 8px 0;
+}
 """
 
 _TOGGLE_JS = """
@@ -355,11 +365,16 @@ def to_html(
     season: int,
     week: int,
     predictions: Optional[Sequence[Prediction]] = None,
+    note: Optional[str] = None,
 ) -> str:
     """A self-contained page for the week's board.
 
     No external requests: it is a single file that opens from disk, works
     offline, and follows the reader's light/dark preference.
+
+    ``note`` renders a caveat above the board — for marking sample data,
+    a stale fetch, or a source that failed. Anything that qualifies every
+    number on the page rather than one row of it.
     """
     stamp = datetime.now(timezone.utc).strftime("%d %b %Y, %H:%M UTC")
     ordered = sorted(recs, key=lambda r: (TIER_ORDER.get(r.tier, 9), -r.prob_edge))
@@ -382,6 +397,9 @@ def to_html(
         "<button class=\"toggle\" id=\"theme-toggle\">Theme</button>",
         "</header>",
     ]
+
+    if note:
+        parts.append(f"<p class=\"note-bar\">{_esc(note)}</p>")
 
     parts += [
         "<div class=\"tiles\">",

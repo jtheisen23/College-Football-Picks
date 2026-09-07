@@ -72,6 +72,14 @@ class TestContent:
         page = to_html([rec(notes=["single book — no line shopping"])], season=2026, week=3)
         assert "single book" in page
 
+    def test_a_note_qualifies_the_whole_page(self):
+        page = to_html([rec()], season=2026, week=3, note="Sample data — not real games")
+        assert "Sample data — not real games" in page
+        assert "note-bar" in page
+
+    def test_no_note_means_no_banner(self):
+        assert "note-bar\">" not in to_html([rec()], season=2026, week=3)
+
     def test_an_empty_week_explains_itself(self):
         page = to_html([], season=2026, week=3)
         assert "No bets cleared" in page
