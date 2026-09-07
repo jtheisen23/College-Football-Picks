@@ -129,3 +129,44 @@ class TestCli:
         ])
         assert result.exit_code == 0
         assert "6 ratings" in result.output
+
+
+class TestWarningHygiene:
+    """A scheduled `snapshot` must not mail the user noise every run."""
+
+    def test_package_root_does_not_import_urllib3(self):
+        """The filter has to be registered before urllib3 loads.
+
+        urllib3 emits its LibreSSL notice during import, so importing it
+        from the package root to reference the exception class would
+        trigger the very warning being suppressed.
+        """
+        import subprocess
+        import sys
+
+        result = subprocess.run(
+            [sys.executable, "-c",
+             "import sys, cfbpicks; print('urllib3' in sys.modules)"],
+            capture_output=True, text=True, check=True,
+        )
+        assert result.stdout.strip() == "False"
+
+    def test_the_libressl_notice_is_filtered(self):
+        import warnings
+
+        import cfbpicks  # noqa: F401 -- registers the filter on import
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            warnings.filterwarnings(
+                "ignore", message=r"urllib3 v2 only supports OpenSSL", category=Warning
+            )
+            warnings.warn(
+                "urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module "
+                "is compiled with 'LibreSSL 2.8.3'.", Warning,
+            )
+            warnings.warn("a real problem", UserWarning)
+
+        messages = [str(w.message) for w in caught]
+        assert not any("LibreSSL" in m for m in messages)
+        assert any("a real problem" in m for m in messages), "unrelated warnings must survive"
