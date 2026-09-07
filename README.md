@@ -87,6 +87,8 @@ cfbpicks predict --week 3                     # projections, before prices
 cfbpicks picks --week 3                       # the bets worth making
 cfbpicks picks --week 3 -o reports/week3.md --format markdown
 
+cfbpicks picks --week 3 -o reports/week3.html  # a board you can look at
+
 cfbpicks snapshot                             # capture odds again later
 cfbpicks lines --week 3                       # see what moved
 
@@ -95,6 +97,30 @@ cfbpicks grade --week 3
 ```
 
 Everything is cached in SQLite, so re-running `picks` costs no API calls.
+
+## Seeing the week
+
+The terminal table is fine for a glance. For something you can actually
+sit with — or open on a phone — write the board out as a page:
+
+```bash
+cfbpicks picks --week 3 -o reports/week3.html
+open reports/week3.html
+```
+
+One self-contained file: no network, no CDN, works offline and keeps
+working. It follows your system light/dark setting and has a toggle.
+Summary tiles up top (bets, units staked, expected units, median edge),
+then every bet with its price, book, model and market probabilities, and
+the edge between them. Full projections for the slate are behind a
+collapsible section.
+
+Tier badges use a single-hue ordinal ramp — validated for contrast in
+both modes — and each badge carries its text label, so conviction is
+never communicated by colour alone.
+
+`-o something.html` picks the HTML renderer automatically; `.md`, `.csv`
+and `.json` all still work, and `--format` overrides if you want.
 
 ## Closing line value
 

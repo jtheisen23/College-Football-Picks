@@ -243,7 +243,8 @@ def predict(ctx, season, week, limit) -> None:
               help="Restrict to specific markets.")
 @click.option("--min-edge", type=float, help="Minimum probability edge, e.g. 0.03 for 3%.")
 @click.option("--max-units", type=float, help="Cap the stake on any single bet.")
-@click.option("--format", "fmt", type=click.Choice(["table", "markdown", "csv", "json"]),
+@click.option("--format", "fmt",
+              type=click.Choice(["table", "markdown", "html", "csv", "json"]),
               default="table")
 @click.option("--output", "-o", type=click.Path(), help="Write to a file instead of stdout.")
 @click.option("--all", "show_all", is_flag=True, help="Include bets that fail the thresholds.")
@@ -281,6 +282,11 @@ def picks(ctx, season, week, markets, min_edge, max_units, fmt, output, show_all
         render_console(recommendations, console)
         return
 
+    # Writing to a .html path implies the html renderer, so `-o board.html`
+    # does the obvious thing without also passing --format.
+    if output and fmt == "table" and str(output).lower().endswith((".html", ".htm")):
+        fmt = "html"
+
     text = render(
         recommendations, "markdown" if fmt == "table" else fmt,
         season=season, week=week, predictions=predictions,
@@ -290,6 +296,8 @@ def picks(ctx, season, week, markets, min_edge, max_units, fmt, output, show_all
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text)
         console.print(f"[green]Wrote[/green] {len(recommendations)} picks to {path}")
+        if fmt == "html":
+            console.print(f"  [dim]open it with:[/dim] open {path}")
     else:
         click.echo(text)
 
