@@ -19,7 +19,9 @@ from datetime import timedelta
 from typing import Iterable, Mapping, Optional
 
 from ..config import Config
-from ..models import ExpertProjection, Game, Prediction, Rating
+from ..models import ExpertProjection, Game, GameWeather, Prediction, Rating
+from ..overrides import Adjustments
+from ..weather import total_adjustment
 from ..ratings.blend import BlendedRating, blend_ratings, confidence_from_blend
 from ..util.odds import spread_from_probability, win_probability
 
@@ -33,6 +35,11 @@ class PredictionInputs:
     expert_projections: list[ExpertProjection] = field(default_factory=list)
     #: Full-season schedule, used to work out rest days. Falls back to games.
     schedule: Optional[list[Game]] = None
+    #: Manual adjustments for injuries and anything else the ratings
+    #: cannot see.
+    adjustments: Optional[Adjustments] = None
+    #: Kickoff forecasts, keyed by game id.
+    weather: dict[str, GameWeather] = field(default_factory=dict)
 
 
 class Predictor:
@@ -51,8 +58,13 @@ class Predictor:
         rest = _rest_days(inputs.schedule or inputs.games)
         experts = _index_projections(inputs.expert_projections)
 
+        adjustments = inputs.adjustments or Adjustments()
         return [
-            self.predict_game(game, blend, offense, defense, rest, experts.get(game.game_id, []))
+            self.predict_game(
+                game, blend, offense, defense, rest,
+                experts.get(game.game_id, []), adjustments,
+                inputs.weather.get(game.game_id),
+            )
             for game in inputs.games
         ]
 
@@ -64,6 +76,8 @@ class Predictor:
         defense: Mapping[str, float],
         rest: Mapping[str, dict[int, int]],
         experts: Iterable[ExpertProjection] = (),
+        adjustments: Optional[Adjustments] = None,
+        weather: Optional[GameWeather] = None,
     ) -> Prediction:
         home_blend = blend.get(game.home_team)
         away_blend = blend.get(game.away_team)
@@ -72,7 +86,18 @@ class Predictor:
 
         hfa = 0.0 if game.neutral_site else self.model.home_field_advantage
         rest_adj = self._rest_adjustment(game, rest)
-        model_margin = (home_rating - away_rating) + hfa + rest_adj
+
+        # Manual adjustments move a team's strength directly, so they
+        # flow into the margin exactly as a rating difference would.
+        adjustments = adjustments or Adjustments()
+        home_adj = adjustments.for_team(game.home_team)
+        away_adj = adjustments.for_team(game.away_team)
+        manual_margin = adjustments.game_margin.get(game.game_id, 0.0)
+
+        model_margin = (
+            (home_rating + home_adj) - (away_rating + away_adj)
+            + hfa + rest_adj + manual_margin
+        )
 
         components: dict[str, object] = {
             "rating_margin": round(home_rating - away_rating, 3),
@@ -80,6 +105,13 @@ class Predictor:
             "rest_adjustment": round(rest_adj, 3),
             "model_margin": round(model_margin, 3),
         }
+        override_notes = adjustments.notes_for(game.home_team, game.away_team, game.game_id)
+        if home_adj or away_adj or manual_margin:
+            components["manual_margin_adjustment"] = round(
+                home_adj - away_adj + manual_margin, 3
+            )
+        if override_notes:
+            components["overrides"] = override_notes
 
         # -- expert blend --------------------------------------------------
         experts = [e for e in experts if e.projected_margin is not None]
@@ -95,6 +127,21 @@ class Predictor:
 
         # -- total ----------------------------------------------------------
         total, total_note = self._project_total(game, offense, defense, experts)
+
+        weather_points, weather_reasons = total_adjustment(weather, self.config.weather)
+        if weather_points:
+            total += weather_points
+            components["weather_adjustment"] = weather_points
+            components["weather"] = weather_reasons
+            total_note = f"{total_note} + weather"
+        elif weather is not None:
+            components["weather"] = [weather.describe()]
+
+        manual_total = adjustments.game_total.get(game.game_id, 0.0)
+        if manual_total:
+            total += manual_total
+            components["manual_total_adjustment"] = round(manual_total, 3)
+            total_note = f"{total_note} + manual"
         components["total_basis"] = total_note
 
         win_prob = win_probability(margin, self.model.margin_sd)

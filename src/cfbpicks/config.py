@@ -103,12 +103,14 @@ class Config:
     fixtures_dir: str = "data/fixtures"  # falls back to the packaged copy
     reference_dir: str = "data/reference"
     reports_dir: str = "reports"
+    overrides_file: str = "data/overrides.yaml"
     season: Optional[int] = None
     offline: bool = False
     request_timeout: float = 30.0
     cache_ttl_seconds: int = 900
     model: ModelConfig = field(default_factory=ModelConfig)
     betting: BettingConfig = field(default_factory=BettingConfig)
+    weather: "WeatherModel" = field(default_factory=lambda: _weather_model())
     providers: dict[str, ProviderConfig] = field(default_factory=dict)
     root: Path = field(default_factory=Path.cwd)
 
@@ -131,6 +133,12 @@ ENV_KEYS = {
     "odds_api": ("ODDS_API_KEY", "THE_ODDS_API_KEY"),
 }
 
+def _weather_model():
+    from .weather import WeatherModel
+
+    return WeatherModel()
+
+
 DEFAULT_PROVIDERS: dict[str, dict[str, Any]] = {
     "cfbd": {
         "enabled": True,
@@ -151,6 +159,7 @@ DEFAULT_PROVIDERS: dict[str, dict[str, Any]] = {
         "enabled": True,
         "options": {"sources": ["massey", "sagarin"], "input_dir": "data/ratings"},
     },
+    "weather": {"enabled": True, "options": {"forecast_horizon_days": 16}},
     "fixtures": {"enabled": True, "options": {}},
 }
 
@@ -200,6 +209,12 @@ def load_config(path: Optional[str] = None, root: Optional[Path] = None) -> Conf
         cfg.model = replace(ModelConfig(), **_valid_fields(ModelConfig, raw["model"]))
     if isinstance(raw.get("betting"), dict):
         cfg.betting = replace(BettingConfig(), **_valid_fields(BettingConfig, raw["betting"]))
+    if isinstance(raw.get("weather"), dict):
+        from .weather import WeatherModel
+
+        cfg.weather = replace(
+            WeatherModel(), **_valid_fields(WeatherModel, raw["weather"])
+        )
 
     provider_raw = _deep_merge(DEFAULT_PROVIDERS, raw.get("providers") or {})
     for name, spec in provider_raw.items():

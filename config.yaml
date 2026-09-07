@@ -106,6 +106,23 @@ betting:
     play: 0.035
     lean: 0.02
 
+# --- weather -----------------------------------------------------------
+# What a forecast does to a projected total. Wind is the term that
+# matters: a strong crosswind kills the deep ball and field goals. Rain
+# and cold are real but far weaker than folklore suggests. Domes are
+# never adjusted at all.
+weather:
+  wind_threshold_mph: 10.0      # every stadium has a breeze
+  wind_points_per_mph: 0.25     # points off the total per mph above it
+  wind_max_points: 6.0          # a gale is not linearly worse than 20mph
+  precipitation_threshold_in: 0.05
+  precipitation_points: 1.0
+  heavy_precipitation_in: 0.25
+  heavy_precipitation_points: 2.0
+  freezing_point_f: 25.0
+  freezing_points: 1.0
+  max_total_points: 8.0         # a bad forecast can never dominate
+
 providers:
   cfbd:
     enabled: true
@@ -148,6 +165,13 @@ providers:
     options:
       input_dir: data/ratings
       sources: [massey]
+
+  weather:
+    enabled: true
+    options:
+      # Forecasts only reach about two weeks out; games beyond this are
+      # skipped rather than guessed at.
+      forecast_horizon_days: 16
 
   fixtures:
     enabled: true

@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Iterator, Optional, Sequence
 
-from .models import Game, MarketQuote, Prediction, Rating, Recommendation
+from .models import Game, GameWeather, MarketQuote, Prediction, Rating, Recommendation
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS games (
@@ -125,6 +125,18 @@ CREATE TABLE IF NOT EXISTS recommendations (
     UNIQUE (game_id, market, side, line, book, created_at)
 );
 CREATE INDEX IF NOT EXISTS idx_recs_week ON recommendations(season, week);
+
+CREATE TABLE IF NOT EXISTS weather (
+    game_id          TEXT PRIMARY KEY,
+    kickoff          TEXT,
+    temperature_f    REAL,
+    wind_mph         REAL,
+    precipitation_in REAL,
+    indoor           INTEGER NOT NULL DEFAULT 0,
+    venue            TEXT,
+    source           TEXT,
+    updated_at       TEXT NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS meta (
     key        TEXT PRIMARY KEY,
@@ -462,6 +474,49 @@ class Storage:
             for r in rows
         ]
 
+    # -- weather ---------------------------------------------------------
+    def upsert_weather(self, forecasts: Iterable[GameWeather]) -> int:
+        rows = [
+            (w.game_id, w.kickoff.isoformat() if w.kickoff else None,
+             w.temperature_f, w.wind_mph, w.precipitation_in,
+             int(w.indoor), w.venue, w.source, _now())
+            for w in forecasts
+        ]
+        if not rows:
+            return 0
+        with self.transaction() as conn:
+            conn.executemany(
+                """
+                INSERT INTO weather (game_id, kickoff, temperature_f, wind_mph,
+                                     precipitation_in, indoor, venue, source, updated_at)
+                VALUES (?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(game_id) DO UPDATE SET
+                    kickoff=excluded.kickoff, temperature_f=excluded.temperature_f,
+                    wind_mph=excluded.wind_mph, precipitation_in=excluded.precipitation_in,
+                    indoor=excluded.indoor, venue=excluded.venue,
+                    source=excluded.source, updated_at=excluded.updated_at
+                """,
+                rows,
+            )
+        return len(rows)
+
+    def weather(self, game_ids: Sequence[str]) -> dict[str, GameWeather]:
+        if not game_ids:
+            return {}
+        placeholders = ",".join("?" for _ in game_ids)
+        rows = self.conn.execute(
+            f"SELECT * FROM weather WHERE game_id IN ({placeholders})", list(game_ids)
+        )
+        return {
+            r["game_id"]: GameWeather(
+                game_id=r["game_id"], kickoff=_parse_dt(r["kickoff"]),
+                temperature_f=r["temperature_f"], wind_mph=r["wind_mph"],
+                precipitation_in=r["precipitation_in"], indoor=bool(r["indoor"]),
+                venue=r["venue"], source=r["source"] or "unknown",
+            )
+            for r in rows
+        }
+
     # -- predictions -----------------------------------------------------
     def upsert_predictions(self, predictions: Iterable[Prediction]) -> int:
         rows = [
@@ -595,7 +650,8 @@ class Storage:
         return row["value"] if row else None
 
     def counts(self) -> dict[str, int]:
-        tables = ["games", "ratings", "market_quotes", "predictions", "recommendations"]
+        tables = ["games", "ratings", "market_quotes", "weather", "predictions",
+                  "recommendations"]
         return {
             t: self.conn.execute(f"SELECT COUNT(*) AS n FROM {t}").fetchone()["n"] for t in tables
         }

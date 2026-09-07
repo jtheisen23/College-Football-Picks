@@ -143,6 +143,32 @@ class ConsensusMarket:
 
 
 @dataclass
+class GameWeather:
+    """Forecast conditions at kickoff for one game."""
+
+    game_id: str
+    kickoff: Optional[datetime] = None
+    temperature_f: Optional[float] = None
+    wind_mph: Optional[float] = None
+    precipitation_in: Optional[float] = None
+    indoor: bool = False
+    venue: Optional[str] = None
+    source: str = "unknown"
+
+    def describe(self) -> str:
+        if self.indoor:
+            return "indoors"
+        bits = []
+        if self.temperature_f is not None:
+            bits.append(f"{self.temperature_f:.0f}\u00b0F")
+        if self.wind_mph is not None:
+            bits.append(f"{self.wind_mph:.0f}mph wind")
+        if self.precipitation_in:
+            bits.append(f"{self.precipitation_in:.2f}in precip")
+        return ", ".join(bits) or "no forecast"
+
+
+@dataclass
 class ExpertProjection:
     """A published projection from an outside expert or rating service.
 

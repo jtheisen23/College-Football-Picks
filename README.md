@@ -98,6 +98,83 @@ cfbpicks grade --week 3
 
 Everything is cached in SQLite, so re-running `picks` costs no API calls.
 
+## Things the ratings cannot see
+
+A power rating summarises games already played. It does not know the
+starting quarterback tore an ACL on Tuesday, and it does not know about
+a 25mph crosswind. The market prices both within minutes. These are the
+two channels for feeding that in.
+
+### Injuries and situational notes
+
+`data/overrides.yaml`, one entry per adjustment:
+
+```yaml
+- season: 2026
+  week: 3
+  team: Georgia
+  out: [qb1]
+  reason: starting QB out (shoulder)
+
+- season: 2026
+  week: 3
+  team: Alabama
+  points: -2.5
+  reason: three OL starters suspended
+
+- season: 2026
+  week: 3
+  game: Michigan @ Ohio State
+  total: -4
+  reason: forecast is worse than the model thinks
+```
+
+`out` uses a position table; the starting quarterback is worth 7 points
+and dominates everything else, because backup quality varies enormously
+and the position touches every snap. A missing lineman or receiver is
+worth about a point — three of them should not move a line by a
+touchdown. `points` sets a value directly for anything the table doesn't
+cover.
+
+```bash
+cfbpicks overrides --week 3     # list, validate, and catch typos
+```
+
+That last part matters: an entry naming a team with no game this week
+does nothing at all, and silently doing nothing is the failure mode this
+feature exists to prevent. It's reported instead.
+
+Every applied adjustment travels with the bet it touches, so a number
+that moved always says why. **Backtests never see overrides** — there's
+no way to tell whether an injury note was written before kickoff or
+added afterwards, and a retrospective "the QB was out" is hindsight in
+its purest form.
+
+### Weather
+
+```bash
+cfbpicks fetch --week 3         # forecasts come along with everything else
+cfbpicks weather --week 3
+```
+
+```
+        Kickoff conditions — week 3
+  Matchup                Conditions              Total
+  Michigan @ Ohio State  54°F, 26mph wind         -4.0
+  Iowa @ Penn State      41°F, 14mph wind         -1.0
+  Duke @ Clemson         indoors                     —
+```
+
+Forecasts come from [Open-Meteo](https://open-meteo.com) — free, no key,
+no account — with stadium coordinates and dome flags from CFBD. Wind is
+the term that carries the weight; rain and hard freezes take a little
+off; **domes are never adjusted**, which matters more than any
+coefficient. Everything is capped so a bad forecast can't dominate a
+projection, and every value is tunable in `config.yaml`.
+
+Forecasts only reach about two weeks out, so this is a during-the-week
+job, not an August one.
+
 ## Seeing the week
 
 The terminal table is fine for a glance. For something you can actually

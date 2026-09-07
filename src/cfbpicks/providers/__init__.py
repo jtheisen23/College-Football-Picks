@@ -15,18 +15,20 @@ from .fixtures import FixturesProvider
 from .odds_api import OddsApiProvider
 from .ratings import RatingsProvider
 from .sagarin import SagarinProvider
+from .weather import WeatherProvider
 
 PROVIDER_CLASSES: dict[str, Type[Provider]] = {
     CfbdProvider.name: CfbdProvider,
     OddsApiProvider.name: OddsApiProvider,
     RatingsProvider.name: RatingsProvider,
     SagarinProvider.name: SagarinProvider,
+    WeatherProvider.name: WeatherProvider,
     FixturesProvider.name: FixturesProvider,
 }
 
 __all__ = [
     "Provider", "CfbdProvider", "OddsApiProvider", "RatingsProvider",
-    "SagarinProvider", "FixturesProvider", "PROVIDER_CLASSES",
+    "SagarinProvider", "WeatherProvider", "FixturesProvider", "PROVIDER_CLASSES",
     "build_provider", "build_providers", "available",
 ]
 

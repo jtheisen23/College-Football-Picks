@@ -246,6 +246,10 @@ class CfbdProvider(Provider):
         return quotes
 
     # -- extras ------------------------------------------------------------
+    def fetch_venues(self, season: int) -> list[dict]:
+        """Stadium list with coordinates and dome flags. Cached forever."""
+        return self._get("/venues", {"year": season}, ttl=0) or []
+
     def fetch_teams(self, season: int) -> list[dict]:
         """FBS team list, useful for validating the alias map."""
         return self._get("/teams/fbs", {"year": season}, ttl=0) or []

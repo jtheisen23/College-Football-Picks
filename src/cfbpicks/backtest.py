@@ -181,6 +181,11 @@ def backtest_season(
       line, and the result reports CLV as unavailable rather than
       printing a number near zero that looks like a finding.
 
+    Manual overrides are deliberately absent here too. There is no way to
+    tell whether an injury note was written before kickoff or added
+    afterwards, and a retrospectively-added "QB was out" is hindsight in
+    its purest form. Live predictions use them; replays never do.
+
     Stored odds are still only as good as when they were captured: CFBD's
     historical lines are closing lines, so a backtest against them
     measures the model against the sharpest number of the week, which is

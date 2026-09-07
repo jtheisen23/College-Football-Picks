@@ -118,13 +118,15 @@ def providers(ctx: click.Context) -> None:
 @click.option("--provider", "only", multiple=True, help="Limit to specific providers.")
 @click.option("--games/--no-games", default=True)
 @click.option("--ratings/--no-ratings", default=True)
+@click.option("--weather/--no-weather", default=True)
 @click.option("--odds/--no-odds", default=True)
 @click.pass_context
-def fetch(ctx, season, week, only, games, ratings, odds) -> None:
-    """Pull games, ratings and betting lines into local storage."""
+def fetch(ctx, season, week, only, games, ratings, weather, odds) -> None:
+    """Pull games, ratings, forecasts and betting lines into local storage."""
     config = _config(ctx)
     season = _season(ctx, season)
-    want = [n for n, on in (("games", games), ("ratings", ratings), ("odds", odds)) if on]
+    want = [n for n, on in (("games", games), ("ratings", ratings),
+                            ("weather", weather), ("odds", odds)) if on]
 
     with Pipeline(config) as pipeline:
         with console.status(f"Fetching {season} week {week or 'all'}…"):
@@ -201,6 +203,125 @@ def rate(ctx, season, weeks, no_carryover, top) -> None:
 @main.command()
 @click.option("--season", type=int)
 @click.option("--week", type=int, required=True)
+@click.pass_context
+def weather(ctx, season, week) -> None:
+    """Show kickoff forecasts and what they do to each total.
+
+    Wind is the one that matters: a strong crosswind takes points off a
+    total in a way no power rating can see. Domes are left alone.
+    """
+    from .weather import total_adjustment
+
+    config = _config(ctx)
+    season = _season(ctx, season)
+
+    with Pipeline(config) as pipeline:
+        games = {g.game_id: g for g in pipeline.storage.games(season, week)}
+        forecasts = pipeline.storage.weather(list(games))
+
+    if not forecasts:
+        console.print(
+            f"[yellow]No forecasts stored for {season} week {week}.[/yellow] "
+            f"Run [bold]cfbpicks fetch --week {week}[/bold] — note that forecasts "
+            "only reach about two weeks out."
+        )
+        return
+
+    table = Table(title=f"Kickoff conditions — week {week}", header_style="bold")
+    table.add_column("Matchup", overflow="fold")
+    table.add_column("Conditions")
+    table.add_column("Total", justify="right")
+
+    rows = []
+    for game_id, forecast in forecasts.items():
+        game = games.get(game_id)
+        adjustment, _ = total_adjustment(forecast, config.weather)
+        rows.append((game.matchup if game else game_id, forecast, adjustment))
+
+    for matchup, forecast, adjustment in sorted(rows, key=lambda r: r[2]):
+        effect = f"{adjustment:+.1f}" if adjustment else "—"
+        colour = "yellow" if adjustment <= -2 else ""
+        table.add_row(
+            matchup, forecast.describe(),
+            f"[{colour}]{effect}[/{colour}]" if colour else effect,
+        )
+    console.print(table)
+
+    moved = [r for r in rows if r[2]]
+    console.print(
+        f"\n{len(moved)} of {len(rows)} totals adjusted for weather."
+        if moved else "\nNo forecast moves a total enough to matter this week."
+    )
+
+
+@main.command()
+@click.option("--season", type=int)
+@click.option("--week", type=int, help="Show only one week.")
+@click.pass_context
+def overrides(ctx, season, week) -> None:
+    """List and validate manual injury / situational adjustments.
+
+    Ratings summarise games already played, so they cannot know a
+    starting quarterback is out. This is where you tell the model.
+    """
+    from .overrides import POSITION_VALUES, OverrideError, load_overrides
+
+    config = _config(ctx)
+    season = _season(ctx, season)
+    path = config.path(config.overrides_file)
+
+    try:
+        entries = load_overrides(path)
+    except OverrideError as exc:
+        console.print(f"[red]{exc}[/red]")
+        sys.exit(1)
+
+    if not entries:
+        console.print(f"[yellow]No overrides file at[/yellow] {path}")
+        console.print(
+            "\nCreate one to tell the model what the ratings cannot see:\n\n"
+            "  [dim]- season: 2026\n"
+            "    week: 3\n"
+            "    team: Georgia\n"
+            "    out: [qb1]\n"
+            "    reason: starting QB out[/dim]\n\n"
+            f"Positions: {', '.join(sorted(POSITION_VALUES))}"
+        )
+        return
+
+    shown = [e for e in entries if e.season == season and (week is None or e.week == week)]
+    table = Table(title=f"Overrides — {season}", header_style="bold")
+    table.add_column("Week", justify="right")
+    table.add_column("Scope")
+    table.add_column("Effect", justify="right")
+    table.add_column("Reason", overflow="fold")
+    for entry in sorted(shown, key=lambda e: (e.week, e.team or e.game or "")):
+        if entry.is_team_scoped:
+            scope, effect = entry.team, f"{entry.team_points():+.1f}"
+        else:
+            scope = entry.game
+            bits = []
+            if entry.margin is not None:
+                bits.append(f"margin {entry.margin:+.1f}")
+            if entry.total is not None:
+                bits.append(f"total {entry.total:+.1f}")
+            effect = ", ".join(bits)
+        table.add_row(str(entry.week), scope, effect, entry.reason or "—")
+    console.print(table)
+    console.print(f"[green]{len(entries)} entries parsed cleanly[/green] from {path}")
+
+    # An entry that matches no scheduled game does nothing at all, which
+    # is the failure mode worth catching before kickoff rather than after.
+    if week is not None:
+        with Pipeline(config) as pipeline:
+            _, warnings = pipeline.load_adjustments(season, week)
+        for warning in warnings:
+            console.print(f"  [yellow]![/yellow] {warning}")
+
+
+@main.command()
+@click.option("--season", type=int)
+@click.option("--week", type=int, required=True)
 @click.option("--limit", type=int, help="Show only the N biggest mismatches.")
 @click.pass_context
 def predict(ctx, season, week, limit) -> None:
@@ -219,6 +340,9 @@ def predict(ctx, season, week, limit) -> None:
         )
         return
     console.print(predictions_table(predictions, limit))
+
+    for warning in getattr(pipeline, "override_warnings", []) or []:
+        console.print(f"[yellow]Override ignored:[/yellow] {warning}")
 
     if not any("cfbpicks_margin" in p.rating_sources for p in predictions):
         console.print(

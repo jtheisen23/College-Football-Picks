@@ -40,6 +40,7 @@ class Provider(ABC):
     provides_games: bool = False
     provides_ratings: bool = False
     provides_odds: bool = False
+    provides_weather: bool = False
 
     @property
     def enabled(self) -> bool:
@@ -77,3 +78,6 @@ class Provider(ABC):
 
     def fetch_odds(self, season: int, week: Optional[int] = None, **kwargs) -> list[MarketQuote]:
         raise NotImplementedError(f"{self.name} does not provide odds")
+
+    def fetch_weather(self, season: int, week: Optional[int] = None, **kwargs) -> list:
+        raise NotImplementedError(f"{self.name} does not provide weather")

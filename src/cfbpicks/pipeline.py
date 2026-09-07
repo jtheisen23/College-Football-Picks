@@ -18,6 +18,7 @@ from .engine.market import build_consensus
 from .engine.predict import PredictionInputs, Predictor
 from .engine.recommend import Recommender
 from .models import ExpertProjection, Game, MarketQuote, Prediction, Rating, Recommendation
+from .overrides import Adjustments, load_overrides, resolve as resolve_overrides
 from .providers import available, build_provider
 from .providers.sagarin import resolve_projections
 from .ratings.regression import SOURCE
@@ -66,7 +67,7 @@ class Pipeline:
         week: Optional[int] = None,
         *,
         providers: Optional[Sequence[str]] = None,
-        want: Sequence[str] = ("games", "ratings", "odds"),
+        want: Sequence[str] = ("games", "ratings", "weather", "odds"),
     ) -> FetchReport:
         report = FetchReport()
 
@@ -95,6 +96,19 @@ class Pipeline:
                 report.ratings += count
                 prior = report.by_provider.get(provider.name, "")
                 report.note(provider.name, f"{prior + ', ' if prior else ''}{count} ratings")
+                for warning in getattr(provider, "warnings", []) or []:
+                    report.warn(f"{provider.name}: {warning}")
+
+        if "weather" in want:
+            known_games = self.storage.games(season, week)
+            for provider in available(self.config, "weather", providers):
+                try:
+                    forecasts = provider.fetch_weather(season, week, games=known_games)
+                except Exception as exc:  # noqa: BLE001 - never block a fetch
+                    report.warn(f"{provider.name}: {exc}")
+                    continue
+                count = self.storage.upsert_weather(forecasts)
+                report.note(provider.name, f"{count} forecasts")
                 for warning in getattr(provider, "warnings", []) or []:
                     report.warn(f"{provider.name}: {warning}")
 
@@ -205,8 +219,20 @@ class Pipeline:
         }
 
     # -- predict -----------------------------------------------------------
+    def load_adjustments(self, season: int, week: int) -> tuple[Adjustments, list[str]]:
+        """Manual injury/situational adjustments for one week."""
+        overrides = load_overrides(self.config.path(self.config.overrides_file))
+        if not overrides:
+            return Adjustments(), []
+        return resolve_overrides(overrides, season, week, self.storage.games(season, week))
+
     def predict(
-        self, season: int, week: int, *, use_projections: bool = True
+        self,
+        season: int,
+        week: int,
+        *,
+        use_projections: bool = True,
+        use_overrides: bool = True,
     ) -> list[Prediction]:
         games = self.storage.games(season, week)
         if not games:
@@ -215,11 +241,18 @@ class Pipeline:
         schedule = self.storage.games(season)
         projections = self.load_projections(season, week) if use_projections else []
 
+        adjustments = Adjustments()
+        self.override_warnings: list[str] = []
+        if use_overrides:
+            adjustments, self.override_warnings = self.load_adjustments(season, week)
+
         predictor = Predictor(self.config)
         predictions = predictor.predict_week(
             PredictionInputs(
                 games=games, ratings=ratings,
                 expert_projections=projections, schedule=schedule,
+                adjustments=adjustments,
+                weather=self.storage.weather([g.game_id for g in games]),
             )
         )
         self.storage.upsert_predictions(predictions)

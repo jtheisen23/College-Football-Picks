@@ -172,6 +172,10 @@ class Recommender:
             unit_fraction=self.betting.unit_fraction,
         )
 
+        # A number that moved for a reason the reader cannot see is worse
+        # than no adjustment at all, so overrides always travel with the bet.
+        for note in prediction.components.get("overrides", []) or []:
+            notes.append(str(note))
         if confidence < 1.0:
             notes.append(f"model shrunk {(1 - confidence) * 100:.0f}% toward market (confidence {confidence:.2f})")
         if push > 0.001:
