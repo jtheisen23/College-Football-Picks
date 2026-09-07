@@ -153,6 +153,20 @@ class Pipeline:
         out.extend(resolved)
         return out
 
+    def current_week(self, season: int) -> Optional[int]:
+        """The week to act on right now: the earliest one not yet played.
+
+        An unattended run has no one to pass `--week`, and "latest week
+        with games" is wrong the moment a season finishes. The earliest
+        week still holding an unplayed game is the one whose lines are
+        live and whose picks are actionable.
+        """
+        pending = [g.week for g in self.storage.games(season) if not g.completed]
+        if pending:
+            return min(pending)
+        played = [g.week for g in self.storage.games(season) if g.completed]
+        return max(played) if played else None
+
     # -- fitted ratings ------------------------------------------------------
     def compute_ratings(
         self,

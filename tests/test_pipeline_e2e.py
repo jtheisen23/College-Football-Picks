@@ -149,3 +149,48 @@ class TestReportRendering:
         assert "No bets" in to_markdown([], season=2026, week=1)
         assert to_json([]) == "[]"
         assert to_csv([]).startswith("season,")
+
+
+class TestCurrentWeek:
+    """An unattended run has nobody to pass --week."""
+
+    def _pipeline(self, tmp_path, games):
+        from cfbpicks.storage import Storage
+
+        cfg = Config(root=tmp_path)
+        cfg.database = str(tmp_path / "t.sqlite")
+        store = Storage(cfg.database_path)
+        store.upsert_games(games)
+        store.close()
+        return cfg
+
+    def test_picks_the_earliest_unplayed_week(self, tmp_path):
+        cfg = self._pipeline(tmp_path, [
+            Game("a", 2026, 1, None, "A", "B", home_score=21, away_score=17),
+            Game("b", 2026, 2, None, "C", "D"),
+            Game("c", 2026, 3, None, "E", "F"),
+        ])
+        with Pipeline(cfg) as pipeline:
+            assert pipeline.current_week(2026) == 2
+
+    def test_falls_back_to_the_last_played_week_once_a_season_ends(self, tmp_path):
+        cfg = self._pipeline(tmp_path, [
+            Game("a", 2026, 1, None, "A", "B", home_score=21, away_score=17),
+            Game("b", 2026, 2, None, "C", "D", home_score=10, away_score=7),
+        ])
+        with Pipeline(cfg) as pipeline:
+            assert pipeline.current_week(2026) == 2
+
+    def test_an_empty_season_has_no_current_week(self, tmp_path):
+        cfg = self._pipeline(tmp_path, [])
+        with Pipeline(cfg) as pipeline:
+            assert pipeline.current_week(2026) is None
+
+    def test_a_partly_played_week_is_still_current(self, tmp_path):
+        """Friday's game being final doesn't move us off Saturday's slate."""
+        cfg = self._pipeline(tmp_path, [
+            Game("a", 2026, 2, None, "A", "B", home_score=31, away_score=3),
+            Game("b", 2026, 2, None, "C", "D"),
+        ])
+        with Pipeline(cfg) as pipeline:
+            assert pipeline.current_week(2026) == 2

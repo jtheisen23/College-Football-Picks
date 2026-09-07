@@ -178,7 +178,34 @@ job, not an August one.
 
 ## Seeing the week
 
-### From a browser, anywhere
+### Hands-off, in the cloud
+
+The engine can run itself. `.github/workflows/picks.yml` fetches, rates
+and publishes on a schedule in GitHub Actions, so the board updates
+whether or not your laptop is open.
+
+**Setup, once:**
+
+1. **Settings → Secrets and variables → Actions → New repository
+   secret**: `CFBD_API_KEY`. Add `ODDS_API_KEY` too if you have one.
+2. **Settings → Pages → Source**: your branch, folder `/docs`.
+3. **Actions → Weekly picks → Run workflow** to kick off the first one.
+
+It then runs Tuesday, Thursday, Friday and Saturday morning, publishing
+to `https://<user>.github.io/College-Football-Picks/`. Every run also
+captures odds, which is what makes closing line value measurable — CLV
+needs a line recorded later than the bet, and one capture a week gives
+you none.
+
+The week is worked out automatically: the earliest week still holding an
+unplayed game. **Run workflow** takes an explicit week if you want a
+different one, and works from a phone.
+
+The database is kept in the Actions cache between runs, since it carries
+the odds history. If it is ever evicted you lose that history, never
+correctness — everything else is re-fetched.
+
+### From your own machine
 
 ```bash
 cfbpicks publish --week 2 --push

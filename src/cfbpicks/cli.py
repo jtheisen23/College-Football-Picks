@@ -361,7 +361,7 @@ def predict(ctx, season, week, limit) -> None:
 
 @main.command()
 @click.option("--season", type=int)
-@click.option("--week", type=int, required=True)
+@click.option("--week", type=int, help="Defaults to the current week.")
 @click.option("--push", is_flag=True, help="Commit and push, so GitHub Pages picks it up.")
 @click.pass_context
 def publish(ctx, season, week, push) -> None:
@@ -387,6 +387,15 @@ def publish(ctx, season, week, push) -> None:
     (docs / ".nojekyll").write_text("")
 
     with Pipeline(config) as pipeline:
+        if week is None:
+            week = pipeline.current_week(season)
+            if week is None:
+                console.print(
+                    f"[yellow]No games stored for {season}.[/yellow] "
+                    "Run [bold]cfbpicks fetch[/bold] first."
+                )
+                sys.exit(1)
+            console.print(f"[dim]Publishing the current week: {week}[/dim]")
         recommendations = pipeline.picks(season, week)
         predictions = pipeline.storage.predictions(season, week)
 
@@ -485,6 +494,15 @@ def picks(ctx, season, week, markets, min_edge, max_units, fmt, output, show_all
         config.betting.min_point_edge_total = 0.0
 
     with Pipeline(config) as pipeline:
+        if week is None:
+            week = pipeline.current_week(season)
+            if week is None:
+                console.print(
+                    f"[yellow]No games stored for {season}.[/yellow] "
+                    "Run [bold]cfbpicks fetch[/bold] first."
+                )
+                sys.exit(1)
+            console.print(f"[dim]Publishing the current week: {week}[/dim]")
         recommendations = pipeline.picks(season, week)
         predictions = pipeline.storage.predictions(season, week)
 
