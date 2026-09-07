@@ -257,21 +257,42 @@ def grade(ctx, season, week) -> None:
 @main.command()
 @click.option("--season", type=int, required=True)
 @click.option("--weeks", help="Week range, e.g. 1-14 or 3,4,5. Defaults to every completed week.")
+@click.option("--allow-final-ratings", is_flag=True,
+              help="Include season-final ratings. Results will be inflated by hindsight.")
 @click.pass_context
-def backtest(ctx, season, weeks) -> None:
+def backtest(ctx, season, weeks, allow_final_ratings) -> None:
     """Replay a season and report ROI, by market and by tier."""
-    from .backtest import backtest_season
+    from .backtest import LookaheadError, backtest_season
 
     config = _config(ctx)
     week_list = _parse_weeks(weeks) if weeks else None
 
-    with Pipeline(config) as pipeline:
-        with console.status(f"Replaying {season}…"):
-            result = backtest_season(pipeline.storage, config, season, week_list)
+    try:
+        with Pipeline(config) as pipeline:
+            with console.status(f"Replaying {season}…"):
+                result = backtest_season(
+                    pipeline.storage, config, season, week_list,
+                    allow_final_ratings=allow_final_ratings,
+                )
+    except LookaheadError as exc:
+        console.print(f"[red]Backtest refused:[/red] {exc}")
+        sys.exit(1)
 
     console.print(f"[bold]Backtest — {season}[/bold]")
+    if allow_final_ratings:
+        console.print(
+            "  [red]HINDSIGHT ENABLED — these numbers are not real.[/red] "
+            "Season-final ratings know how each game ended."
+        )
     for line in result.summary_lines():
         console.print(f"  {line}")
+
+    if result.rating_sources:
+        console.print(f"  [dim]Ratings used: {', '.join(result.rating_sources)}[/dim]")
+    if result.excluded_sources and not allow_final_ratings:
+        console.print(
+            f"  [dim]Excluded as season-final: {', '.join(result.excluded_sources)}[/dim]"
+        )
 
     if result.by_market:
         table = Table(title="By market", header_style="bold")
@@ -303,6 +324,13 @@ def backtest(ctx, season, weeks) -> None:
         console.print(
             "\n[yellow]Small sample.[/yellow] Under a few hundred bets, ROI is mostly noise — "
             "watch closing line value instead."
+        )
+    if result.clv_unavailable:
+        console.print(
+            f"\n[yellow]No closing line value available[/yellow] for "
+            f"{result.clv_unavailable} bets: odds were captured only once, so "
+            "there is no later line to measure against. Fetch odds during the "
+            "week and again near kickoff to make CLV meaningful."
         )
 
 

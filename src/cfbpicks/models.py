@@ -72,6 +72,11 @@ class Rating:
     offense: Optional[float] = None
     defense: Optional[float] = None
     rank: Optional[int] = None
+    #: True when this value reflects only games played through ``week``.
+    #: False for a season-final rating, which encodes results from the
+    #: whole season and therefore cannot be used to predict a game inside
+    #: that season without leaking the outcome. Backtests exclude these.
+    point_in_time: bool = True
 
 
 @dataclass

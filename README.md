@@ -147,27 +147,47 @@ cfbpicks import-ratings ~/Downloads/fpi.csv --source fpi --week 3
 Don't take the model's word for it. Grade it:
 
 ```bash
-cfbpicks fetch --season 2024          # pull a completed season
-cfbpicks backtest --season 2024
+cfbpicks fetch --season 2025          # pull a completed season
+cfbpicks backtest --season 2025
 ```
 
+**The backtest actively refuses to lie to you**, which matters more than
+any number it prints. Two forms of hindsight will otherwise manufacture
+a spectacular fake edge, and both are guarded:
+
+**Season-final ratings.** CFBD's SP+ and SRS endpoints are season-level:
+ask for a finished season and you get the *end-of-year* number, which
+already encodes the results of the games you're about to "predict." Used
+naively this produces something like 58% ATS and +20% ROI — pure
+leakage. Those sources are excluded from backtests, and if nothing
+week-indexed remains the backtest refuses to run at all:
+
 ```
-Backtest — 2024
-  Bets:        412  (221-186-5)
-  Win rate:    54.3%  (break-even at -110 is 52.4%)
-  Profit:      +18.40u
-  ROI:         +4.51%
-  Avg CLV:     +0.71 pts
+Backtest refused: Every stored rating for this season is season-final, so a
+backtest would be predicting each game with a rating that already knows how it
+ended. Fetch a week-indexed source (CFBD Elo is one) or re-run with
+allow_final_ratings=True to see the contaminated number.
 ```
 
-Two honest caveats:
+CFBD's **Elo** is week-indexed and safe to backtest with. `--allow-final-ratings`
+exists for exploration and stamps `HINDSIGHT ENABLED` on the output.
 
-- **Under a few hundred bets, ROI is mostly noise.** Closing line value
-  is the leading indicator worth watching — beating the close is the only
-  early evidence an edge is real.
-- **A backtest is only as honest as its odds.** Grading uses whatever
-  line snapshots are stored, so if lines were only ever fetched after
-  kickoff, the result flatters itself. Fetch before games start.
+**Undefined closing line value.** CLV needs a line captured *later* than
+the bet. With one odds snapshot per game, the "closing" line is the
+bet's own line, and any CLV figure is line-shopping jitter. Rather than
+print a number near zero that reads like a finding, the backtest says so:
+
+```
+Avg CLV:     n/a - odds were captured once, so there is no later line to
+             compare against
+```
+
+To make CLV real, fetch odds during the week and again near kickoff.
+
+What to watch, in order: **CLV** first — beating the close is the only
+leading indicator that an edge is real. Then ROI per unit staked. Win
+rate last; it's the number that looks most meaningful and tells you
+least. Under a few hundred bets, treat ROI as noise.
 
 ## Tuning
 

@@ -73,6 +73,12 @@ class BacktestResult:
     by_week: dict[int, float] = field(default_factory=dict)
     closing_line_value: list[float] = field(default_factory=list)
     graded: list[tuple[Recommendation, str, float]] = field(default_factory=list)
+    #: Bets whose odds were only ever captured once, so the "closing"
+    #: line is the same row the bet was priced from and CLV is undefined.
+    clv_unavailable: int = 0
+    #: Rating sources actually used, and any that were excluded as unsafe.
+    rating_sources: list[str] = field(default_factory=list)
+    excluded_sources: list[str] = field(default_factory=list)
 
     @property
     def decided(self) -> int:
@@ -124,6 +130,11 @@ class BacktestResult:
         ]
         if self.avg_clv is not None:
             lines.append(f"Avg CLV:     {self.avg_clv:+.2f} pts")
+        else:
+            lines.append(
+                "Avg CLV:     n/a - odds were captured once, so there is no "
+                "later line to compare against"
+            )
         return lines
 
 
@@ -143,20 +154,37 @@ def grade_all(
     return result
 
 
+class LookaheadError(RuntimeError):
+    """Raised when a backtest could only run on ratings that leak results."""
+
+
 def backtest_season(
     storage: Storage,
     config: Config,
     season: int,
     weeks: Optional[Sequence[int]] = None,
+    *,
+    allow_final_ratings: bool = False,
 ) -> BacktestResult:
     """Replay a season week by week and grade every bet the engine makes.
 
-    Ratings are taken as of the week being predicted, never later, so a
-    week is priced only with what was knowable at the time. The one
-    caveat worth stating plainly: stored *odds* are whatever snapshot was
-    captured, so if lines were only ever pulled after kickoff the
-    backtest is optimistic. Fetch odds before games start for honest
-    numbers.
+    Two forms of hindsight are actively guarded against here, because
+    both produce spectacular and completely fake results:
+
+    * **Season-final ratings.** CFBD's SP+ and SRS endpoints are
+      season-level: ask for a finished season and you get the end-of-year
+      number, which already encodes the very games you are predicting.
+      Those are excluded unless ``allow_final_ratings`` is set. CFBD's
+      Elo is week-indexed and is safe.
+    * **Undefined CLV.** Closing line value needs a line captured later
+      than the bet. With a single odds snapshot per game there is no such
+      line, and the result reports CLV as unavailable rather than
+      printing a number near zero that looks like a finding.
+
+    Stored odds are still only as good as when they were captured: CFBD's
+    historical lines are closing lines, so a backtest against them
+    measures the model against the sharpest number of the week, which is
+    a hard test, not a flattering one.
     """
     all_games = storage.games(season)
     by_id = {g.game_id: g for g in all_games}
@@ -166,11 +194,26 @@ def backtest_season(
     recommender = Recommender(config)
     result = BacktestResult()
 
+    everything = storage.ratings(season)
+    safe = storage.ratings(season, point_in_time_only=True)
+    result.rating_sources = sorted({r.source for r in safe})
+    result.excluded_sources = sorted({r.source for r in everything} - set(result.rating_sources))
+
+    if not allow_final_ratings and not result.rating_sources:
+        raise LookaheadError(
+            "Every stored rating for this season is season-final, so a backtest "
+            "would be predicting each game with a rating that already knows how "
+            "it ended. Fetch a week-indexed source (CFBD Elo is one) or re-run "
+            "with allow_final_ratings=True to see the contaminated number."
+        )
+
     for week in weeks:
         games = [g for g in all_games if g.week == week]
         if not games:
             continue
-        ratings = storage.ratings(season, week)
+        ratings = storage.ratings(
+            season, week, point_in_time_only=not allow_final_ratings
+        )
         if not ratings:
             continue
 
@@ -194,10 +237,14 @@ def backtest_season(
                 continue
             result.add(rec, outcome, profit)
 
-            closing = storage.closing_quotes(rec.game_id, rec.market)
-            clv_points = _clv_points(rec, closing)
-            if clv_points is not None:
-                result.closing_line_value.append(clv_points)
+            if storage.snapshot_count(rec.game_id, rec.market) < 2:
+                # Only one capture: the "closing" line is the bet's own line.
+                result.clv_unavailable += 1
+            else:
+                closing = storage.closing_quotes(rec.game_id, rec.market)
+                clv_points = _clv_points(rec, closing)
+                if clv_points is not None:
+                    result.closing_line_value.append(clv_points)
 
     return result
 

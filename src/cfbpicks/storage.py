@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS ratings (
     offense  REAL,
     defense  REAL,
     rank     INTEGER,
+    point_in_time INTEGER NOT NULL DEFAULT 1,
     updated_at TEXT NOT NULL,
     PRIMARY KEY (source, season, week, team)
 );
@@ -133,7 +134,10 @@ CREATE TABLE IF NOT EXISTS meta (
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+    # Microsecond precision, not seconds: quote_history keys snapshots by
+    # this timestamp, and two captures inside the same second would
+    # otherwise collapse into one and hide real line movement.
+    return datetime.now(timezone.utc).isoformat()
 
 
 def _parse_dt(value: Optional[str]) -> Optional[datetime]:
@@ -155,7 +159,19 @@ class Storage:
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.executescript(SCHEMA)
+        self._migrate()
         self.conn.commit()
+
+    def _migrate(self) -> None:
+        """Add columns introduced after a database was first created."""
+        columns = {r["name"] for r in self.conn.execute("PRAGMA table_info(ratings)")}
+        if "point_in_time" not in columns:
+            # Existing rows predate the distinction. Assume the unsafe
+            # case so an old database can't silently contaminate a
+            # backtest; a re-fetch will label them correctly.
+            self.conn.execute(
+                "ALTER TABLE ratings ADD COLUMN point_in_time INTEGER NOT NULL DEFAULT 0"
+            )
 
     def close(self) -> None:
         self.conn.close()
@@ -242,7 +258,8 @@ class Storage:
     # -- ratings ---------------------------------------------------------
     def upsert_ratings(self, ratings: Iterable[Rating]) -> int:
         rows = [
-            (r.source, r.season, r.week, r.team, r.rating, r.offense, r.defense, r.rank, _now())
+            (r.source, r.season, r.week, r.team, r.rating, r.offense, r.defense,
+             r.rank, int(r.point_in_time), _now())
             for r in ratings
         ]
         if not rows:
@@ -250,11 +267,13 @@ class Storage:
         with self.transaction() as conn:
             conn.executemany(
                 """
-                INSERT INTO ratings (source, season, week, team, rating, offense, defense, rank, updated_at)
-                VALUES (?,?,?,?,?,?,?,?,?)
+                INSERT INTO ratings (source, season, week, team, rating, offense, defense,
+                                     rank, point_in_time, updated_at)
+                VALUES (?,?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(source, season, week, team) DO UPDATE SET
                     rating=excluded.rating, offense=excluded.offense,
                     defense=excluded.defense, rank=excluded.rank,
+                    point_in_time=excluded.point_in_time,
                     updated_at=excluded.updated_at
                 """,
                 rows,
@@ -262,16 +281,27 @@ class Storage:
         return len(rows)
 
     def ratings(
-        self, season: int, week: Optional[int] = None, source: Optional[str] = None
+        self,
+        season: int,
+        week: Optional[int] = None,
+        source: Optional[str] = None,
+        *,
+        point_in_time_only: bool = False,
     ) -> list[Rating]:
         """Ratings for a week.
 
         When ``week`` is given, each source contributes its most recent
         snapshot at or before that week — sources publish on different
         cadences and some only post a preseason number.
+
+        ``point_in_time_only`` drops season-final ratings. Backtests must
+        set it: a season-final SP+ number already knows how the game you
+        are about to "predict" turned out.
         """
         params: list[Any] = [season]
         sql = "SELECT * FROM ratings WHERE season = ?"
+        if point_in_time_only:
+            sql += " AND point_in_time = 1"
         if source:
             sql += " AND source = ?"
             params.append(source)
@@ -290,6 +320,7 @@ class Storage:
             Rating(
                 source=r["source"], season=r["season"], week=r["week"], team=r["team"],
                 rating=r["rating"], offense=r["offense"], defense=r["defense"], rank=r["rank"],
+                point_in_time=bool(r["point_in_time"]),
             )
             for r in latest.values()
         ]
@@ -355,6 +386,18 @@ class Storage:
         for row in rows:
             grouped.setdefault(row["game_id"], []).append(_row_to_quote(row))
         return grouped
+
+    def snapshot_count(self, game_id: str, market: str) -> int:
+        """Distinct times this game/market was captured.
+
+        One snapshot means the "closing" line is the same row the bet was
+        priced from, so closing line value cannot be computed at all.
+        """
+        row = self.conn.execute(
+            "SELECT COUNT(DISTINCT fetched_at) AS n FROM quote_history WHERE game_id=? AND market=?",
+            (game_id, market),
+        ).fetchone()
+        return int(row["n"]) if row else 0
 
     def closing_quotes(self, game_id: str, market: str) -> list[MarketQuote]:
         """The latest snapshot recorded in history for a game/market."""

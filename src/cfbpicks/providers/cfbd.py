@@ -133,7 +133,10 @@ class CfbdProvider(Provider):
     def _fetch_rating_system(self, system: str, season: int, week: Optional[int]) -> list[Rating]:
         ttl = self._ttl_for(season)
         if system in {"sp_plus", "sp", "sp+"}:
-            # SP+ is a full-season rating; it has no per-week endpoint.
+            # SP+ has no per-week endpoint: for a completed season CFBD
+            # returns the season-final number, which already encodes every
+            # result in that season. Usable for pricing this week's games,
+            # never for predicting a past week of the same season.
             rows = self._get("/ratings/sp", {"year": season}, ttl=ttl)
             return [
                 Rating(
@@ -142,18 +145,21 @@ class CfbdProvider(Provider):
                     rating=float(pick(r, "rating", default=0.0)),
                     offense=_nested(r, "offense", "rating"),
                     defense=_nested(r, "defense", "rating"),
+                    point_in_time=False,
                 )
                 for r in rows or []
                 if pick(r, "team") and pick(r, "rating") is not None
             ]
 
         if system == "srs":
+            # Same caveat as SP+: season-level, so season-final in hindsight.
             rows = self._get("/ratings/srs", {"year": season}, ttl=ttl)
             return [
                 Rating(
                     source="cfbd_srs", season=season, week=week or 0,
                     team=canonical_team(str(pick(r, "team", default=""))),
                     rating=float(pick(r, "rating", default=0.0)),
+                    point_in_time=False,
                 )
                 for r in rows or []
                 if pick(r, "team") and pick(r, "rating") is not None
@@ -172,10 +178,13 @@ class CfbdProvider(Provider):
             # spread, so centre it and divide to reach points-above-average.
             mean_elo = sum(e for _, e in elos) / len(elos)
             divisor = float(self.option("elo_points_divisor", 25.0))
+            # Elo is the one CFBD system with a real week parameter, so it
+            # is genuinely as-of-that-week and safe to backtest with.
             return [
                 Rating(
                     source="cfbd_elo", season=season, week=week or 0,
                     team=team, rating=(elo - mean_elo) / divisor,
+                    point_in_time=True,
                 )
                 for team, elo in elos
             ]

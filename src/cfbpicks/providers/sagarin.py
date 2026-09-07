@@ -25,14 +25,26 @@ from __future__ import annotations
 
 import html
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Optional
 
 from ..models import ExpertProjection, Rating
+from ..util.http import ProviderError
 from ..util.teams import canonical_team, game_key, is_shouted
 from .base import Provider
 
 DEFAULT_URL = "http://sagarin.com/sports/cfsend.htm"
+
+
+class HistoricalDataUnavailable(ProviderError):
+    """Raised when a live-only source is asked for a past season."""
+
+
+def current_season() -> int:
+    """Seasons are named for the calendar year they start in."""
+    now = datetime.now(timezone.utc)
+    return now.year if now.month >= 7 else now.year - 1
 
 _TAG_RE = re.compile(r"<[^>]+>")
 _MONEYLINE_RE = re.compile(r"[-+]\d{3,5}")
@@ -298,10 +310,28 @@ class SagarinProvider(Provider):
         return parse_page(self.load_text(season, week), season, week)
 
     def fetch_ratings(self, season: int, week: Optional[int] = None, **kwargs) -> list[Rating]:
+        """Ratings from the page as it stands right now.
+
+        The page only ever shows the current season, so a request for an
+        earlier one is refused rather than silently stamping today's
+        numbers with a past season — which would hand a backtest of that
+        season a rating that already knows every result in it.
+        """
+        self._guard_season(season)
         return self.fetch_page(season, week or 0).ratings
 
     def fetch_projections(self, season: int, week: Optional[int] = None) -> list[ExpertProjection]:
+        self._guard_season(season)
         return self.fetch_page(season, week or 0).projections
+
+    def _guard_season(self, season: int) -> None:
+        current = current_season()
+        if season != current:
+            raise HistoricalDataUnavailable(
+                f"Sagarin's page only carries the {current} season, so it has "
+                f"nothing for {season}. Historical ratings would have to come "
+                f"from a saved copy of the page from that season."
+            )
 
 
 def parse_file(path: Path, season: int, week: int) -> SagarinParseResult:
