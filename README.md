@@ -197,9 +197,16 @@ captures odds, which is what makes closing line value measurable — CLV
 needs a line recorded later than the bet, and one capture a week gives
 you none.
 
-The week is worked out automatically: the earliest week still holding an
-unplayed game. **Run workflow** takes an explicit week if you want a
-different one, and works from a phone.
+Each run publishes **the current week and the next one**, with a switcher
+between them, so you can look ahead as soon as next week's lines are up.
+The current week is the earliest one still holding an unplayed game.
+**Run workflow** takes an explicit week if you want a different one, and
+works from a phone.
+
+The board is built for a phone first: each bet is a card with its
+figures labelled, and only on a wide screen do those cards snap into
+shared columns. An eleven-column table would hide most of itself behind
+a sideways scroll, which is where every number that matters lives.
 
 The database is kept in the Actions cache between runs, since it carries
 the odds history. If it is ever evicted you lose that history, never

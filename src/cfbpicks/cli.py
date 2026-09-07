@@ -386,31 +386,6 @@ def publish(ctx, season, week, push) -> None:
     # Tell GitHub Pages not to run the files through Jekyll.
     (docs / ".nojekyll").write_text("")
 
-    with Pipeline(config) as pipeline:
-        if week is None:
-            week = pipeline.current_week(season)
-            if week is None:
-                console.print(
-                    f"[yellow]No games stored for {season}.[/yellow] "
-                    "Run [bold]cfbpicks fetch[/bold] first."
-                )
-                sys.exit(1)
-            console.print(f"[dim]Publishing the current week: {week}[/dim]")
-        recommendations = pipeline.picks(season, week)
-        predictions = pipeline.storage.predictions(season, week)
-
-    if not predictions:
-        console.print(
-            f"[yellow]No games stored for {season} week {week}.[/yellow] "
-            f"Run [bold]cfbpicks fetch --week {week}[/bold] first."
-        )
-        sys.exit(1)
-
-    filename = f"{season}-week-{week:02d}.html"
-    (docs / filename).write_text(
-        to_html(recommendations, season=season, week=week, predictions=predictions)
-    )
-
     # A small manifest keeps the index accurate without re-opening every
     # page to work out what is in it.
     manifest_path = docs / "boards.json"
@@ -422,27 +397,71 @@ def publish(ctx, season, week, push) -> None:
             manifest = {}
 
     generated = datetime.now(timezone.utc).strftime("%d %b %Y, %H:%M UTC")
-    manifest[filename] = {
-        "season": season, "week": week, "filename": filename,
-        "bets": len(recommendations),
-        "staked": round(sum(r.stake_units for r in recommendations), 2),
-        "generated": generated,
-    }
+
+    with Pipeline(config) as pipeline:
+        if week is None:
+            current = pipeline.current_week(season)
+            if current is None:
+                console.print(
+                    f"[yellow]No games stored for {season}.[/yellow] "
+                    "Run [bold]cfbpicks fetch[/bold] first."
+                )
+                sys.exit(1)
+            # Next week's lines are usually up well before kickoff, and
+            # looking ahead is half the point of having a model.
+            weeks = [w for w in (current, current + 1)
+                     if pipeline.storage.games(season, w)]
+        else:
+            weeks = [week]
+
+        boards = []
+        for target in weeks:
+            recommendations = pipeline.picks(season, target)
+            predictions = pipeline.storage.predictions(season, target)
+            if not predictions:
+                continue
+            filename = f"{season}-week-{target:02d}.html"
+            manifest[filename] = {
+                "season": season, "week": target, "filename": filename,
+                "bets": len(recommendations),
+                "staked": round(sum(r.stake_units for r in recommendations), 2),
+                "generated": generated,
+            }
+            boards.append((target, filename, recommendations, predictions))
+
+    if not boards:
+        console.print(
+            f"[yellow]No games stored for {season} week "
+            f"{week if week else weeks}.[/yellow] Run "
+            "[bold]cfbpicks fetch[/bold] first."
+        )
+        sys.exit(1)
+
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
-
     entries = [BoardEntry(**row) for row in manifest.values()]
-    (docs / "index.html").write_text(to_index_html(entries))
+    # The switcher only offers this season, so it stays short as the
+    # season goes on rather than growing a link per week played.
+    nav = [e for e in entries if e.season == season and e.week in
+           {b[0] for b in boards}]
 
-    console.print(
-        f"[green]Wrote[/green] docs/{filename} and docs/index.html "
-        f"({len(recommendations)} bets)"
-    )
+    for target, filename, recommendations, predictions in boards:
+        (docs / filename).write_text(to_html(
+            recommendations, season=season, week=target,
+            predictions=predictions, nav=nav,
+        ))
+        console.print(
+            f"[green]Wrote[/green] docs/{filename} ({len(recommendations)} bets)"
+        )
+
+    (docs / "index.html").write_text(to_index_html(entries))
+    console.print("[green]Wrote[/green] docs/index.html")
 
     if not push:
+        published = ", ".join(str(b[0]) for b in boards)
         console.print(
             "\nTo put it online:\n"
             "  [dim]git add docs && git commit -m 'Publish week "
-            f"{week} board' && git push[/dim]\n"
+            f"{published}' && git push[/dim]\n"
             "  Then enable Pages once: Settings -> Pages -> Source: "
             "your branch, folder /docs"
         )
@@ -451,7 +470,8 @@ def publish(ctx, season, week, push) -> None:
     try:
         subprocess.run(["git", "add", "docs"], cwd=config.root, check=True)
         subprocess.run(
-            ["git", "commit", "-m", f"Publish {season} week {week} board"],
+            ["git", "commit", "-m",
+             f"Publish {season} week {', '.join(str(b[0]) for b in boards)}"],
             cwd=config.root, check=True, capture_output=True,
         )
         subprocess.run(["git", "push"], cwd=config.root, check=True)

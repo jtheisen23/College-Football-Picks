@@ -36,11 +36,36 @@ class TestStructure:
         assert page.startswith("<!doctype html>")
         assert page.rstrip().endswith("</html>")
 
-    def test_makes_no_external_requests(self):
-        """It has to work from disk, offline, forever."""
+    def test_the_only_external_resource_is_the_font(self):
+        """It must still work from disk with no network.
+
+        Webfonts are the one exception, and they are allowed to fail:
+        nothing about the layout depends on them. No external script or
+        stylesheet may carry anything the page needs to render.
+        """
+        import re
+
         page = to_html([rec()], season=2026, week=3, predictions=[pred()])
-        assert "http://" not in page and "https://" not in page
-        assert "<script src" not in page and "<link" not in page
+        urls = re.findall(r'https?://[^"\'\s>]+', page)
+        assert urls, "the font link should be present"
+        assert all("fonts.googleapis.com" in u or "fonts.gstatic.com" in u for u in urls), urls
+        assert "<script src" not in page, "no external script"
+
+    def test_every_font_stack_has_a_system_fallback(self):
+        """So a failed font load costs polish, never legibility."""
+        import re
+
+        page = to_html([rec()], season=2026, week=3)
+        stacks = re.findall(r"font-family:\s*([^;}]+)", page)
+        stacks += [m for m in re.findall(r"font:\s*[^;}]*?\d+px[^;}]*", page)]
+        assert stacks
+        for stack in stacks:
+            assert "system-ui" in stack or "sans-serif" in stack, stack
+
+    def test_the_css_is_inline(self):
+        page = to_html([rec()], season=2026, week=3)
+        assert "<style>" in page
+        assert 'rel="stylesheet" href="https://fonts.googleapis' in page
 
     def test_names_the_week(self):
         page = to_html([rec()], season=2026, week=7)
@@ -185,11 +210,14 @@ class TestIndexPage:
         page = to_index_html([])
         assert "cfbpicks publish" in page
 
-    def test_makes_no_external_requests(self):
+    def test_only_the_font_is_external(self):
+        import re
+
         from cfbpicks.report import to_index_html
 
         page = to_index_html([self._entry()])
-        assert "http://" not in page and "https://" not in page
+        urls = re.findall(r'https?://[^"\'\s>]+', page)
+        assert all("fonts.g" in u for u in urls), urls
 
 
 class TestPublishCommand:
@@ -250,3 +278,86 @@ class TestPublishCommand:
         monkeypatch.chdir(tmp_path)
         result = self.runner.invoke(main, ["--db", db, "publish", "--season", "2026", "--week", "3"])
         assert "git add docs" in result.output, "it should print the command, not run it"
+
+
+class TestWeekSwitcher:
+    def _entry(self, week):
+        from cfbpicks.report import BoardEntry
+
+        return BoardEntry(season=2026, week=week, filename=f"2026-week-{week:02d}.html",
+                          bets=5, staked=8.0, generated="07 Sep 2026, 12:00 UTC")
+
+    def test_no_switcher_for_a_single_week(self):
+        page = to_html([rec()], season=2026, week=3, nav=[self._entry(3)])
+        assert '<nav class="weeknav"' not in page
+
+    def test_switcher_appears_once_there_is_somewhere_to_go(self):
+        page = to_html([rec()], season=2026, week=3,
+                       nav=[self._entry(3), self._entry(4)])
+        assert '<nav class="weeknav"' in page
+        assert "2026-week-04.html" in page
+
+    def test_the_page_you_are_on_is_marked_current(self):
+        page = to_html([rec()], season=2026, week=4,
+                       nav=[self._entry(3), self._entry(4)])
+        assert 'aria-current="page">Week 4' in page
+        assert 'aria-current="page">Week 3' not in page
+
+    def test_weeks_are_listed_in_order(self):
+        page = to_html([rec()], season=2026, week=3,
+                       nav=[self._entry(4), self._entry(3)])
+        assert page.index(">Week 3") < page.index(">Week 4")
+
+
+class TestPublishesNextWeekToo:
+    def setup_method(self):
+        self.runner = CliRunner()
+
+    def test_current_and_next_week_are_both_published(self, tmp_path, monkeypatch):
+        from cfbpicks.config import Config, ProviderConfig
+        from cfbpicks.models import Game
+        from cfbpicks.pipeline import Pipeline
+        from cfbpicks.providers.fixtures import PACKAGE_FIXTURES
+
+        cfg = Config(root=tmp_path)
+        cfg.database = str(tmp_path / "t.sqlite")
+        cfg.cache_dir = str(tmp_path / "cache")
+        cfg.fixtures_dir = str(PACKAGE_FIXTURES)
+        cfg.providers = {"fixtures": ProviderConfig("fixtures", enabled=True)}
+        with Pipeline(cfg) as pipeline:
+            pipeline.fetch(2026, 3, providers=["fixtures"])
+            # A week 4 slate so there is a "next" to look ahead to.
+            pipeline.storage.upsert_games([
+                Game(g.game_id.replace("2026-03", "2026-04"), 2026, 4, g.kickoff,
+                     g.home_team, g.away_team)
+                for g in pipeline.storage.games(2026, 3)
+            ])
+
+        monkeypatch.chdir(tmp_path)
+        result = self.runner.invoke(main, ["--db", cfg.database, "publish", "--season", "2026"])
+        assert result.exit_code == 0, result.output
+        docs = tmp_path / "docs"
+        assert (docs / "2026-week-03.html").exists()
+        assert (docs / "2026-week-04.html").exists(), "next week should publish too"
+        assert '<nav class="weeknav"' in (docs / "2026-week-03.html").read_text()
+
+    def test_an_explicit_week_publishes_only_that_one(self, tmp_path, monkeypatch):
+        from cfbpicks.config import Config, ProviderConfig
+        from cfbpicks.pipeline import Pipeline
+        from cfbpicks.providers.fixtures import PACKAGE_FIXTURES
+
+        cfg = Config(root=tmp_path)
+        cfg.database = str(tmp_path / "t.sqlite")
+        cfg.cache_dir = str(tmp_path / "cache")
+        cfg.fixtures_dir = str(PACKAGE_FIXTURES)
+        cfg.providers = {"fixtures": ProviderConfig("fixtures", enabled=True)}
+        with Pipeline(cfg) as pipeline:
+            pipeline.fetch(2026, 3, providers=["fixtures"])
+
+        monkeypatch.chdir(tmp_path)
+        result = self.runner.invoke(
+            main, ["--db", cfg.database, "publish", "--season", "2026", "--week", "3"]
+        )
+        assert result.exit_code == 0, result.output
+        assert "week None" not in result.output
+        assert (tmp_path / "docs" / "2026-week-03.html").exists()

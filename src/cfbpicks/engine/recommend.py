@@ -176,8 +176,14 @@ class Recommender:
         # than no adjustment at all, so overrides always travel with the bet.
         for note in prediction.components.get("overrides", []) or []:
             notes.append(str(note))
-        if confidence < 1.0:
-            notes.append(f"model shrunk {(1 - confidence) * 100:.0f}% toward market (confidence {confidence:.2f})")
+        # Only mention shrinkage that rounds to something. A note reading
+        # "shrunk 0% toward market" is noise on every line of the board.
+        shrink = 1.0 - confidence
+        if shrink >= 0.005:
+            notes.append(
+                f"model shrunk {shrink * 100:.0f}% toward market "
+                f"(confidence {confidence:.2f})"
+            )
         if push > 0.001:
             notes.append(f"push chance {push * 100:.1f}%")
         if view.median_hold is not None and view.median_hold > 0.06:
