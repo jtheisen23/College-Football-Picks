@@ -245,10 +245,17 @@ class Pipeline:
 
     # -- grading -------------------------------------------------------------
     def grade(self, season: int, week: Optional[int] = None) -> dict[str, int]:
-        """Settle any recommendation whose game has a final score."""
-        from .backtest import grade_recommendation
+        """Settle any recommendation whose game has a final score.
 
-        results = {"win": 0, "loss": 0, "push": 0, "ungraded": 0}
+        Also records closing line value where it can be established: the
+        bet's number against the last odds capture taken *after* the bet
+        was priced. With only one capture there is no later line and CLV
+        stays null rather than being invented.
+        """
+        from .backtest import grade_recommendation
+        from .backtest import _clv_points
+
+        results = {"win": 0, "loss": 0, "push": 0, "ungraded": 0, "with_clv": 0}
         for rec_id, rec in self.storage.ungraded_recommendations(season):
             if week is not None and rec.week != week:
                 continue
@@ -257,6 +264,51 @@ class Pipeline:
                 results["ungraded"] += 1
                 continue
             outcome, profit = grade_recommendation(rec, game)
-            self.storage.grade_recommendation(rec_id, outcome, profit)
+
+            closing = self.storage.closing_quotes(rec.game_id, rec.market, after=rec.placed_at)
+            clv = _clv_points(rec, closing) if closing else None
+            if clv is not None:
+                results["with_clv"] += 1
+
+            self.storage.grade_recommendation(rec_id, outcome, profit, clv)
             results[outcome] = results.get(outcome, 0) + 1
         return results
+
+    # -- odds snapshots ------------------------------------------------------
+    def snapshot_odds(
+        self, season: int, week: Optional[int] = None,
+        providers: Optional[Sequence[str]] = None,
+    ) -> tuple[FetchReport, dict[str, float]]:
+        """Capture odds again and report what moved since the last capture.
+
+        Repeated captures are what make closing line value computable at
+        all, and CLV is the only early evidence that an edge is real.
+        """
+        before = self._current_lines(season, week)
+        report = self.fetch(season, week, providers=providers, want=("odds",))
+        after = self._current_lines(season, week)
+
+        moves = {
+            key: after[key] - before[key]
+            for key in after
+            if key in before and abs(after[key] - before[key]) > 1e-9
+        }
+        return report, moves
+
+    def _current_lines(self, season: int, week: Optional[int]) -> dict[str, float]:
+        """Median home/over line per game and market, as it stands now."""
+        games = self.storage.games(season, week)
+        quotes = self.storage.quotes_for_games([g.game_id for g in games])
+        out: dict[str, float] = {}
+        for game_id, rows in quotes.items():
+            for market, side in (("spread", "home"), ("total", "over")):
+                lines = sorted(
+                    q.line for q in rows
+                    if q.market == market and q.side == side and q.line is not None
+                )
+                if lines:
+                    mid = len(lines) // 2
+                    out[f"{game_id}|{market}"] = (
+                        lines[mid] if len(lines) % 2 else (lines[mid - 1] + lines[mid]) / 2
+                    )
+        return out

@@ -296,6 +296,86 @@ def picks(ctx, season, week, markets, min_edge, max_units, fmt, output, show_all
 
 @main.command()
 @click.option("--season", type=int)
+@click.option("--week", type=int, help="Restrict to one week.")
+@click.option("--quiet", is_flag=True, help="Only print when something moved. Good for cron.")
+@click.pass_context
+def snapshot(ctx, season, week, quiet) -> None:
+    """Capture current odds again, and report what moved.
+
+    Closing line value needs a line recorded later than the bet. One
+    capture a week gives you none, so run this on a schedule — midweek
+    and again near kickoff is enough to make CLV a real measurement:
+
+        0 12 * * 3,6  cd /path/to/repo && .venv/bin/cfbpicks snapshot --quiet
+    """
+    config = _config(ctx)
+    season = _season(ctx, season)
+
+    with Pipeline(config) as pipeline:
+        report, moves = pipeline.snapshot_odds(season, week)
+
+    if quiet and not moves:
+        return
+
+    console.print(f"[green]Captured[/green] {report.quotes} quotes")
+    if not moves:
+        console.print("[dim]No line movement since the last capture.[/dim]")
+        return
+
+    table = Table(title=f"Movement since last capture ({len(moves)} lines)", header_style="bold")
+    table.add_column("Game", overflow="fold")
+    table.add_column("Market")
+    table.add_column("Moved", justify="right")
+    for key, delta in sorted(moves.items(), key=lambda kv: -abs(kv[1]))[:25]:
+        game_id, market = key.rsplit("|", 1)
+        table.add_row(game_id, market, f"{delta:+.1f}")
+    console.print(table)
+
+
+@main.command()
+@click.option("--season", type=int)
+@click.option("--week", type=int, required=True)
+@click.option("--market", default="spread", type=click.Choice(["spread", "total"]))
+@click.pass_context
+def lines(ctx, season, week, market) -> None:
+    """Show how each line has moved across captures this week."""
+    config = _config(ctx)
+    season = _season(ctx, season)
+    side = "home" if market == "spread" else "over"
+
+    with Pipeline(config) as pipeline:
+        games = pipeline.storage.games(season, week)
+        rows = []
+        for game in games:
+            series = pipeline.storage.line_history(game.game_id, market, side)
+            if len(series) < 2:
+                continue
+            opened, closed = series[0][1], series[-1][1]
+            rows.append((game, opened, closed, closed - opened, len(series)))
+
+    if not rows:
+        console.print(
+            f"[yellow]Nothing to compare for {season} week {week}.[/yellow] "
+            "Line movement needs at least two captures — run "
+            "[bold]cfbpicks snapshot[/bold] again later in the week."
+        )
+        return
+
+    table = Table(title=f"{market.title()} movement — week {week}", header_style="bold")
+    table.add_column("Matchup", overflow="fold")
+    table.add_column("Open", justify="right")
+    table.add_column("Now", justify="right")
+    table.add_column("Move", justify="right")
+    table.add_column("Caps", justify="right")
+    for game, opened, closed, delta, count in sorted(rows, key=lambda r: -abs(r[3])):
+        colour = "green" if delta > 0 else "red" if delta < 0 else ""
+        move = f"[{colour}]{delta:+.1f}[/{colour}]" if colour else f"{delta:+.1f}"
+        table.add_row(game.matchup, f"{opened:+g}", f"{closed:+g}", move, str(count))
+    console.print(table)
+
+
+@main.command()
+@click.option("--season", type=int)
 @click.option("--week", type=int, help="Grade a single week (default: everything pending).")
 @click.pass_context
 def grade(ctx, season, week) -> None:
@@ -316,6 +396,18 @@ def grade(ctx, season, week) -> None:
     )
     for line in summary.summary_lines():
         console.print(f"  {line}")
+
+    settled = results.get("win", 0) + results.get("loss", 0) + results.get("push", 0)
+    with_clv = results.get("with_clv", 0)
+    if settled and not with_clv:
+        console.print(
+            "\n[yellow]No closing line value recorded.[/yellow] Odds were never "
+            "captured after these bets were priced, so there is no closing line "
+            "to compare against. Run [bold]cfbpicks snapshot[/bold] later in the "
+            "week — CLV is the earliest honest signal that an edge is real."
+        )
+    elif with_clv:
+        console.print(f"  [dim]CLV recorded for {with_clv} of {settled} settled bets[/dim]")
 
 
 @main.command()

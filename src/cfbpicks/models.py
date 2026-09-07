@@ -210,6 +210,9 @@ class Recommendation:
     confidence: float = 1.0
     tier: str = "lean"         # pass | lean | play | strong
     notes: list[str] = field(default_factory=list)
+    #: When this bet was priced. Closing line value is only meaningful
+    #: against a snapshot captured strictly after it.
+    placed_at: Optional[datetime] = None
 
     def as_dict(self) -> dict[str, Any]:
         data = asdict(self)

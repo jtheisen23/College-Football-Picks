@@ -87,11 +87,49 @@ cfbpicks predict --week 3                     # projections, before prices
 cfbpicks picks --week 3                       # the bets worth making
 cfbpicks picks --week 3 -o reports/week3.md --format markdown
 
+cfbpicks snapshot                             # capture odds again later
+cfbpicks lines --week 3                       # see what moved
+
 # after the games finish
 cfbpicks grade --week 3
 ```
 
 Everything is cached in SQLite, so re-running `picks` costs no API calls.
+
+## Closing line value
+
+CLV is the one measurement that tells you early whether an edge is real.
+Win rate takes hundreds of bets to say anything; beating the closing line
+says it in weeks, because the closing line is the sharpest number the
+market ever produces.
+
+It requires a line captured *later* than your bet, so odds have to be
+captured more than once. `cfbpicks snapshot` does that and reports what
+moved:
+
+```
+$ cfbpicks snapshot
+Captured 1,240 quotes
+
+      Movement since last capture (18 lines)
+  Game                              Market    Moved
+  2026-03-alabama-at-georgia        spread     -2.0
+  2026-03-iowa-at-penn_state        total      +1.5
+```
+
+Put it on a schedule — midweek and again near kickoff is plenty:
+
+```cron
+0 12 * * 3,6  cd /path/to/repo && .venv/bin/cfbpicks snapshot --quiet
+```
+
+`cfbpicks grade` then records CLV per bet automatically. Bet Georgia -6.5
+on a game that closes -8.5 and that is +2.0 points of CLV, whether or not
+the bet won — those are different questions, and a model with persistent
+positive CLV and a losing month is in better shape than the reverse.
+
+With a single capture, CLV is left null rather than being invented from
+comparing a bet against itself.
 
 ## The engine's own ratings
 

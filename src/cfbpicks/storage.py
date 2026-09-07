@@ -121,6 +121,7 @@ CREATE TABLE IF NOT EXISTS recommendations (
     created_at   TEXT NOT NULL,
     result       TEXT,
     profit_units REAL,
+    clv_points   REAL,
     UNIQUE (game_id, market, side, line, book, created_at)
 );
 CREATE INDEX IF NOT EXISTS idx_recs_week ON recommendations(season, week);
@@ -165,6 +166,10 @@ class Storage:
     def _migrate(self) -> None:
         """Add columns introduced after a database was first created."""
         columns = {r["name"] for r in self.conn.execute("PRAGMA table_info(ratings)")}
+        rec_columns = {r["name"] for r in self.conn.execute("PRAGMA table_info(recommendations)")}
+        if "clv_points" not in rec_columns:
+            self.conn.execute("ALTER TABLE recommendations ADD COLUMN clv_points REAL")
+
         if "point_in_time" not in columns:
             # Existing rows predate the distinction. Assume the unsafe
             # case so an old database can't silently contaminate a
@@ -387,6 +392,35 @@ class Storage:
             grouped.setdefault(row["game_id"], []).append(_row_to_quote(row))
         return grouped
 
+    def line_history(
+        self, game_id: str, market: str, side: str
+    ) -> list[tuple[datetime, float, float]]:
+        """Every capture of one side, as ``(when, median line, median price)``.
+
+        Books disagree at any instant, so each capture is collapsed to a
+        median across books; what matters here is how the market moved,
+        not which book was a half point off.
+        """
+        rows = self.conn.execute(
+            """SELECT fetched_at, line, price FROM quote_history
+               WHERE game_id=? AND market=? AND side=? AND line IS NOT NULL
+               ORDER BY fetched_at""",
+            (game_id, market, side),
+        )
+        grouped: dict[str, list[tuple[float, float]]] = {}
+        for row in rows:
+            grouped.setdefault(row["fetched_at"], []).append((row["line"], row["price"]))
+
+        series = []
+        for stamp, values in sorted(grouped.items()):
+            when = _parse_dt(stamp)
+            if when is None:
+                continue
+            lines = sorted(v[0] for v in values)
+            prices = sorted(v[1] for v in values)
+            series.append((when, _median(lines), _median(prices)))
+        return series
+
     def snapshot_count(self, game_id: str, market: str) -> int:
         """Distinct times this game/market was captured.
 
@@ -399,12 +433,21 @@ class Storage:
         ).fetchone()
         return int(row["n"]) if row else 0
 
-    def closing_quotes(self, game_id: str, market: str) -> list[MarketQuote]:
-        """The latest snapshot recorded in history for a game/market."""
-        row = self.conn.execute(
-            "SELECT MAX(fetched_at) AS last FROM quote_history WHERE game_id=? AND market=?",
-            (game_id, market),
-        ).fetchone()
+    def closing_quotes(
+        self, game_id: str, market: str, after: Optional[datetime] = None
+    ) -> list[MarketQuote]:
+        """The last snapshot recorded for a game/market.
+
+        ``after`` restricts to captures strictly later than a moment —
+        pass the time a bet was priced and this returns a genuine closing
+        line, or nothing at all if the odds were never captured again.
+        """
+        sql = "SELECT MAX(fetched_at) AS last FROM quote_history WHERE game_id=? AND market=?"
+        params: list[Any] = [game_id, market]
+        if after is not None:
+            sql += " AND fetched_at > ?"
+            params.append(after.isoformat())
+        row = self.conn.execute(sql, params).fetchone()
         if not row or not row["last"]:
             return []
         rows = self.conn.execute(
@@ -517,11 +560,17 @@ class Storage:
         sql += " ORDER BY prob_edge DESC"
         return [_row_to_rec(r) for r in self.conn.execute(sql, params)]
 
-    def grade_recommendation(self, rec_id: int, result: str, profit_units: float) -> None:
+    def grade_recommendation(
+        self,
+        rec_id: int,
+        result: str,
+        profit_units: float,
+        clv_points: Optional[float] = None,
+    ) -> None:
         with self.transaction() as conn:
             conn.execute(
-                "UPDATE recommendations SET result=?, profit_units=? WHERE id=?",
-                (result, profit_units, rec_id),
+                "UPDATE recommendations SET result=?, profit_units=?, clv_points=? WHERE id=?",
+                (result, profit_units, clv_points, rec_id),
             )
 
     def ungraded_recommendations(self, season: Optional[int] = None) -> list[tuple[int, Recommendation]]:
@@ -552,6 +601,13 @@ class Storage:
         }
 
 
+def _median(values: list[float]) -> float:
+    mid = len(values) // 2
+    if len(values) % 2:
+        return values[mid]
+    return (values[mid - 1] + values[mid]) / 2.0
+
+
 def _row_to_game(row: sqlite3.Row) -> Game:
     return Game(
         game_id=row["game_id"], season=row["season"], week=row["week"],
@@ -580,4 +636,5 @@ def _row_to_rec(row: sqlite3.Row) -> Recommendation:
         expected_value=row["expected_value"], stake_units=row["stake_units"],
         kelly_fraction=row["kelly_fraction"], push_prob=row["push_prob"],
         confidence=row["confidence"], tier=row["tier"], notes=json.loads(row["notes"] or "[]"),
+        placed_at=_parse_dt(row["created_at"]) if "created_at" in row.keys() else None,
     )

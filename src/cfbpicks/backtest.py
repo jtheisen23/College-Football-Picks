@@ -249,14 +249,23 @@ def backtest_season(
     return result
 
 
+def clv_direction(side: str) -> float:
+    """Which way a favourable line moves, for the side that was bet.
+
+    Spreads are stored from the bet side's own perspective, so a bigger
+    number is always better: -6.5 beats -7, and +7.5 beats +7. Totals do
+    not work that way — the two sides want opposite movement. An over
+    wants the smallest number it can get, an under the largest.
+    """
+    return -1.0 if side == "over" else 1.0
+
+
 def _clv_points(rec: Recommendation, closing: Sequence) -> Optional[float]:
-    """Points of closing line value, in the bet's favour."""
+    """Points of closing line value, signed in the bet's favour."""
     if rec.line is None or not closing:
         return None
     same_side = [q.line for q in closing if q.side == rec.side and q.line is not None]
     if not same_side:
         return None
     close = statistics.median(same_side)
-    # Getting a bigger number than the close is value on every side,
-    # because the stored line is always the bet side's own number.
-    return float(rec.line) - float(close)
+    return clv_direction(rec.side) * (float(rec.line) - float(close))
