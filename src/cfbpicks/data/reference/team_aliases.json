@@ -1,0 +1,21 @@
+{
+  "_comment": "Extra name mappings layered over the built-in list in cfbpicks/util/teams.py. Key is any spelling a provider uses; value is the canonical school name. Add an entry whenever `cfbpicks fetch` warns about an unmatched team.",
+  "Miami FL": "Miami",
+  "Miami Fla": "Miami",
+  "Miami-Florida": "Miami",
+  "Miami OH": "Miami (OH)",
+  "Miami-Ohio": "Miami (OH)",
+  "Ole Miss Rebels": "Mississippi",
+  "Southern Miss": "Southern Mississippi",
+  "Louisiana-Monroe": "Louisiana Monroe",
+  "ULM": "Louisiana Monroe",
+  "UL-Lafayette": "Louisiana",
+  "Cal": "California",
+  "Pitt Panthers": "Pittsburgh",
+  "Hawaii Rainbow Warriors": "Hawai'i",
+  "San Jose St": "San José State",
+  "Texas A&M-Commerce": "Texas A&M-Commerce",
+  "Sam Houston": "Sam Houston State",
+  "Charleston Southern": "Charleston Southern",
+  "Army West Point": "Army"
+}

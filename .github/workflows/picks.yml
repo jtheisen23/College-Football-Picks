@@ -1,0 +1,94 @@
+name: Weekly picks
+
+# Runs the whole pipeline in GitHub's cloud and publishes the board to
+# Pages, so nothing depends on a laptop being awake.
+#
+# Times are UTC. The schedule is built around a Saturday slate:
+#   Tuesday    - first look once the week's lines are posted
+#   Thursday   - refresh, and capture a second odds snapshot
+#   Friday     - refresh again
+#   Saturday   - final numbers a few hours before the early kickoffs
+#
+# Each run captures odds, which is what makes closing line value
+# computable at all: CLV needs a line recorded later than the bet.
+on:
+  schedule:
+    - cron: "0 15 * * 2"
+    - cron: "0 15 * * 4"
+    - cron: "0 15 * * 5"
+    - cron: "0 13 * * 6"
+  workflow_dispatch:
+    inputs:
+      week:
+        description: "Week to publish (blank = current week)"
+        required: false
+        type: string
+      season:
+        description: "Season (blank = current season)"
+        required: false
+        type: string
+
+concurrency:
+  group: weekly-picks
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -e .
+
+      # The database carries odds history, which is what CLV is measured
+      # against. A fresh key each run with a shared prefix means the most
+      # recent one is restored; losing it costs history, never correctness.
+      - name: Restore database
+        uses: actions/cache@v4
+        with:
+          path: cfbpicks.sqlite
+          key: cfbpicks-db-${{ github.run_id }}
+          restore-keys: cfbpicks-db-
+
+      - name: Fetch, rate and publish
+        env:
+          CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          SEASON: ${{ inputs.season }}
+          WEEK: ${{ inputs.week }}
+        run: |
+          set -euo pipefail
+          # if-blocks rather than `[ -n "$X" ] && ...`: under `set -e`
+          # that form exits non-zero when the test fails and it happens
+          # to be the step's last line, so it only breaks once someone
+          # reorders the script. Not worth the trap.
+          SEASON_ARG=""
+          WEEK_ARG=""
+          if [ -n "${SEASON:-}" ]; then SEASON_ARG="--season ${SEASON}"; fi
+          if [ -n "${WEEK:-}" ]; then WEEK_ARG="--week ${WEEK}"; fi
+
+          cfbpicks fetch ${SEASON_ARG} ${WEEK_ARG}
+          cfbpicks rate ${SEASON_ARG}
+          cfbpicks publish ${SEASON_ARG} ${WEEK_ARG}
+
+      - name: Commit the board
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          # Nothing changed is a normal outcome, not a failure.
+          if git diff --staged --quiet; then
+            echo "No change to publish."
+            exit 0
+          fi
+          git commit -m "Publish board ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+          git push

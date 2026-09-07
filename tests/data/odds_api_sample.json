@@ -1,0 +1,59 @@
+[
+  {
+    "id": "abc123",
+    "sport_key": "americanfootball_ncaaf",
+    "commence_time": "2026-09-19T23:30:00Z",
+    "home_team": "Ohio State Buckeyes",
+    "away_team": "Michigan Wolverines",
+    "bookmakers": [
+      {
+        "key": "draftkings", "title": "DraftKings",
+        "markets": [
+          {"key": "spreads", "outcomes": [
+            {"name": "Ohio State Buckeyes", "price": -110, "point": -10.5},
+            {"name": "Michigan Wolverines", "price": -110, "point": 10.5}]},
+          {"key": "totals", "outcomes": [
+            {"name": "Over", "price": -105, "point": 54.5},
+            {"name": "Under", "price": -115, "point": 54.5}]},
+          {"key": "h2h", "outcomes": [
+            {"name": "Ohio State Buckeyes", "price": -450},
+            {"name": "Michigan Wolverines", "price": 350}]}
+        ]
+      },
+      {
+        "key": "fanduel", "title": "FanDuel",
+        "markets": [
+          {"key": "spreads", "outcomes": [
+            {"name": "Ohio State Buckeyes", "price": -105, "point": -10.0},
+            {"name": "Michigan Wolverines", "price": -115, "point": 10.0}]}
+        ]
+      }
+    ]
+  },
+  {
+    "id": "def456",
+    "commence_time": "2026-09-20T16:00:00Z",
+    "home_team": "Texas Longhorns",
+    "away_team": "Ole Miss Rebels",
+    "bookmakers": [
+      {"key": "betmgm", "title": "BetMGM", "markets": [
+        {"key": "spreads", "outcomes": [
+          {"name": "Texas Longhorns", "price": -110, "point": -6.5},
+          {"name": "Ole Miss Rebels", "price": -110, "point": 6.5}]}
+      ]}
+    ]
+  },
+  {
+    "id": "ghi789",
+    "commence_time": "2026-09-20T19:00:00Z",
+    "home_team": "Some Team Nobody Scheduled",
+    "away_team": "Another Phantom",
+    "bookmakers": [
+      {"key": "draftkings", "title": "DraftKings", "markets": [
+        {"key": "spreads", "outcomes": [
+          {"name": "Some Team Nobody Scheduled", "price": -110, "point": -3.0},
+          {"name": "Another Phantom", "price": -110, "point": 3.0}]}
+      ]}
+    ]
+  }
+]

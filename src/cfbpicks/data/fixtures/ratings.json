@@ -1,0 +1,554 @@
+[
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Ohio State",
+    "rating": 26.38,
+    "offense": 39.71,
+    "defense": 14.36
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Ohio State",
+    "rating": 19.92
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Ohio State",
+    "rating": 30.11
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Georgia",
+    "rating": 26.97,
+    "offense": 36.99,
+    "defense": 15.76
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Georgia",
+    "rating": 18.42
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Georgia",
+    "rating": 26.15
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Texas",
+    "rating": 24.53,
+    "offense": 33.09,
+    "defense": 17.66
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Texas",
+    "rating": 17.84
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Texas",
+    "rating": 25.71
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Alabama",
+    "rating": 21.89,
+    "offense": 35.84,
+    "defense": 16.83
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Alabama",
+    "rating": 15.34
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Alabama",
+    "rating": 25.44
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Oregon",
+    "rating": 22.22,
+    "offense": 31.53,
+    "defense": 18.7
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Oregon",
+    "rating": 14.26
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Oregon",
+    "rating": 24.11
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Michigan",
+    "rating": 19.17,
+    "offense": 37.08,
+    "defense": 16.91
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Michigan",
+    "rating": 14.36
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Michigan",
+    "rating": 20.81
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Penn State",
+    "rating": 17.65,
+    "offense": 36.57,
+    "defense": 17.21
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Penn State",
+    "rating": 13.28
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Penn State",
+    "rating": 18.53
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Notre Dame",
+    "rating": 18.48,
+    "offense": 32.83,
+    "defense": 18.81
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Notre Dame",
+    "rating": 13.46
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Notre Dame",
+    "rating": 21.07
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Mississippi",
+    "rating": 16.11,
+    "offense": 34.01,
+    "defense": 18.63
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Mississippi",
+    "rating": 11.86
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Mississippi",
+    "rating": 17.27
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "LSU",
+    "rating": 15.14,
+    "offense": 33.17,
+    "defense": 19.07
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "LSU",
+    "rating": 11.51
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "LSU",
+    "rating": 16.34
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Tennessee",
+    "rating": 14.77,
+    "offense": 34.18,
+    "defense": 18.86
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Tennessee",
+    "rating": 10.74
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Tennessee",
+    "rating": 15.58
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Clemson",
+    "rating": 13.57,
+    "offense": 36.65,
+    "defense": 17.98
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Clemson",
+    "rating": 10.76
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Clemson",
+    "rating": 13.68
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Miami",
+    "rating": 13.67,
+    "offense": 36.35,
+    "defense": 18.21
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Miami",
+    "rating": 10.99
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Miami",
+    "rating": 13.4
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Utah",
+    "rating": 12.02,
+    "offense": 35.38,
+    "defense": 19.07
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Utah",
+    "rating": 7.79
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Utah",
+    "rating": 11.89
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Kansas State",
+    "rating": 10.57,
+    "offense": 30.52,
+    "defense": 21.3
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Kansas State",
+    "rating": 8.16
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Kansas State",
+    "rating": 11.25
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Iowa",
+    "rating": 7.03,
+    "offense": 33.37,
+    "defense": 20.39
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Iowa",
+    "rating": 6.21
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Iowa",
+    "rating": 8.72
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Louisville",
+    "rating": 5.72,
+    "offense": 33.99,
+    "defense": 20.4
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Louisville",
+    "rating": 3.37
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Louisville",
+    "rating": 5.49
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Boise State",
+    "rating": 6.12,
+    "offense": 27.59,
+    "defense": 23.1
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Boise State",
+    "rating": 4.96
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Boise State",
+    "rating": 6.96
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Washington State",
+    "rating": 1.48,
+    "offense": 25.55,
+    "defense": 24.77
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Washington State",
+    "rating": 1.42
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Washington State",
+    "rating": 0.15
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Duke",
+    "rating": 1.33,
+    "offense": 23.84,
+    "defense": 25.59
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Duke",
+    "rating": -0.52
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Duke",
+    "rating": 1.04
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Arizona",
+    "rating": -1.04,
+    "offense": 27.78,
+    "defense": 24.46
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Arizona",
+    "rating": -2.1
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Arizona",
+    "rating": -1.29
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Cincinnati",
+    "rating": -4.65,
+    "offense": 27.7,
+    "defense": 24.89
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Cincinnati",
+    "rating": -2.71
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Cincinnati",
+    "rating": -5.71
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Purdue",
+    "rating": -9.16,
+    "offense": 23.59,
+    "defense": 27.53
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Purdue",
+    "rating": -7.18
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Purdue",
+    "rating": -10.9
+  },
+  {
+    "source": "cfbd_sp_plus",
+    "season": 2026,
+    "week": 3,
+    "team": "Vanderbilt",
+    "rating": -11.17,
+    "offense": 22.56,
+    "defense": 28.25
+  },
+  {
+    "source": "cfbd_srs",
+    "season": 2026,
+    "week": 3,
+    "team": "Vanderbilt",
+    "rating": -8.5
+  },
+  {
+    "source": "sagarin",
+    "season": 2026,
+    "week": 3,
+    "team": "Vanderbilt",
+    "rating": -12.0
+  }
+]

@@ -18,3 +18,7 @@ reports/*.md
 reports/*.csv
 reports/*.json
 !reports/.gitkeep
+
+# Published boards are generated; commit them deliberately with
+# `cfbpicks publish`, not incidentally.
+!docs/

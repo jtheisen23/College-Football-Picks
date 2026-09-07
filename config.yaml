@@ -1,0 +1,177 @@
+# cfbpicks configuration.
+#
+# Everything here has a working default — this file exists so you can tune
+# the model and the betting thresholds without touching code.
+#
+# API keys do NOT belong in this file. Put them in the environment:
+#   export CFBD_API_KEY=...      # free at collegefootballdata.com/key
+#   export ODDS_API_KEY=...      # the-odds-api.com
+# or in config.local.yaml, which is gitignored and overrides this file.
+
+database: cfbpicks.sqlite
+cache_dir: data/cache
+reports_dir: reports
+
+# How long a cached API response stays fresh, in seconds. Lines move, so
+# 15 minutes is a reasonable compromise between freshness and quota.
+cache_ttl_seconds: 900
+
+model:
+  # Modern FBS home-field advantage is worth about two to two and a half
+  # points, well down from the three-plus of a decade ago.
+  home_field_advantage: 2.2
+
+  # Standard deviation of actual margin around the closing spread. ~16 in
+  # college football, notably wider than the NFL's ~13.5. This single
+  # number drives every win probability, so change it carefully.
+  margin_sd: 16.0
+
+  # Same idea for totals.
+  total_sd: 13.5
+  league_average_total: 54.0
+
+  # Relative trust in each rating source when blending them into one
+  # power number. Sources not listed here still count, at weight 1.0.
+  rating_weights:
+    cfbpicks_margin: 1.0   # the engine's own fit; the only backtestable one
+    cfbd_sp_plus: 1.0      # SP+ is the strongest single predictor here
+    cfbd_srs: 0.5          # largely results-driven, so partially redundant
+    cfbd_elo: 0.5
+    massey: 0.75
+    sagarin: 0.75
+    manual: 1.0
+
+  # A team rated by fewer sources than this gets pulled toward average
+  # rather than trusted at face value.
+  min_sources_for_full_confidence: 2
+
+  # Rest matters, but not much: a bye week is worth roughly a point.
+  rest_advantage_per_day: 0.12
+  max_rest_adjustment: 1.5
+
+  # --- the ratings the engine fits for itself (`cfbpicks rate`) ---------
+  # A ridge regression on scoring margin, refit each week from games
+  # played strictly beforehand. Unlike SP+ or Sagarin these are
+  # point-in-time, which is what makes an honest backtest possible.
+
+  # How much evidence it takes to move a team off the prior. 2.0 was
+  # chosen by sweeping simulated seasons: best held-out accuracy and
+  # calibrated predictions (slope ~1.02). Raising it shrinks projected
+  # margins toward zero, which quietly biases the model onto underdogs.
+  regression_ridge: 2.0
+
+  # Clamp blowout margins before fitting. Off by default: capping is
+  # standard for ranking systems but biases every coefficient low, and
+  # this model's output is a point spread. A 21-point cap measured out
+  # at 58% too small.
+  regression_margin_cap: null
+
+  # Weeks for a game's weight to halve. null weights all games equally.
+  regression_recency_halflife: null
+
+  # Carry last season's final fitted ratings in as the prior, at this
+  # strength. Week 1 has no games to fit on, so without this every team
+  # starts identical and the opening weeks are noise.
+  regression_carryover: 0.5
+
+betting:
+  # Proportional de-vigging is fine for near-even markets; the power
+  # method handles the favourite-longshot bias on lopsided moneylines.
+  devig_method: proportional
+  moneyline_devig_method: power
+
+  # Staking. One unit is 1% of bankroll, and quarter-Kelly is the usual
+  # compromise between growth and surviving a bad month.
+  unit_fraction: 0.01
+  kelly_multiplier: 0.25
+  max_units: 3.0
+
+  # Minimum edge required before a bet is recommended at all. Raising
+  # min_prob_edge is the simplest way to get fewer, better bets.
+  min_prob_edge: 0.02          # 2 percentage points over the fair price
+  min_expected_value: 0.005    # half a percent per unit staked
+  min_point_edge_spread: 1.5   # the model must beat the number by this much
+  min_point_edge_total: 2.5
+
+  # Guard rails.
+  max_spread_line: 35.0        # ignore blowout numbers entirely
+  max_moneyline_margin: 21.0   # a normal model misprices heavy favourites
+  min_book_count: 1            # require this many books before pricing
+
+  markets: [spread, total, moneyline]
+
+  # Edge thresholds for the labels shown in the report.
+  tier_thresholds:
+    strong: 0.055
+    play: 0.035
+    lean: 0.02
+
+# --- weather -----------------------------------------------------------
+# What a forecast does to a projected total. Wind is the term that
+# matters: a strong crosswind kills the deep ball and field goals. Rain
+# and cold are real but far weaker than folklore suggests. Domes are
+# never adjusted at all.
+weather:
+  wind_threshold_mph: 10.0      # every stadium has a breeze
+  wind_points_per_mph: 0.25     # points off the total per mph above it
+  wind_max_points: 6.0          # a gale is not linearly worse than 20mph
+  precipitation_threshold_in: 0.05
+  precipitation_points: 1.0
+  heavy_precipitation_in: 0.25
+  heavy_precipitation_points: 2.0
+  freezing_point_f: 25.0
+  freezing_points: 1.0
+  max_total_points: 8.0         # a bad forecast can never dominate
+
+providers:
+  cfbd:
+    enabled: true
+    options:
+      ratings: [sp_plus, srs, elo]
+      division: fbs
+      # CFBD reports the number but not the juice, so spreads and totals
+      # from it are recorded at this standard price.
+      assumed_price: -110
+
+  odds_api:
+    enabled: true
+    options:
+      sport: americanfootball_ncaaf
+      regions: us
+
+      # Restrict to the books you can actually bet. Line shopping across
+      # books you have no account with just invents edges you cannot take.
+      # books: [draftkings, fanduel, betmgm]
+      books: []
+
+      # The free tier bills one credit PER MARKET PER REGION, so the
+      # three default markets in one region cost 3 credits a call, not 1.
+      # At ~500/month a twice-weekly snapshot all season is affordable.
+      #
+      # Below this many credits remaining, the provider refuses to call
+      # rather than quietly spending your last ones — an exhausted
+      # balance is invisible until the week you need a price. 0 disables.
+      min_quota_remaining: 25
+
+  sagarin:
+    enabled: true
+    options:
+      url: http://sagarin.com/sports/cfsend.htm
+      # If the site is unreachable, save the page and point here instead:
+      # local_file: data/ratings/sagarin.htm
+
+  ratings:
+    enabled: true
+    options:
+      input_dir: data/ratings
+      sources: [massey]
+
+  weather:
+    enabled: true
+    options:
+      # Forecasts only reach about two weeks out; games beyond this are
+      # skipped rather than guessed at.
+      forecast_horizon_days: 16
+
+  fixtures:
+    enabled: true
