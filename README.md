@@ -88,6 +88,7 @@ cfbpicks picks --week 3                       # the bets worth making
 cfbpicks picks --week 3 -o reports/week3.md --format markdown
 
 cfbpicks picks --week 3 -o reports/week3.html  # a board you can look at
+cfbpicks publish --week 3 --push              # ...or put it on the web
 
 cfbpicks snapshot                             # capture odds again later
 cfbpicks lines --week 3                       # see what moved
@@ -176,6 +177,31 @@ Forecasts only reach about two weeks out, so this is a during-the-week
 job, not an August one.
 
 ## Seeing the week
+
+### From a browser, anywhere
+
+```bash
+cfbpicks publish --week 2 --push
+```
+
+Writes the board into `docs/`, commits and pushes. Enable Pages once —
+**Settings → Pages → Source: your branch, folder `/docs`** — and the
+site lives at `https://<user>.github.io/College-Football-Picks/`,
+readable from a phone with nothing installed.
+
+Each week gets its own page and the index lists them newest first, so
+the season accumulates into a record you can scroll back through.
+
+> **The site inherits the repository's visibility.** On a public repo the
+> picks are public the moment you push them. If that isn't what you
+> want, make the repo private before publishing — Pages on a private
+> repo needs a paid GitHub plan — or skip `publish` and keep the board
+> local.
+
+Without `--push` it writes the files and prints the git commands rather
+than running them.
+
+### Locally
 
 The terminal table is fine for a glance. For something you can actually
 sit with — or open on a phone — write the board out as a page:

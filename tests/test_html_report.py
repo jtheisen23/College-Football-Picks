@@ -158,3 +158,95 @@ class TestCli:
         result = self.runner.invoke(main, ["--db", db, "picks", "--week", "3", "-o", str(out)])
         assert result.exit_code == 0
         assert out.read_text().startswith("# College Football Picks")
+
+
+class TestIndexPage:
+    def _entry(self, week=3, bets=12, staked=18.5):
+        from cfbpicks.report import BoardEntry
+
+        return BoardEntry(season=2026, week=week, filename=f"2026-week-{week:02d}.html",
+                          bets=bets, staked=staked, generated="07 Sep 2026, 12:00 UTC")
+
+    def test_lists_each_published_board(self):
+        from cfbpicks.report import to_index_html
+
+        page = to_index_html([self._entry(2), self._entry(3)])
+        assert "2026-week-02.html" in page and "2026-week-03.html" in page
+
+    def test_newest_week_comes_first(self):
+        from cfbpicks.report import to_index_html
+
+        page = to_index_html([self._entry(2), self._entry(5)])
+        assert page.index("Week 5") < page.index("Week 2")
+
+    def test_an_empty_site_says_what_to_run(self):
+        from cfbpicks.report import to_index_html
+
+        page = to_index_html([])
+        assert "cfbpicks publish" in page
+
+    def test_makes_no_external_requests(self):
+        from cfbpicks.report import to_index_html
+
+        page = to_index_html([self._entry()])
+        assert "http://" not in page and "https://" not in page
+
+
+class TestPublishCommand:
+    def setup_method(self):
+        self.runner = CliRunner()
+
+    def _seeded(self, tmp_path):
+        from cfbpicks.config import Config, ProviderConfig
+        from cfbpicks.pipeline import Pipeline
+        from cfbpicks.providers.fixtures import PACKAGE_FIXTURES
+
+        cfg = Config(root=tmp_path)
+        cfg.database = str(tmp_path / "t.sqlite")
+        cfg.cache_dir = str(tmp_path / "cache")
+        cfg.fixtures_dir = str(PACKAGE_FIXTURES)
+        cfg.providers = {"fixtures": ProviderConfig("fixtures", enabled=True)}
+        with Pipeline(cfg) as pipeline:
+            pipeline.fetch(2026, 3, providers=["fixtures"])
+        return cfg.database
+
+    def test_writes_a_board_and_an_index(self, tmp_path, monkeypatch):
+        db = self._seeded(tmp_path)
+        monkeypatch.chdir(tmp_path)
+        result = self.runner.invoke(main, ["--db", db, "publish", "--season", "2026", "--week", "3"])
+        assert result.exit_code == 0, result.output
+        docs = tmp_path / "docs"
+        assert (docs / "2026-week-03.html").exists()
+        assert (docs / "index.html").exists()
+        assert (docs / ".nojekyll").exists(), "Pages must not run these through Jekyll"
+
+    def test_republishing_keeps_earlier_weeks_listed(self, tmp_path, monkeypatch):
+        import json
+
+        db = self._seeded(tmp_path)
+        monkeypatch.chdir(tmp_path)
+        self.runner.invoke(main, ["--db", db, "publish", "--season", "2026", "--week", "3"])
+        # Pretend an earlier week was published before this one.
+        manifest = tmp_path / "docs" / "boards.json"
+        data = json.loads(manifest.read_text())
+        data["2026-week-01.html"] = {
+            "season": 2026, "week": 1, "filename": "2026-week-01.html",
+            "bets": 4, "staked": 5.0, "generated": "01 Sep 2026, 12:00 UTC",
+        }
+        manifest.write_text(json.dumps(data))
+        self.runner.invoke(main, ["--db", db, "publish", "--season", "2026", "--week", "3"])
+        index = (tmp_path / "docs" / "index.html").read_text()
+        assert "2026-week-01.html" in index, "an earlier board must not be dropped"
+
+    def test_an_unfetched_week_explains_itself(self, tmp_path, monkeypatch):
+        db = self._seeded(tmp_path)
+        monkeypatch.chdir(tmp_path)
+        result = self.runner.invoke(main, ["--db", db, "publish", "--season", "2026", "--week", "9"])
+        assert result.exit_code == 1
+        assert "fetch" in result.output
+
+    def test_it_does_not_touch_git_without_being_asked(self, tmp_path, monkeypatch):
+        db = self._seeded(tmp_path)
+        monkeypatch.chdir(tmp_path)
+        result = self.runner.invoke(main, ["--db", db, "publish", "--season", "2026", "--week", "3"])
+        assert "git add docs" in result.output, "it should print the command, not run it"

@@ -6,6 +6,7 @@ import csv
 import html as html_module
 import io
 import json
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Iterable, Optional, Sequence
 
@@ -511,6 +512,80 @@ def _tile(label: str, value: str, note: str = "") -> str:
         f"<div class=\"tile\"><div class=\"label\">{_esc(label)}</div>"
         f"<div class=\"value\">{_esc(value)}</div>{note_html}</div>"
     )
+
+
+
+
+@dataclass
+class BoardEntry:
+    """One published week, for the index page."""
+
+    season: int
+    week: int
+    filename: str
+    bets: int
+    staked: float
+    generated: str
+
+
+def to_index_html(entries: Sequence["BoardEntry"], *, note: Optional[str] = None) -> str:
+    """A landing page listing every published board, newest first."""
+    parts: list[str] = [
+        "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">",
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+        "<title>College Football Picks</title>",
+        f"<style>{_CSS}{_INDEX_CSS}</style></head><body><div class=\"wrap\">",
+    ]
+    if note:
+        parts.append(
+            "<p class=\"note-bar\"><span class=\"mark\" aria-hidden=\"true\">\u26a0</span>"
+            f"<span><strong>Heads up.</strong> {_esc(note)}</span></p>"
+        )
+    parts += [
+        "<header><div><h1>College Football Picks</h1>",
+        "<div class=\"stamp\">Model output, not betting advice</div></div>",
+        "<button class=\"toggle\" id=\"theme-toggle\">Theme</button></header>",
+    ]
+
+    if not entries:
+        parts.append(
+            "<div class=\"card\"><p class=\"empty\">No boards published yet. "
+            "Run <code>cfbpicks publish --week N</code>.</p></div>"
+        )
+    else:
+        parts.append("<ul class=\"weeks\">")
+        for entry in sorted(entries, key=lambda e: (e.season, e.week), reverse=True):
+            parts.append(
+                f"<li><a href=\"{_esc(entry.filename)}\">"
+                f"<span class=\"wk\">{entry.season} · Week {entry.week}</span>"
+                f"<span class=\"meta\">{entry.bets} bets · {entry.staked:.2f}u staked</span>"
+                f"<span class=\"when\">{_esc(entry.generated)}</span></a></li>"
+            )
+        parts.append("</ul>")
+
+    parts += [
+        "<footer>Stakes are fractional-Kelly units; one unit is 1% of bankroll "
+        "by default. Edges are measured against the de-vigged market price at the "
+        "quoted number.</footer>",
+        f"</div><script>{_TOGGLE_JS}</script></body></html>",
+    ]
+    return "\n".join(parts)
+
+
+_INDEX_CSS = """
+.weeks { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 10px; }
+.weeks a {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: baseline;
+  padding: 16px 18px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; text-decoration: none; color: var(--ink);
+}
+.weeks a:hover { border-color: var(--tier-play); }
+.weeks a:focus-visible { outline: 2px solid var(--tier-play); outline-offset: 2px; }
+.weeks .wk { font-size: 17px; font-weight: 600; }
+.weeks .meta { color: var(--ink-2); font-size: 14px; text-align: right; }
+.weeks .when { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+"""
 
 
 def render(recs: Sequence[Recommendation], fmt: str, *, season: int, week: int,

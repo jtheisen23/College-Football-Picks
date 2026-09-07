@@ -362,6 +362,99 @@ def predict(ctx, season, week, limit) -> None:
 @main.command()
 @click.option("--season", type=int)
 @click.option("--week", type=int, required=True)
+@click.option("--push", is_flag=True, help="Commit and push, so GitHub Pages picks it up.")
+@click.pass_context
+def publish(ctx, season, week, push) -> None:
+    """Write the week's board into docs/ for GitHub Pages.
+
+    Produces one page per week plus an index listing them, so the board
+    is readable from any browser instead of only from the machine that
+    generated it.
+
+    The site is served from whatever the repository's visibility allows.
+    On a public repo that means the picks are public too.
+    """
+    import json
+    import subprocess
+
+    from .report import BoardEntry, to_html, to_index_html
+
+    config = _config(ctx)
+    season = _season(ctx, season)
+    docs = config.path("docs")
+    docs.mkdir(parents=True, exist_ok=True)
+    # Tell GitHub Pages not to run the files through Jekyll.
+    (docs / ".nojekyll").write_text("")
+
+    with Pipeline(config) as pipeline:
+        recommendations = pipeline.picks(season, week)
+        predictions = pipeline.storage.predictions(season, week)
+
+    if not predictions:
+        console.print(
+            f"[yellow]No games stored for {season} week {week}.[/yellow] "
+            f"Run [bold]cfbpicks fetch --week {week}[/bold] first."
+        )
+        sys.exit(1)
+
+    filename = f"{season}-week-{week:02d}.html"
+    (docs / filename).write_text(
+        to_html(recommendations, season=season, week=week, predictions=predictions)
+    )
+
+    # A small manifest keeps the index accurate without re-opening every
+    # page to work out what is in it.
+    manifest_path = docs / "boards.json"
+    manifest = {}
+    if manifest_path.exists():
+        try:
+            manifest = json.loads(manifest_path.read_text())
+        except json.JSONDecodeError:
+            manifest = {}
+
+    generated = datetime.now(timezone.utc).strftime("%d %b %Y, %H:%M UTC")
+    manifest[filename] = {
+        "season": season, "week": week, "filename": filename,
+        "bets": len(recommendations),
+        "staked": round(sum(r.stake_units for r in recommendations), 2),
+        "generated": generated,
+    }
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+
+    entries = [BoardEntry(**row) for row in manifest.values()]
+    (docs / "index.html").write_text(to_index_html(entries))
+
+    console.print(
+        f"[green]Wrote[/green] docs/{filename} and docs/index.html "
+        f"({len(recommendations)} bets)"
+    )
+
+    if not push:
+        console.print(
+            "\nTo put it online:\n"
+            "  [dim]git add docs && git commit -m 'Publish week "
+            f"{week} board' && git push[/dim]\n"
+            "  Then enable Pages once: Settings -> Pages -> Source: "
+            "your branch, folder /docs"
+        )
+        return
+
+    try:
+        subprocess.run(["git", "add", "docs"], cwd=config.root, check=True)
+        subprocess.run(
+            ["git", "commit", "-m", f"Publish {season} week {week} board"],
+            cwd=config.root, check=True, capture_output=True,
+        )
+        subprocess.run(["git", "push"], cwd=config.root, check=True)
+    except subprocess.CalledProcessError as exc:
+        console.print(f"[red]git failed:[/red] {exc}")
+        sys.exit(1)
+    console.print("[green]Pushed.[/green] GitHub Pages will update in a minute or two.")
+
+
+@main.command()
+@click.option("--season", type=int)
+@click.option("--week", type=int, required=True)
 @click.option("--market", "markets", multiple=True,
               type=click.Choice(["spread", "total", "moneyline"]),
               help="Restrict to specific markets.")
