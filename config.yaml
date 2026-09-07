@@ -121,9 +121,20 @@ providers:
     options:
       sport: americanfootball_ncaaf
       regions: us
-      # Restrict to the books you can actually bet, e.g.
+
+      # Restrict to the books you can actually bet. Line shopping across
+      # books you have no account with just invents edges you cannot take.
       # books: [draftkings, fanduel, betmgm]
       books: []
+
+      # The free tier bills one credit PER MARKET PER REGION, so the
+      # three default markets in one region cost 3 credits a call, not 1.
+      # At ~500/month a twice-weekly snapshot all season is affordable.
+      #
+      # Below this many credits remaining, the provider refuses to call
+      # rather than quietly spending your last ones — an exhausted
+      # balance is invisible until the week you need a price. 0 disables.
+      min_quota_remaining: 25
 
   sagarin:
     enabled: true

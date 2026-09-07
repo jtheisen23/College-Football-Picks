@@ -112,6 +112,8 @@ class Pipeline:
                 report.note(provider.name, f"{prior + ', ' if prior else ''}{count} quotes")
                 for miss in getattr(provider, "unmatched", []) or []:
                     report.warn(f"{provider.name}: no scheduled game for {miss}")
+                for warning in getattr(provider, "warnings", []) or []:
+                    report.warn(f"{provider.name}: {warning}")
                 remaining = getattr(provider, "quota_remaining", None)
                 if remaining:
                     report.note(provider.name, f"{report.by_provider[provider.name]} ({remaining} API calls left)")

@@ -213,6 +213,39 @@ rating, `by` for a margin, capitals for the home team) rather than fixed
 column positions, and reports how many rows it recovered so a layout
 change is loud rather than silent.
 
+### The Odds API
+
+CFBD tells you what the number is. The Odds API tells you what you can
+actually bet it at, and where — which is where a real amount of the edge
+lives. Taking `-3 -105` instead of `-3.5 -115` is worth more over a
+season than most model improvements, and recommendations are always
+priced at the best number and juice across your books.
+
+```yaml
+providers:
+  odds_api:
+    options:
+      books: [draftkings, fanduel, betmgm]   # only ones you can bet
+      min_quota_remaining: 25
+```
+
+Restrict `books` to accounts you actually hold. Shopping across books you
+can't bet just invents edges you have no way to take.
+
+**Watch the quota.** The free tier is ~500 credits a month and bills one
+credit **per market per region** — so the three default markets in one
+region cost 3 credits a call, not 1. A twice-weekly snapshot across a
+full season fits comfortably, but only if nothing burns credits by
+accident. Responses are cached, the balance is read off every response,
+and below `min_quota_remaining` the provider refuses to call rather than
+quietly spending your last credits. An exhausted balance is invisible
+until the week you need a price and there isn't one.
+
+Events are matched to the stored schedule by canonical name and kickoff
+proximity, because the feed has its own spellings and no concept of a
+week. Anything unmatched is reported rather than guessed at — a silently
+dropped game is a game you never get a price on.
+
 ### Massey and anything else
 
 <https://masseyratings.com/ranks> renders its tables in the browser, so

@@ -145,13 +145,24 @@ class HttpClient:
             return stale
         raise ProviderError(f"Failed to fetch {url}: {last_error}")
 
+    def _header(self, name: str) -> Optional[str]:
+        """Case-insensitive lookup against the last response's headers."""
+        lowered = {k.lower(): v for k, v in self.last_response_headers.items()}
+        return lowered.get(name.lower())
+
     @property
     def quota_remaining(self) -> Optional[str]:
         """Requests left this period, when the provider reports it."""
-        for key in ("x-requests-remaining", "X-Requests-Remaining"):
-            if key in self.last_response_headers:
-                return self.last_response_headers[key]
-        return None
+        return self._header("x-requests-remaining")
+
+    @property
+    def quota_used(self) -> Optional[str]:
+        return self._header("x-requests-used")
+
+    @property
+    def quota_last_cost(self) -> Optional[str]:
+        """Credits the most recent call consumed."""
+        return self._header("x-requests-last")
 
 
 def _cache_safe_params(params: Optional[dict]) -> dict:
