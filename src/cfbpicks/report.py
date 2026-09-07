@@ -219,6 +219,9 @@ _CSS = """
   --good: #006300;
   --bad: #d03b3b;
   --bar: #86b6ef;
+  --warn: #fab219;
+  --warn-bg: #fdf7e7;
+  --warn-edge: #f0dfae;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -236,6 +239,9 @@ _CSS = """
     --good: #0ca30c;
     --bad: #d03b3b;
     --bar: #184f95;
+    --warn: #fab219;
+    --warn-bg: #2a2517;
+    --warn-edge: #4a4126;
   }
 }
 :root[data-theme="dark"] {
@@ -253,6 +259,9 @@ _CSS = """
   --good: #0ca30c;
   --bad: #d03b3b;
   --bar: #184f95;
+  --warn: #fab219;
+  --warn-bg: #2a2517;
+  --warn-edge: #4a4126;
 }
 
 * { box-sizing: border-box; }
@@ -318,14 +327,22 @@ footer { margin-top: 40px; color: var(--muted); font-size: 13px; border-top: 1px
 .empty { padding: 28px; color: var(--ink-2); }
 
 /* A standing caveat about the page as a whole -- sample data, a stale
-   fetch, a source that failed. Deliberately not a card: it qualifies
-   everything below rather than sitting alongside it as another object. */
+   fetch, a source that failed. It qualifies everything below, so it sits
+   above the title rather than among the content, and takes the warning
+   status colour rather than the accent.
+
+   This is deliberately loud. The demo fixtures invent matchups between
+   real schools, so a board of sample picks looks exactly like a board of
+   real ones. A caveat that can be skimmed past is not doing its job. */
 .note-bar {
-  margin: 20px 0 0; padding: 10px 14px;
-  border-left: 3px solid var(--tier-play);
-  background: var(--surface); color: var(--ink-2); font-size: 14px;
-  border-radius: 0 8px 8px 0;
+  display: flex; gap: 10px; align-items: flex-start;
+  margin: 0 0 24px; padding: 14px 16px;
+  background: var(--warn-bg); color: var(--ink);
+  border: 1px solid var(--warn-edge); border-left: 4px solid var(--warn);
+  border-radius: 0 10px 10px 0; font-size: 14px; line-height: 1.45;
 }
+.note-bar .mark { flex: none; font-size: 16px; line-height: 1.3; }
+.note-bar strong { letter-spacing: 0.01em; }
 """
 
 _TOGGLE_JS = """
@@ -390,6 +407,13 @@ def to_html(
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
         f"<title>CFB Picks — {season} Week {week}</title>",
         f"<style>{_CSS}</style></head><body><div class=\"wrap\">",
+    ]
+    if note:
+        parts.append(
+            "<p class=\"note-bar\"><span class=\"mark\" aria-hidden=\"true\">\u26a0</span>"
+            f"<span><strong>Heads up.</strong> {_esc(note)}</span></p>"
+        )
+    parts += [
         "<header><div>",
         f"<h1>College Football Picks</h1>",
         f"<div class=\"stamp\">{season} · Week {week} · generated {stamp}</div>",
@@ -397,9 +421,6 @@ def to_html(
         "<button class=\"toggle\" id=\"theme-toggle\">Theme</button>",
         "</header>",
     ]
-
-    if note:
-        parts.append(f"<p class=\"note-bar\">{_esc(note)}</p>")
 
     parts += [
         "<div class=\"tiles\">",
