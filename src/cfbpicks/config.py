@@ -160,7 +160,11 @@ DEFAULT_PROVIDERS: dict[str, dict[str, Any]] = {
         "options": {"sources": ["massey", "sagarin"], "input_dir": "data/ratings"},
     },
     "weather": {"enabled": True, "options": {"forecast_horizon_days": 16}},
-    "fixtures": {"enabled": True, "options": {}},
+    # Off by default, deliberately. These are invented games between real
+    # schools; a `fetch` that quietly mixed them into a live database
+    # would publish fabricated matchups as real recommendations. `demo`
+    # turns them on for itself.
+    "fixtures": {"enabled": False, "options": {}},
 }
 
 

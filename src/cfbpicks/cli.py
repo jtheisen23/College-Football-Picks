@@ -168,11 +168,24 @@ def rate(ctx, season, weeks, no_carryover, top) -> None:
             )
 
     if not results:
+        with Pipeline(config) as pipeline:
+            stored = pipeline.storage.games(season)
+            played = [g for g in stored if g.completed]
+        if not stored:
+            console.print(
+                f"[yellow]No games stored for {season}.[/yellow] "
+                f"Run [bold]cfbpicks fetch --season {season}[/bold] first."
+            )
+            sys.exit(1)
+        # Week 1, or a season that hasn't kicked off: there is simply
+        # nothing to fit on yet. Not an error, and it must not stop a
+        # scheduled run from publishing the rest of the board.
         console.print(
-            f"[yellow]No games stored for {season}.[/yellow] "
-            f"Run [bold]cfbpicks fetch --season {season}[/bold] first."
+            f"[yellow]No completed games in {season} yet[/yellow], so there is "
+            f"nothing to fit ratings on ({len(stored)} scheduled). "
+            "The other rating sources still apply."
         )
-        sys.exit(1)
+        return
 
     last_week = max(results)
     fit = results[last_week]
@@ -882,6 +895,9 @@ def demo(ctx: click.Context) -> None:
     config = _config(ctx)
     config.database = str(config.path("demo.sqlite"))
     Path(config.database).unlink(missing_ok=True)
+    # Sample data is disabled everywhere else; this is the one command
+    # that wants it, and it writes to its own database.
+    config.providers["fixtures"].enabled = True
 
     with Pipeline(config) as pipeline:
         report = pipeline.fetch(2026, 3, providers=["fixtures"])

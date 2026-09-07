@@ -170,3 +170,59 @@ class TestWarningHygiene:
         messages = [str(w.message) for w in caught]
         assert not any("LibreSSL" in m for m in messages)
         assert any("a real problem" in m for m in messages), "unrelated warnings must survive"
+
+
+class TestSampleDataIsolation:
+    """Invented games must never reach a live database.
+
+    The fixtures pair real school names into matchups that do not exist.
+    A `fetch` that quietly included them would publish fabricated games
+    as real recommendations -- which is exactly what happened on the
+    first cloud run before this was fixed.
+    """
+
+    def test_fixtures_are_off_by_default(self, tmp_path):
+        cfg = load_config(root=tmp_path)
+        assert cfg.providers["fixtures"].enabled is False
+
+    def test_a_plain_fetch_stores_no_sample_games(self, tmp_path):
+        from cfbpicks.pipeline import Pipeline
+
+        cfg = load_config(root=tmp_path)
+        cfg.database = str(tmp_path / "t.sqlite")
+        cfg.cache_dir = str(tmp_path / "cache")
+        cfg.offline = True
+        # Every network provider is unconfigured here, so anything that
+        # lands in the database came from the bundled samples.
+        with Pipeline(cfg) as pipeline:
+            pipeline.fetch(2026, 3, want=("games",))
+            assert pipeline.storage.games(2026) == []
+
+    def test_demo_still_gets_its_sample_data(self, tmp_path):
+        runner = CliRunner()
+        result = runner.invoke(main, ["--db", str(tmp_path / "x.sqlite"), "demo"])
+        assert result.exit_code == 0
+        assert "Loaded fixtures: 12 games" in result.output
+
+
+class TestRateWithoutResults:
+    def test_a_season_with_no_completed_games_is_not_an_error(self, tmp_path):
+        """Week 1 has nothing to fit on, and must not stop a scheduled run."""
+        from cfbpicks.models import Game
+        from cfbpicks.storage import Storage
+
+        db = tmp_path / "t.sqlite"
+        store = Storage(db)
+        store.upsert_games([Game("g1", 2026, 1, None, "Georgia", "Alabama")])
+        store.close()
+
+        result = CliRunner().invoke(main, ["--db", str(db), "rate", "--season", "2026"])
+        assert result.exit_code == 0, result.output
+        assert "No completed games" in result.output
+
+    def test_an_empty_season_is_still_an_error(self, tmp_path):
+        result = CliRunner().invoke(
+            main, ["--db", str(tmp_path / "empty.sqlite"), "rate", "--season", "2026"]
+        )
+        assert result.exit_code == 1
+        assert "No games stored" in result.output
