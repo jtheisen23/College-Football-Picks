@@ -28,6 +28,7 @@ class ModelConfig:
     # Weight per rating source when blending into one power number.
     rating_weights: dict[str, float] = field(
         default_factory=lambda: {
+            "cfbpicks_margin": 1.0,
             "cfbd_sp_plus": 1.0,
             "cfbd_srs": 0.5,
             "cfbd_elo": 0.5,
@@ -43,6 +44,19 @@ class ModelConfig:
     max_rest_adjustment: float = 1.5
     # Regress early-season ratings toward the preseason number.
     early_season_regression_weeks: int = 4
+    # Settings for the ratings the engine fits itself from results.
+    # `ridge` is how much evidence it takes to move a team off the prior.
+    # 2.0 was picked by sweeping simulated seasons: it minimised held-out
+    # error and kept predicted margins calibrated (slope ~1.02). Raising
+    # it shrinks predictions toward zero, which quietly biases the model
+    # onto underdogs.
+    regression_ridge: float = 2.0
+    # Capping blowout margins biases every coefficient low; off by default.
+    regression_margin_cap: Optional[float] = None
+    #: Weeks for a game's weight to halve. None weights all games equally.
+    regression_recency_halflife: Optional[float] = None
+    #: Carry last season's final ratings in as the prior, shrunk by this.
+    regression_carryover: float = 0.5
 
 
 @dataclass

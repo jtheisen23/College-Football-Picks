@@ -33,6 +33,7 @@ model:
   # Relative trust in each rating source when blending them into one
   # power number. Sources not listed here still count, at weight 1.0.
   rating_weights:
+    cfbpicks_margin: 1.0   # the engine's own fit; the only backtestable one
     cfbd_sp_plus: 1.0      # SP+ is the strongest single predictor here
     cfbd_srs: 0.5          # largely results-driven, so partially redundant
     cfbd_elo: 0.5
@@ -47,6 +48,31 @@ model:
   # Rest matters, but not much: a bye week is worth roughly a point.
   rest_advantage_per_day: 0.12
   max_rest_adjustment: 1.5
+
+  # --- the ratings the engine fits for itself (`cfbpicks rate`) ---------
+  # A ridge regression on scoring margin, refit each week from games
+  # played strictly beforehand. Unlike SP+ or Sagarin these are
+  # point-in-time, which is what makes an honest backtest possible.
+
+  # How much evidence it takes to move a team off the prior. 2.0 was
+  # chosen by sweeping simulated seasons: best held-out accuracy and
+  # calibrated predictions (slope ~1.02). Raising it shrinks projected
+  # margins toward zero, which quietly biases the model onto underdogs.
+  regression_ridge: 2.0
+
+  # Clamp blowout margins before fitting. Off by default: capping is
+  # standard for ranking systems but biases every coefficient low, and
+  # this model's output is a point spread. A 21-point cap measured out
+  # at 58% too small.
+  regression_margin_cap: null
+
+  # Weeks for a game's weight to halve. null weights all games equally.
+  regression_recency_halflife: null
+
+  # Carry last season's final fitted ratings in as the prior, at this
+  # strength. Week 1 has no games to fit on, so without this every team
+  # starts identical and the opening weeks are noise.
+  regression_carryover: 0.5
 
 betting:
   # Proportional de-vigging is fine for near-even markets; the power

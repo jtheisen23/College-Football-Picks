@@ -82,6 +82,7 @@ missing a key.
 
 ```bash
 cfbpicks fetch --week 3                       # games, ratings, lines
+cfbpicks rate                                 # fit the engine's own ratings
 cfbpicks predict --week 3                     # projections, before prices
 cfbpicks picks --week 3                       # the bets worth making
 cfbpicks picks --week 3 -o reports/week3.md --format markdown
@@ -91,6 +92,55 @@ cfbpicks grade --week 3
 ```
 
 Everything is cached in SQLite, so re-running `picks` costs no API calls.
+
+## The engine's own ratings
+
+Every external rating has a provenance problem. SP+ and SRS are
+season-level, so for a finished season they encode the results you're
+trying to predict. Sagarin and Massey publish only a current snapshot,
+with no history. None of them can honestly backtest.
+
+So the engine fits its own. `cfbpicks rate` runs a ridge regression on
+scoring margin:
+
+```
+margin  ≈  rating[home] − rating[away] + home_field × (not neutral)
+```
+
+refit once per week from games played **strictly beforehand**, and
+stamped with the week it's meant to price. That ordering is the whole
+point: the fit has never seen the game it's about to be asked about, so
+it's point-in-time by construction.
+
+```
+$ cfbpicks rate
+Fitted 14 weekly snapshots · latest is week 14: 134 teams from 812 games,
+HFA +2.31, residual sd 15.8
+
+  Fitted residual sd is 15.8; config uses margin_sd 16.0.
+```
+
+Three details make it behave on real data:
+
+- **Ridge regularisation.** In September a 2-0 team has beaten two
+  opponents nobody has a read on yet. An L2 penalty pulls thin evidence
+  toward average instead of letting it run wild, and keeps the normal
+  equations solvable when the schedule graph is disconnected.
+- **No margin capping, deliberately.** Clamping blowouts is standard for
+  *ranking* systems, but it shrinks every coefficient, and this model
+  outputs a point spread. Measured on simulated seasons, a 21-point cap
+  left predicted margins 58% too small — enough to tip the model onto
+  underdogs across the whole board.
+- **A carried-forward prior.** Week 1 has nothing to fit on, so last
+  season's final ratings come in at half strength.
+
+Defaults were picked by sweep, not taste: `ridge: 2.0` gave both the best
+held-out error and a calibration slope of ~1.02, where 6.0 over-shrank to
+1.64 in September.
+
+The `residual sd` it reports is an empirical read on `margin_sd`, the
+number driving every win probability in the engine. If the two disagree,
+believe the fit.
 
 ## Data sources
 
@@ -169,8 +219,16 @@ ended. Fetch a week-indexed source (CFBD Elo is one) or re-run with
 allow_final_ratings=True to see the contaminated number.
 ```
 
-CFBD's **Elo** is week-indexed and safe to backtest with. `--allow-final-ratings`
-exists for exploration and stamps `HINDSIGHT ENABLED` on the output.
+Two sources are safe to backtest with: the engine's own fitted ratings
+(above) and CFBD's **Elo**, which is genuinely week-indexed.
+`--allow-final-ratings` exists for exploration and stamps
+`HINDSIGHT ENABLED` on the output.
+
+The guard is verified by a test rather than by inspection: a synthetic
+season is generated in which the sportsbook is given the *true* margin
+of every game, and the backtest must fail to beat it. A model with no
+hindsight cannot profit against an omniscient market, so any positive
+ROI there means results are leaking into the ratings.
 
 **Undefined closing line value.** CLV needs a line captured *later* than
 the bet. With one odds snapshot per game, the "closing" line is the
@@ -217,7 +275,9 @@ src/cfbpicks/
   backtest.py       grading and season replay
   report.py         terminal, Markdown, CSV, JSON output
   providers/        one module per data source
-  ratings/blend.py  many rating systems -> one power number
+  ratings/
+    blend.py        many rating systems -> one power number
+    regression.py   the engine's own point-in-time ratings
   engine/
     predict.py      ratings + experts -> projected margin and total
     market.py       de-vigging, consensus, line shopping

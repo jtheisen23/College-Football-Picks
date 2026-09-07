@@ -8,7 +8,10 @@ spending API calls again.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable, Optional, Sequence
+from typing import TYPE_CHECKING, Iterable, Optional, Sequence
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .ratings.regression import FitResult
 
 from .config import Config
 from .engine.market import build_consensus
@@ -17,6 +20,7 @@ from .engine.recommend import Recommender
 from .models import ExpertProjection, Game, MarketQuote, Prediction, Rating, Recommendation
 from .providers import available, build_provider
 from .providers.sagarin import resolve_projections
+from .ratings.regression import SOURCE
 from .storage import Storage
 from .util.http import MissingCredentials, ProviderError
 
@@ -132,6 +136,71 @@ class Pipeline:
         resolved, _ = resolve_projections(raw, games)
         out.extend(resolved)
         return out
+
+    # -- fitted ratings ------------------------------------------------------
+    def compute_ratings(
+        self,
+        season: int,
+        weeks: Optional[Sequence[int]] = None,
+        *,
+        carry_prior: bool = True,
+    ) -> dict[int, "FitResult"]:
+        """Fit the engine's own power ratings, one snapshot per week.
+
+        Week ``W`` is fitted on games played *before* week ``W`` and
+        stored stamped with week ``W``, which is exactly the snapshot the
+        predictor picks up when pricing that week. That ordering is what
+        makes these ratings safe to backtest with: the fit has never seen
+        the game it is about to be asked about.
+        """
+        from .ratings.regression import fit_margin_ratings
+
+        model = self.config.model
+        all_games = self.storage.games(season)
+        if not all_games:
+            return {}
+
+        played = [g for g in all_games if g.completed]
+        target_weeks = list(weeks) if weeks else sorted({g.week for g in all_games})
+
+        prior = self._carryover_prior(season) if carry_prior else None
+        results: dict[int, FitResult] = {}
+
+        for week in target_weeks:
+            history = [g for g in played if g.week < week]
+            if not history and not prior:
+                continue
+            fit = fit_margin_ratings(
+                history,
+                ridge=model.regression_ridge,
+                margin_cap=model.regression_margin_cap,
+                prior=prior,
+                default_home_field=model.home_field_advantage,
+                recency_halflife=model.regression_recency_halflife,
+                as_of_week=week,
+            )
+            self.storage.upsert_ratings(fit.to_ratings(season, week))
+            results[week] = fit
+        return results
+
+    def _carryover_prior(self, season: int) -> Optional[dict[str, float]]:
+        """Last season's final fitted ratings, shrunk toward average.
+
+        Week 1 has no games to fit on, so without a prior every team
+        starts identical and the first weeks are noise. Carrying the
+        previous season forward at partial strength is the standard
+        remedy — teams change, but not completely.
+        """
+        weight = self.config.model.regression_carryover
+        if weight <= 0:
+            return None
+        previous = self.storage.ratings(season - 1, source=SOURCE)
+        if not previous:
+            return None
+        latest_week = max(r.week for r in previous)
+        return {
+            r.team: r.rating * weight for r in previous if r.week == latest_week
+        }
 
     # -- predict -----------------------------------------------------------
     def predict(

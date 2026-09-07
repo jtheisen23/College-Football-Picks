@@ -144,6 +144,62 @@ def fetch(ctx, season, week, only, games, ratings, odds) -> None:
 
 @main.command()
 @click.option("--season", type=int)
+@click.option("--weeks", help="Week range, e.g. 1-14. Defaults to every week with games.")
+@click.option("--no-carryover", is_flag=True, help="Ignore last season's ratings as a prior.")
+@click.option("--top", type=int, default=15, help="How many teams to list.")
+@click.pass_context
+def rate(ctx, season, weeks, no_carryover, top) -> None:
+    """Fit the engine's own power ratings from results.
+
+    Unlike SP+ or Sagarin, these are computed per week from games played
+    strictly beforehand, so they are safe to backtest with. Run this
+    after `fetch` and before `predict`.
+    """
+    config = _config(ctx)
+    season = _season(ctx, season)
+    week_list = _parse_weeks(weeks) if weeks else None
+
+    with Pipeline(config) as pipeline:
+        with console.status(f"Fitting ratings for {season}…"):
+            results = pipeline.compute_ratings(
+                season, week_list, carry_prior=not no_carryover
+            )
+
+    if not results:
+        console.print(
+            f"[yellow]No games stored for {season}.[/yellow] "
+            f"Run [bold]cfbpicks fetch --season {season}[/bold] first."
+        )
+        sys.exit(1)
+
+    last_week = max(results)
+    fit = results[last_week]
+    console.print(
+        f"[green]Fitted[/green] {len(results)} weekly snapshots · "
+        f"latest is week {last_week}: {fit.summary()}"
+    )
+
+    if fit.residual_sd:
+        console.print(
+            f"  [dim]Fitted residual sd is {fit.residual_sd:.1f}; config uses "
+            f"margin_sd {config.model.margin_sd}. Large gaps are worth "
+            f"reconciling — that number drives every win probability.[/dim]"
+        )
+
+    table = Table(title=f"Power ratings — {season} week {last_week}", header_style="bold")
+    table.add_column("#", justify="right")
+    table.add_column("Team")
+    table.add_column("Rating", justify="right")
+    table.add_column("Games", justify="right")
+    for rank, (team, value) in enumerate(
+        sorted(fit.ratings.items(), key=lambda kv: -kv[1])[:top], start=1
+    ):
+        table.add_row(str(rank), team, f"{value:+.2f}", str(fit.appearances.get(team, 0)))
+    console.print(table)
+
+
+@main.command()
+@click.option("--season", type=int)
 @click.option("--week", type=int, required=True)
 @click.option("--limit", type=int, help="Show only the N biggest mismatches.")
 @click.pass_context
@@ -163,6 +219,14 @@ def predict(ctx, season, week, limit) -> None:
         )
         return
     console.print(predictions_table(predictions, limit))
+
+    if not any("cfbpicks_margin" in p.rating_sources for p in predictions):
+        console.print(
+            "\n[yellow]The engine's own ratings aren't in this blend.[/yellow] "
+            f"Run [bold]cfbpicks rate --season {season}[/bold] to fit them — they're "
+            "the only rating source here that can also be backtested honestly."
+        )
+
     thin = [p for p in predictions if p.confidence < 0.3]
     if thin:
         console.print(
