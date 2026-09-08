@@ -1,0 +1,325 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFB Picks — 2026 Week 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #101418;
+  --ink-2: #55606c;
+  --muted: #6b7681;
+  --rule: #e6e9ed;
+  --border: rgba(16,20,24,0.10);
+  --tier-lean: #86b6ef;
+  --tier-play: #2a78d6;
+  --tier-strong: #184f95;
+  --tier-lean-ink: #101418;
+  --tier-play-ink: #ffffff;
+  --tier-strong-ink: #ffffff;
+  --good: #006300;
+  --bad: #c0392b;
+  --accent: #2a78d6;
+  --warn: #fab219;
+  --warn-bg: #fdf7e7;
+  --warn-edge: #f0dfae;
+  --track: #eef1f4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0e1114;
+    --surface: #171b1f;
+    --ink: #f2f5f7;
+    --ink-2: #b7c0c9;
+    --muted: #8a94a0;
+    --rule: #262c32;
+    --border: rgba(255,255,255,0.10);
+    --tier-lean: #184f95;
+    --tier-play: #2a78d6;
+    --tier-strong: #86b6ef;
+    --tier-lean-ink: #ffffff;
+    --tier-play-ink: #ffffff;
+    --tier-strong-ink: #101418;
+    --good: #3fbf5f;
+    --bad: #f0736a;
+    --accent: #6da7ec;
+    --warn: #fab219;
+    --warn-bg: #2a2517;
+    --warn-edge: #4a4126;
+    --track: #222831;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0e1114;
+  --surface: #171b1f;
+  --ink: #f2f5f7;
+  --ink-2: #b7c0c9;
+  --muted: #8a94a0;
+  --rule: #262c32;
+  --border: rgba(255,255,255,0.10);
+  --tier-lean: #184f95;
+  --tier-play: #2a78d6;
+  --tier-strong: #86b6ef;
+  --tier-lean-ink: #ffffff;
+  --tier-play-ink: #ffffff;
+  --tier-strong-ink: #101418;
+  --good: #3fbf5f;
+  --bad: #f0736a;
+  --accent: #6da7ec;
+  --warn: #fab219;
+  --warn-bg: #2a2517;
+  --warn-edge: #4a4126;
+  --track: #222831;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 15px/1.5 "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 72px; }
+@media (min-width: 700px) { .wrap { padding: 36px 28px 80px; } }
+
+h1 {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700; font-size: clamp(24px, 5vw, 34px);
+  letter-spacing: -0.02em; margin: 0; text-wrap: balance;
+}
+.stamp { color: var(--muted); font-size: 13px; margin-top: 6px; }
+header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.toggle {
+  flex: none; background: var(--surface); color: var(--ink-2);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 7px 14px; font: inherit; font-size: 13px; cursor: pointer;
+}
+.toggle:hover { color: var(--ink); border-color: var(--accent); }
+.toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Week switcher. Only rendered when there is more than one week. */
+.weeknav { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0 0; }
+.weeknav a {
+  padding: 7px 14px; border-radius: 999px; text-decoration: none;
+  font-size: 14px; font-weight: 500; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--border);
+}
+.weeknav a:hover { border-color: var(--accent); color: var(--ink); }
+.weeknav a[aria-current="page"] {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+.weeknav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.tiles {
+  display: grid; gap: 10px; margin: 22px 0 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 700px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 13px 15px; }
+.tile .label {
+  color: var(--muted); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
+.tile .value {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600; font-size: 25px; letter-spacing: -0.02em;
+  margin-top: 3px; font-variant-numeric: tabular-nums;
+}
+.tile .sub { color: var(--muted); font-size: 12px; margin-top: 1px; }
+
+h2 {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--muted); margin: 34px 0 12px;
+}
+
+/* --- the board -------------------------------------------------------
+   One grid per bet. Narrow: a card, with each figure labelled. Wide: the
+   same cells snap into shared columns under a header row. */
+.board { display: grid; gap: 10px; }
+.board-head { display: none; }
+.bet {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 15px;
+  display: grid; gap: 12px;
+  /* Badge takes only its own width; the game text gets the rest. The
+     other way round pushes the text to the right-hand edge. */
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+}
+.bet .game { min-width: 0; }
+.matchup { color: var(--ink-2); font-size: 13px; }
+.pick {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600; font-size: 18px; letter-spacing: -0.01em; margin-top: 2px;
+}
+.at { color: var(--muted); font-weight: 400; }
+.terms { color: var(--ink-2); font-size: 13px; margin-top: 3px; font-variant-numeric: tabular-nums; }
+.terms .book { color: var(--muted); }
+
+.figs {
+  grid-column: 1 / -1;
+  /* Five figures across even on a 390px screen; auto-fit rather than a
+     fixed count so a narrow phone reflows instead of orphaning one. */
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+  gap: 8px 12px; padding-top: 11px; border-top: 1px solid var(--rule);
+}
+.fig { min-width: 0; }
+.fig .lab {
+  display: block; color: var(--muted); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
+.fig .val {
+  display: block; font-variant-numeric: tabular-nums; font-size: 14px;
+  margin-top: 2px; white-space: nowrap;
+}
+.fig.edge .val { font-weight: 600; }
+.pos { color: var(--good); }
+.neg { color: var(--bad); }
+
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; white-space: nowrap;
+}
+.badge.lean { background: var(--tier-lean); color: var(--tier-lean-ink); }
+.badge.play { background: var(--tier-play); color: var(--tier-play-ink); }
+.badge.strong { background: var(--tier-strong); color: var(--tier-strong-ink); }
+
+.caveat { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+
+@media (min-width: 860px) {
+  .board { gap: 8px; }
+  .board-head, .bet {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) 78px 78px 88px 66px 74px;
+    gap: 14px; align-items: center;
+  }
+  .board-head {
+    padding: 0 15px 6px; color: var(--muted); font-size: 11px;
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .board-head span:not(:nth-child(2)) { text-align: right; }
+  .board-head span:first-child { text-align: left; }
+  .bet { padding: 12px 15px; }
+  .figs {
+    display: contents;            /* the figures become sibling columns */
+  }
+  .fig { text-align: right; }
+  .fig .lab {                     /* the label lives in the header row now */
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .fig .val { font-size: 14px; margin-top: 0; }
+  .caveat { grid-column: 2 / -1; margin-top: -4px; }
+}
+
+.note-bar {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin: 0 0 22px; padding: 13px 15px;
+  background: var(--warn-bg); color: var(--ink);
+  border: 1px solid var(--warn-edge); border-left: 4px solid var(--warn);
+  border-radius: 0 12px 12px 0; font-size: 14px; line-height: 1.45;
+}
+.note-bar .mark { flex: none; font-size: 16px; }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.empty { padding: 26px; color: var(--ink-2); margin: 0; }
+details { margin-top: 10px; }
+summary {
+  cursor: pointer; color: var(--ink-2); font-size: 14px; padding: 8px 0;
+  font-weight: 500;
+}
+summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 9px 12px; text-align: left; white-space: nowrap; }
+th {
+  color: var(--muted); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--rule);
+}
+td { border-bottom: 1px solid var(--rule); }
+tr:last-child td { border-bottom: none; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.dim { color: var(--muted); }
+
+footer {
+  margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: 13px;
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style></head><body><div class="wrap">
+<header><div>
+<h1>College Football Picks</h1>
+<div class="stamp">2026 · Week 3 · updated 08 Sep 2026, 18:17 UTC</div>
+</div>
+<button class="toggle" id="theme-toggle" type="button">Theme</button>
+</header>
+<div class="tiles">
+<div class="tile"><div class="label">Bets</div><div class="value">17</div><div class="sub">10 strong</div></div>
+<div class="tile"><div class="label">Staked</div><div class="value">34.54u</div><div class="sub">fractional Kelly</div></div>
+<div class="tile"><div class="label">Expected</div><div class="value">+3.94u</div><div class="sub">if the model is right</div></div>
+<div class="tile"><div class="label">Median edge</div><div class="value">5.8%</div><div class="sub">over the no-vig price</div></div>
+</div>
+<h2>Recommended bets</h2>
+<div class="board">
+<div class="board-head" aria-hidden="true"><span>Tier</span><span>Bet</span><span>Model</span><span>Market</span><span>Edge</span><span>Pts</span><span>Units</span></div>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">LSU <span class="at">@</span> Alabama</div><div class="pick">Over 49.5</div><div class="terms">-108 <span class="book">at BetMGM</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">60.0%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+10.0%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+4.5</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 24% toward market (confidence 0.76)</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Mississippi <span class="at">@</span> Texas</div><div class="pick">Texas -5.5</div><div class="terms">-108 <span class="book">at BetMGM</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">59.2%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">51.2%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+7.9%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+4.1</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 21% toward market (confidence 0.79)</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Duke <span class="at">@</span> Clemson</div><div class="pick">Under 57</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">57.0%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+7.0%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.8</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 37% toward market (confidence 0.63); push chance 2.8%</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Iowa <span class="at">@</span> Penn State</div><div class="pick">Iowa ML</div><div class="terms">+515 <span class="book">at FanDuel</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">20.3%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">13.9%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+6.4%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+5.6</span></div><div class="fig"><span class="lab">Units</span><span class="val ">1.22</span></div></div><p class="caveat">model shrunk 30% toward market (confidence 0.70)</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Iowa <span class="at">@</span> Penn State</div><div class="pick">Iowa +16</div><div class="terms">-110 <span class="book">at FanDuel</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">57.7%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">51.2%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+6.4%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.7</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 30% toward market (confidence 0.70); push chance 2.4%</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Louisville <span class="at">@</span> Miami</div><div class="pick">Miami -6</div><div class="terms">-108 <span class="book">at BetMGM</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">57.7%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">51.2%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+6.4%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.7</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 30% toward market (confidence 0.70); push chance 2.4%</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Louisville <span class="at">@</span> Miami</div><div class="pick">Under 61.5</div><div class="terms">-110 <span class="book">at FanDuel</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">57.4%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">51.5%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+6.0%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.9</span></div><div class="fig"><span class="lab">Units</span><span class="val ">2.65</span></div></div><p class="caveat">model shrunk 30% toward market (confidence 0.70)</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Mississippi <span class="at">@</span> Texas</div><div class="pick">Texas ML</div><div class="terms">-201 <span class="book">at BetMGM</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">72.0%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">66.1%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+5.9%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.4</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 21% toward market (confidence 0.79)</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Iowa <span class="at">@</span> Penn State</div><div class="pick">Under 60</div><div class="terms">-110 <span class="book">at FanDuel</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">57.3%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">51.5%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+5.8%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.8</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 30% toward market (confidence 0.70); push chance 2.9%</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Washington State <span class="at">@</span> Oregon</div><div class="pick">Over 47</div><div class="terms">-108 <span class="book">at BetMGM</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">55.6%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+5.6%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.7</span></div><div class="fig"><span class="lab">Units</span><span class="val ">2.77</span></div></div><p class="caveat">model shrunk 29% toward market (confidence 0.71); push chance 2.9%</p></article>
+<article class="bet"><div><span class="badge play">play</span></div><div class="game"><div class="matchup">Louisville <span class="at">@</span> Miami</div><div class="pick">Miami ML</div><div class="terms">-208 <span class="book">at BetMGM</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">71.8%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">66.9%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+4.9%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.3</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 30% toward market (confidence 0.70)</p></article>
+<article class="bet"><div><span class="badge play">play</span></div><div class="game"><div class="matchup">Vanderbilt vs Boise State</div><div class="pick">Vanderbilt +21</div><div class="terms">-110 <span class="book">at FanDuel</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">56.1%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">51.2%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+4.9%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.5</span></div><div class="fig"><span class="lab">Units</span><span class="val ">2.68</span></div></div><p class="caveat">model shrunk 44% toward market (confidence 0.56); push chance 2.4%</p></article>
+<article class="bet"><div><span class="badge lean">lean</span></div><div class="game"><div class="matchup">Duke <span class="at">@</span> Clemson</div><div class="pick">Duke ML</div><div class="terms">+533 <span class="book">at FanDuel</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">16.4%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">13.4%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+3.0%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.1</span></div><div class="fig"><span class="lab">Units</span><span class="val ">0.18</span></div></div><p class="caveat">model shrunk 37% toward market (confidence 0.63)</p></article>
+<article class="bet"><div><span class="badge lean">lean</span></div><div class="game"><div class="matchup">Arizona <span class="at">@</span> Utah</div><div class="pick">Arizona ML</div><div class="terms">+533 <span class="book">at FanDuel</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">16.2%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">13.4%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+2.8%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.1</span></div><div class="fig"><span class="lab">Units</span><span class="val ">0.12</span></div></div><p class="caveat">model shrunk 39% toward market (confidence 0.61)</p></article>
+<article class="bet"><div><span class="badge lean">lean</span></div><div class="game"><div class="matchup">Tennessee <span class="at">@</span> Georgia</div><div class="pick">Tennessee ML</div><div class="terms">+412 <span class="book">at FanDuel</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">20.2%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">17.4%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+2.8%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.1</span></div><div class="fig"><span class="lab">Units</span><span class="val ">0.22</span></div></div><p class="caveat">model shrunk 22% toward market (confidence 0.78)</p></article>
+<article class="bet"><div><span class="badge lean">lean</span></div><div class="game"><div class="matchup">Purdue <span class="at">@</span> Notre Dame</div><div class="pick">Purdue +31.5</div><div class="terms">-110 <span class="book">at FanDuel</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">53.5%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">51.2%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+2.3%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+1.5</span></div><div class="fig"><span class="lab">Units</span><span class="val ">0.60</span></div></div><p class="caveat">model shrunk 40% toward market (confidence 0.60)</p></article>
+<article class="bet"><div><span class="badge lean">lean</span></div><div class="game"><div class="matchup">Michigan <span class="at">@</span> Ohio State</div><div class="pick">Michigan ML</div><div class="terms">+275 <span class="book">at FanDuel</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">26.9%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">24.9%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+2.1%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+1.2</span></div><div class="fig"><span class="lab">Units</span><span class="val ">0.10</span></div></div><p class="caveat">model shrunk 18% toward market (confidence 0.82)</p></article>
+</div>
+<h2>All projections</h2>
+<details><summary>12 games</summary>
+<div class="panel scroll"><table><thead><tr>
+<th>Matchup</th><th class="num">Margin</th><th class="num">Fair spread</th>
+<th class="num">Total</th><th class="num">Home win</th><th class="num">Conf</th>
+</tr></thead><tbody>
+<tr><td>Purdue @ Notre Dame</td><td class="num">+29.5</td><td class="num">-29.5</td><td class="num">51.9</td><td class="num">97%</td><td class="num">0.60</td></tr>
+<tr><td>Washington State @ Oregon</td><td class="num">+21.8</td><td class="num">-21.8</td><td class="num">49.7</td><td class="num">91%</td><td class="num">0.71</td></tr>
+<tr><td>Vanderbilt @ Boise State</td><td class="num">+17.0</td><td class="num">-17.0</td><td class="num">50.6</td><td class="num">86%</td><td class="num">0.56</td></tr>
+<tr><td>Cincinnati @ Kansas State</td><td class="num">+16.9</td><td class="num">-16.9</td><td class="num">53.5</td><td class="num">85%</td><td class="num">0.65</td></tr>
+<tr><td>Arizona @ Utah</td><td class="num">+14.6</td><td class="num">-14.6</td><td class="num">55.8</td><td class="num">82%</td><td class="num">0.61</td></tr>
+<tr><td>Duke @ Clemson</td><td class="num">+14.6</td><td class="num">-14.6</td><td class="num">53.2</td><td class="num">82%</td><td class="num">0.63</td></tr>
+<tr><td>Tennessee @ Georgia</td><td class="num">+12.9</td><td class="num">-12.9</td><td class="num">54.9</td><td class="num">79%</td><td class="num">0.78</td></tr>
+<tr><td>Iowa @ Penn State</td><td class="num">+11.8</td><td class="num">-11.8</td><td class="num">56.7</td><td class="num">77%</td><td class="num">0.70</td></tr>
+<tr><td>Louisville @ Miami</td><td class="num">+10.2</td><td class="num">-10.2</td><td class="num">58.1</td><td class="num">74%</td><td class="num">0.70</td></tr>
+<tr><td>Mississippi @ Texas</td><td class="num">+10.1</td><td class="num">-10.1</td><td class="num">52.5</td><td class="num">74%</td><td class="num">0.79</td></tr>
+<tr><td>Michigan @ Ohio State</td><td class="num">+9.6</td><td class="num">-9.6</td><td class="num">57.2</td><td class="num">73%</td><td class="num">0.82</td></tr>
+<tr><td>LSU @ Alabama</td><td class="num">+8.8</td><td class="num">-8.8</td><td class="num">54.0</td><td class="num">71%</td><td class="num">0.76</td></tr>
+</tbody></table></div></details>
+<footer>Model output, not betting advice. Stakes are fractional-Kelly units; one unit is 1% of bankroll by default. Edges are measured against the de-vigged market price at the quoted number.</footer>
+</div><script>
+(function () {
+  var btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  var root = document.documentElement;
+  try {
+    var saved = localStorage.getItem('cfbpicks-theme');
+    if (saved) root.setAttribute('data-theme', saved);
+  } catch (e) {}
+  btn.addEventListener('click', function () {
+    var dark = getComputedStyle(root).colorScheme.indexOf('dark') !== -1;
+    var next = dark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('cfbpicks-theme', next); } catch (e) {}
+  });
+})();
+</script></body></html>
