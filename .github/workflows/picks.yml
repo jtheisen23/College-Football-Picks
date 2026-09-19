@@ -55,8 +55,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: cfbpicks.sqlite
-          key: cfbpicks-db-${{ github.run_id }}
-          restore-keys: cfbpicks-db-
+          # v2: the v1 cache holds demo games from before sample data was
+          # made opt-in. Abandoning it is the only way to evict them --
+          # fixture ratings are stored under the same source names as
+          # real ones, so they cannot be deleted selectively.
+          key: cfbpicks-db-v2-${{ github.run_id }}
+          restore-keys: cfbpicks-db-v2-
 
       - name: Fetch, rate and publish
         env:

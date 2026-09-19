@@ -46,13 +46,23 @@ def build_providers(config: Config, names: Optional[Iterable[str]] = None) -> li
     return [build_provider(name, config) for name in wanted if name in PROVIDER_CLASSES]
 
 
+#: Providers that must be asked for by name. Sample data pairs real
+#: school names into matchups that do not exist, so it can never be
+#: picked up by a general fetch -- not even if a config file enables it.
+#: Being wrong here publishes invented games as real recommendations.
+OPT_IN_ONLY = {FixturesProvider.name}
+
+
 def available(config: Config, capability: str, names: Optional[Iterable[str]] = None) -> list[Provider]:
     """Providers that are enabled, credentialed and offer ``capability``.
 
-    ``capability`` is one of ``games``, ``ratings`` or ``odds``.
+    ``capability`` is one of ``games``, ``ratings``, ``odds`` or
+    ``weather``. Opt-in providers appear only when named explicitly.
     """
     attr = f"provides_{capability}"
+    requested = set(names) if names else None
     return [
         p for p in build_providers(config, names)
         if getattr(p, attr, False) and p.enabled and p.configured
+        and (p.name not in OPT_IN_ONLY or (requested is not None and p.name in requested))
     ]

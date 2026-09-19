@@ -226,3 +226,34 @@ class TestRateWithoutResults:
         )
         assert result.exit_code == 1
         assert "No games stored" in result.output
+
+
+class TestFixturesAreOptInOnly:
+    """Config must not be able to put invented games on a real board."""
+
+    def test_config_cannot_re_enable_them_for_a_general_fetch(self, tmp_path):
+        """The exact bug that published fake games for twelve days."""
+        from cfbpicks.providers import available
+
+        (tmp_path / "config.yaml").write_text(
+            "providers:\n  fixtures:\n    enabled: true\n"
+        )
+        cfg = load_config(root=tmp_path)
+        assert cfg.providers["fixtures"].enabled is True, "config said yes"
+        # ...and it is still excluded from a fetch that didn't ask for it.
+        assert "fixtures" not in [p.name for p in available(cfg, "games")]
+
+    def test_naming_them_explicitly_still_works(self, tmp_path):
+        from cfbpicks.providers import available
+
+        cfg = load_config(root=tmp_path)
+        cfg.providers["fixtures"].enabled = True
+        names = [p.name for p in available(cfg, "games", ["fixtures"])]
+        assert names == ["fixtures"]
+
+    def test_real_providers_are_unaffected(self, tmp_path, monkeypatch):
+        from cfbpicks.providers import available
+
+        monkeypatch.setenv("CFBD_API_KEY", "x")
+        cfg = load_config(root=tmp_path)
+        assert "cfbd" in [p.name for p in available(cfg, "games")]

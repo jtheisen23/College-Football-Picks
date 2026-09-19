@@ -173,5 +173,9 @@ providers:
       # skipped rather than guessed at.
       forecast_horizon_days: 16
 
+  # Sample data: invented matchups between real schools, for `cfbpicks
+  # demo`. Off, and ignored by a plain fetch even if switched on -- it
+  # has to be named with `--provider fixtures`. Turning this on will not
+  # put demo games on your board.
   fixtures:
-    enabled: true
+    enabled: false
