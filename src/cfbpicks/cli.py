@@ -520,7 +520,7 @@ def publish(ctx, season, week, push) -> None:
 
 @main.command()
 @click.option("--season", type=int)
-@click.option("--week", type=int, required=True)
+@click.option("--week", type=int, help="Defaults to the current week.")
 @click.option("--market", "markets", multiple=True,
               type=click.Choice(["spread", "total", "moneyline"]),
               help="Restrict to specific markets.")
@@ -559,9 +559,10 @@ def picks(ctx, season, week, markets, min_edge, max_units, fmt, output, show_all
                     "Run [bold]cfbpicks fetch[/bold] first."
                 )
                 sys.exit(1)
-            console.print(f"[dim]Publishing the current week: {week}[/dim]")
+            console.print(f"[dim]Current week: {week}[/dim]")
         recommendations = pipeline.picks(season, week)
         predictions = pipeline.storage.predictions(season, week)
+        skipped = getattr(pipeline, "skipped_games", {}) or {}
 
     if not predictions:
         console.print(
@@ -569,6 +570,15 @@ def picks(ctx, season, week, markets, min_edge, max_units, fmt, output, show_all
             f"Run [bold]cfbpicks fetch --week {week}[/bold] first."
         )
         sys.exit(1)
+
+    # A short board should say why it is short.
+    reasons = []
+    if skipped.get("non_fbs"):
+        reasons.append(f"{skipped['non_fbs']} outside FBS")
+    if skipped.get("low_confidence"):
+        reasons.append(f"{skipped['low_confidence']} with thin rating coverage")
+    if reasons and not output:
+        console.print(f"[dim]Skipped {', '.join(reasons)}.[/dim]")
 
     if fmt == "table" and not output:
         render_console(recommendations, console)

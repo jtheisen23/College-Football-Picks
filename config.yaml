@@ -96,6 +96,17 @@ betting:
   # Guard rails.
   max_spread_line: 35.0        # ignore blowout numbers entirely
   max_moneyline_margin: 21.0   # a normal model misprices heavy favourites
+
+  # Only price FBS-vs-FBS games. The ratings are fitted on FBS results,
+  # so an FCS opponent lands near average while the market has it four
+  # touchdowns worse -- which reads as a 30% edge on every big underdog
+  # and is entirely an artefact. One real week produced 231 "bets" and
+  # 564 units of stake this way before the filter existed.
+  fbs_only: true
+
+  # Below this confidence, skip the game rather than shrink the stake.
+  # Thin rating coverage is a reason not to bet at all.
+  min_confidence: 0.35
   min_book_count: 1            # require this many books before pricing
 
   markets: [spread, total, moneyline]

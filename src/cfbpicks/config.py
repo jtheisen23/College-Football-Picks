@@ -77,6 +77,14 @@ class BettingConfig:
     # Beyond this projected margin, moneyline pricing from a normal model
     # is unreliable, so moneylines on those games are skipped entirely.
     max_moneyline_margin: float = 21.0
+    # Only price games between FBS programmes. The ratings have no real
+    # read on FCS opponents, so the model rates them near average while
+    # the market rates them four touchdowns worse -- which reads as a
+    # huge edge on every big underdog and is entirely an artefact.
+    fbs_only: bool = True
+    # Skip a game outright below this confidence, rather than shrinking
+    # the stake. Thin coverage is a reason not to bet, not to bet small.
+    min_confidence: float = 0.35
     min_book_count: int = 1
     markets: list[str] = field(default_factory=lambda: ["spread", "total", "moneyline"])
     # Tier boundaries measured in probability edge.

@@ -81,6 +81,17 @@ class Pipeline:
                 report.unconfigured.append(provider.name)
 
         if "games" in want:
+            # The FBS roster decides which games are inside the model's
+            # competence, so it is fetched alongside them.
+            for provider in available(self.config, "games", providers):
+                if hasattr(provider, "fetch_teams"):
+                    try:
+                        stored = self.storage.upsert_teams(season, provider.fetch_teams(season))
+                        if stored:
+                            report.note(provider.name, f"{stored} FBS teams")
+                    except Exception as exc:  # noqa: BLE001
+                        report.warn(f"{provider.name} teams: {exc}")
+
             for provider in available(self.config, "games", providers):
                 try:
                     games = provider.fetch_games(season, week)
@@ -310,6 +321,9 @@ class Pipeline:
         if not predictions:
             return []
 
+        predictions, skipped = self._eligible(season, predictions)
+        self.skipped_games = skipped
+
         game_ids = [p.game_id for p in predictions]
         quotes_by_game = self.storage.quotes_for_games(game_ids)
         consensus = build_consensus(quotes_by_game, self.config)
@@ -321,6 +335,30 @@ class Pipeline:
         if save and recs:
             self.storage.save_recommendations(recs)
         return recs
+
+    def _eligible(self, season: int, predictions):
+        """Drop games the model has no business pricing.
+
+        Two filters, both about competence rather than edge. An FCS
+        opponent is rated near average by a model built on FBS results,
+        so the market's four-touchdown line looks like free money and is
+        not. And a game whose teams are barely covered by the rating
+        sources is a game to skip, not to bet small.
+        """
+        betting = self.config.betting
+        roster = self.storage.fbs_teams(season) if betting.fbs_only else set()
+        kept, skipped = [], {"non_fbs": 0, "low_confidence": 0}
+
+        for prediction in predictions:
+            if roster and (prediction.home_team not in roster
+                           or prediction.away_team not in roster):
+                skipped["non_fbs"] += 1
+                continue
+            if prediction.confidence < betting.min_confidence:
+                skipped["low_confidence"] += 1
+                continue
+            kept.append(prediction)
+        return kept, skipped
 
     # -- grading -------------------------------------------------------------
     def grade(self, season: int, week: Optional[int] = None) -> dict[str, int]:

@@ -9,7 +9,7 @@ import pytest
 
 from cfbpicks.backtest import backtest_season, grade_all
 from cfbpicks.config import Config, ProviderConfig
-from cfbpicks.models import Game
+from cfbpicks.models import Game, Rating
 from cfbpicks.pipeline import Pipeline
 from cfbpicks.storage import Storage
 
@@ -227,3 +227,97 @@ class TestCurrentWeek:
         ])
         with Pipeline(cfg) as pipeline:
             assert pipeline.current_week(2026) == 2
+
+
+class TestBoardEligibility:
+    """The 231-bet board: FCS opponents the model cannot rate.
+
+    A model fitted on FBS results rates an FCS team near average. The
+    market rates it four touchdowns worse. The difference reads as a
+    enormous edge on every big underdog and is purely an artefact of
+    betting outside the model's competence.
+    """
+
+    def _cfg(self, tmp_path):
+        cfg = Config(root=tmp_path)
+        cfg.database = str(tmp_path / "t.sqlite")
+        cfg.cache_dir = str(tmp_path / "cache")
+        return cfg
+
+    def _seed(self, cfg, *, roster):
+        from cfbpicks.models import MarketQuote
+        from cfbpicks.storage import Storage
+
+        store = Storage(cfg.database_path)
+        store.upsert_games([
+            Game("fbs", 2026, 4, None, "Georgia", "Alabama"),
+            Game("fcs", 2026, 4, None, "Georgia", "Mercer"),
+        ])
+        if roster:
+            store.upsert_teams(2026, [{"team": t} for t in roster])
+        for gid in ("fbs", "fcs"):
+            store.upsert_quotes([
+                MarketQuote(gid, "DK", "spread", "home", -7.0, -110),
+                MarketQuote(gid, "DK", "spread", "away", 7.0, -110),
+            ])
+        store.upsert_ratings([
+            Rating("a", 2026, 4, t, v) for t, v in
+            [("Georgia", 22.0), ("Alabama", 18.0), ("Mercer", 0.0)]
+        ] + [
+            Rating("b", 2026, 4, t, v) for t, v in
+            [("Georgia", 21.0), ("Alabama", 19.0), ("Mercer", 0.0)]
+        ])
+        store.close()
+
+    def test_games_outside_fbs_are_not_priced(self, tmp_path):
+        cfg = self._cfg(tmp_path)
+        self._seed(cfg, roster=["Georgia", "Alabama"])
+        with Pipeline(cfg) as pipeline:
+            recs = pipeline.picks(2026, 4)
+            assert pipeline.skipped_games["non_fbs"] == 1
+        assert all(r.game_id != "fcs" for r in recs)
+
+    def test_the_filter_can_be_turned_off(self, tmp_path):
+        cfg = self._cfg(tmp_path)
+        cfg.betting.fbs_only = False
+        self._seed(cfg, roster=["Georgia", "Alabama"])
+        with Pipeline(cfg) as pipeline:
+            pipeline.picks(2026, 4)
+            assert pipeline.skipped_games["non_fbs"] == 0
+
+    def test_no_roster_means_no_filtering(self, tmp_path):
+        """A database that never fetched teams must not lose every game."""
+        cfg = self._cfg(tmp_path)
+        self._seed(cfg, roster=None)
+        with Pipeline(cfg) as pipeline:
+            pipeline.predict(2026, 4, use_projections=False)
+            pipeline.picks(2026, 4, repredict=False)
+            assert pipeline.skipped_games["non_fbs"] == 0
+
+    def test_thin_coverage_is_skipped_not_shrunk(self, tmp_path):
+        """One lone rating source is a reason not to bet, not to bet small."""
+        from cfbpicks.models import MarketQuote
+        from cfbpicks.storage import Storage
+
+        cfg = self._cfg(tmp_path)
+        cfg.betting.fbs_only = False
+        cfg.betting.min_confidence = 0.6
+
+        store = Storage(cfg.database_path)
+        store.upsert_games([Game("thin", 2026, 4, None, "Georgia", "Mercer")])
+        store.upsert_quotes([
+            MarketQuote("thin", "DK", "spread", "home", -7.0, -110),
+            MarketQuote("thin", "DK", "spread", "away", 7.0, -110),
+        ])
+        # Georgia is covered twice; Mercer only once, so the blend is thin.
+        store.upsert_ratings([
+            Rating("a", 2026, 4, "Georgia", 22.0),
+            Rating("b", 2026, 4, "Georgia", 21.0),
+            Rating("a", 2026, 4, "Mercer", -20.0),
+        ])
+        store.close()
+
+        with Pipeline(cfg) as pipeline:
+            recs = pipeline.picks(2026, 4)
+            assert pipeline.skipped_games["low_confidence"] == 1
+        assert recs == []

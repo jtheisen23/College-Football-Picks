@@ -251,8 +251,23 @@ class CfbdProvider(Provider):
         return self._get("/venues", {"year": season}, ttl=0) or []
 
     def fetch_teams(self, season: int) -> list[dict]:
-        """FBS team list, useful for validating the alias map."""
-        return self._get("/teams/fbs", {"year": season}, ttl=0) or []
+        """This season's FBS programmes, canonically named.
+
+        The engine only has a defensible read on FBS. Knowing who is in
+        it is what stops the board filling with FCS opponents the model
+        rates near average and the market rates four touchdowns worse.
+        """
+        rows = self._get("/teams/fbs", {"year": season}, ttl=0) or []
+        out = []
+        for row in rows:
+            name = canonical_team(str(pick(row, "school", "team", default="")))
+            if name:
+                out.append({
+                    "team": name,
+                    "classification": "fbs",
+                    "conference": pick(row, "conference"),
+                })
+        return out
 
     def fetch_talent(self, season: int) -> dict[str, float]:
         """247-style composite talent, a useful early-season prior."""

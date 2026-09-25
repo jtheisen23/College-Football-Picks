@@ -126,6 +126,15 @@ CREATE TABLE IF NOT EXISTS recommendations (
 );
 CREATE INDEX IF NOT EXISTS idx_recs_week ON recommendations(season, week);
 
+CREATE TABLE IF NOT EXISTS teams (
+    season         INTEGER NOT NULL,
+    team           TEXT NOT NULL,
+    classification TEXT,
+    conference     TEXT,
+    updated_at     TEXT NOT NULL,
+    PRIMARY KEY (season, team)
+);
+
 CREATE TABLE IF NOT EXISTS weather (
     game_id          TEXT PRIMARY KEY,
     kickoff          TEXT,
@@ -474,6 +483,32 @@ class Storage:
             for r in rows
         ]
 
+    # -- teams -----------------------------------------------------------
+    def upsert_teams(self, season: int, rows: Iterable[dict]) -> int:
+        payload = [
+            (season, r["team"], r.get("classification"), r.get("conference"), _now())
+            for r in rows if r.get("team")
+        ]
+        if not payload:
+            return 0
+        with self.transaction() as conn:
+            conn.executemany(
+                """INSERT INTO teams (season, team, classification, conference, updated_at)
+                   VALUES (?,?,?,?,?)
+                   ON CONFLICT(season, team) DO UPDATE SET
+                       classification=excluded.classification,
+                       conference=excluded.conference, updated_at=excluded.updated_at""",
+                payload,
+            )
+        return len(payload)
+
+    def fbs_teams(self, season: int) -> set[str]:
+        """Names of this season's FBS programmes, empty if never fetched."""
+        rows = self.conn.execute(
+            "SELECT team FROM teams WHERE season = ?", (season,)
+        )
+        return {r["team"] for r in rows}
+
     # -- weather ---------------------------------------------------------
     def upsert_weather(self, forecasts: Iterable[GameWeather]) -> int:
         rows = [
@@ -650,8 +685,8 @@ class Storage:
         return row["value"] if row else None
 
     def counts(self) -> dict[str, int]:
-        tables = ["games", "ratings", "market_quotes", "weather", "predictions",
-                  "recommendations"]
+        tables = ["games", "teams", "ratings", "market_quotes", "weather",
+                  "predictions", "recommendations"]
         return {
             t: self.conn.execute(f"SELECT COUNT(*) AS n FROM {t}").fetchone()["n"] for t in tables
         }
