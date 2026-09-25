@@ -218,6 +218,37 @@ h2 {
   .caveat { grid-column: 2 / -1; margin-top: -4px; }
 }
 
+/* Filter bar. A full slate is 60-odd games; finding one team by eye is
+   the most common thing anyone does on this page. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+.toolbar { display: flex; gap: 10px; align-items: center; margin: 0 0 12px; flex-wrap: wrap; }
+.search {
+  flex: 1 1 220px; min-width: 0; padding: 9px 13px;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 999px;
+  font: inherit; font-size: 15px;
+}
+.search::placeholder { color: var(--muted); }
+.search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.count { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.no-match { padding: 22px; color: var(--ink-2); margin: 0; }
+
+/* Glossary. Secondary reference, so it opens on demand -- but the terms
+   it defines are on every row, so it sits with the board, not the footer. */
+.legend { margin: 0 0 14px; }
+.legend > summary { color: var(--ink-2); }
+.legend dl {
+  margin: 8px 0 0; padding: 14px 16px; display: grid; gap: 10px 16px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+}
+@media (min-width: 620px) { .legend dl { grid-template-columns: max-content 1fr; } }
+.legend dt { font-weight: 600; color: var(--ink); }
+.legend dd { margin: 0; color: var(--ink-2); font-size: 14px; }
+@media (max-width: 619px) { .legend dd { margin-bottom: 4px; } }
+
 .note-bar {
   display: flex; gap: 10px; align-items: flex-start;
   margin: 0 0 22px; padding: 13px 15px;
@@ -257,8 +288,8 @@ footer {
 <div class="stamp">Model output, not betting advice</div></div>
 <button class="toggle" id="theme-toggle" type="button">Theme</button></header>
 <div class="board" style="margin-top:22px">
-<a class="bet" href="2026-week-05.html" style="text-decoration:none;color:inherit"><div class="game"><div class="pick">Week 5</div><div class="matchup">25 Sep 2026, 21:17 UTC</div></div><div class="figs"><div class="fig"><span class="lab">Bets</span><span class="val ">24</span></div><div class="fig"><span class="lab">Staked</span><span class="val ">51.80u</span></div></div></a>
-<a class="bet" href="2026-week-04.html" style="text-decoration:none;color:inherit"><div class="game"><div class="pick">Week 4</div><div class="matchup">25 Sep 2026, 21:17 UTC</div></div><div class="figs"><div class="fig"><span class="lab">Bets</span><span class="val ">231</span></div><div class="fig"><span class="lab">Staked</span><span class="val ">563.87u</span></div></div></a>
+<a class="bet" href="2026-week-05.html" style="text-decoration:none;color:inherit"><div class="game"><div class="pick">Week 5</div><div class="matchup">25 Sep 2026, 21:47 UTC</div></div><div class="figs"><div class="fig"><span class="lab">Bets</span><span class="val ">24</span></div><div class="fig"><span class="lab">Staked</span><span class="val ">51.80u</span></div></div></a>
+<a class="bet" href="2026-week-04.html" style="text-decoration:none;color:inherit"><div class="game"><div class="pick">Week 4</div><div class="matchup">25 Sep 2026, 21:47 UTC</div></div><div class="figs"><div class="fig"><span class="lab">Bets</span><span class="val ">108</span></div><div class="fig"><span class="lab">Staked</span><span class="val ">254.09u</span></div></div></a>
 <a class="bet" href="2026-week-03.html" style="text-decoration:none;color:inherit"><div class="game"><div class="pick">Week 3</div><div class="matchup">19 Sep 2026, 16:12 UTC</div></div><div class="figs"><div class="fig"><span class="lab">Bets</span><span class="val ">16</span></div><div class="fig"><span class="lab">Staked</span><span class="val ">35.37u</span></div></div></a>
 </div>
 <footer>Stakes are fractional-Kelly units; one unit is 1% of bankroll by default. Edges are measured against the de-vigged market price at the quoted number.</footer>
