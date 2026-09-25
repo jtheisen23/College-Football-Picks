@@ -90,6 +90,10 @@ jobs:
 
           cfbpicks fetch ${SEASON_ARG} ${WEEK_ARG}
           cfbpicks rate ${SEASON_ARG}
+          # Printed, not stored: the correction publish applies is
+          # refitted from results each run, and this is the only place
+          # its size is visible after the fact.
+          cfbpicks calibrate ${SEASON_ARG}
           cfbpicks publish ${SEASON_ARG} ${WEEK_ARG}
 
       - name: Commit the board

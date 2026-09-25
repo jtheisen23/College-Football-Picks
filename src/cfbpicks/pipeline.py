@@ -16,6 +16,11 @@ if TYPE_CHECKING:  # pragma: no cover
 
 from .config import Config
 from .diagnostics import ScaleCheck, market_scale
+from .engine.calibration import (
+    MarginCalibration,
+    collect_margin_pairs,
+    fit_margin_calibration,
+)
 from .engine.market import build_consensus
 from .engine.predict import PredictionInputs, Predictor
 from .engine.recommend import Recommender
@@ -56,6 +61,8 @@ class Pipeline:
         self.skipped_games: dict[str, int] = {"non_fbs": 0, "low_confidence": 0}
         #: How the last board's margin scale compared with the market's.
         self.last_scale = ScaleCheck()
+        #: The scale correction applied by the last prediction run.
+        self.calibration = MarginCalibration()
 
     def close(self) -> None:
         if self._owns_storage:
@@ -305,6 +312,11 @@ class Pipeline:
         if use_overrides:
             adjustments, self.override_warnings = self.load_adjustments(season, week)
 
+        # Fitted on weeks already played, and only on weeks strictly
+        # before this one, so a board is never corrected using the
+        # results of the games it is about to bet.
+        self.calibration = self.margin_calibration(season, before_week=week)
+
         predictor = Predictor(self.config)
         predictions = predictor.predict_week(
             PredictionInputs(
@@ -312,10 +324,20 @@ class Pipeline:
                 expert_projections=projections, schedule=schedule,
                 adjustments=adjustments,
                 weather=self.storage.weather([g.game_id for g in games]),
+                calibration=self.calibration,
             )
         )
         self.storage.upsert_predictions(predictions)
         return predictions
+
+    def margin_calibration(
+        self, season: int, *, before_week: Optional[int] = None
+    ) -> MarginCalibration:
+        """The scale correction implied by this season's results so far."""
+        pairs = collect_margin_pairs(
+            self.storage, self.config, season, before_week=before_week
+        )
+        return fit_margin_calibration(pairs)
 
     # -- recommend ----------------------------------------------------------
     def picks(

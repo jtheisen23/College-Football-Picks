@@ -398,6 +398,67 @@ def predict(ctx, season, week, limit) -> None:
 
 @main.command()
 @click.option("--season", type=int)
+@click.option("--week", type=int, help="Fit only on weeks before this one.")
+@click.pass_context
+def calibrate(ctx, season, week) -> None:
+    """Show the scale correction this season's results imply.
+
+    Replays every completed week from the ratings as they stood at the
+    time, compares what the model said with what happened, and fits the
+    straight line between them. Read-only: this reports the correction
+    that `predict` and `picks` apply, it does not store anything.
+    """
+    from .engine.calibration import MIN_GAMES
+
+    config = _config(ctx)
+    season = _season(ctx, season)
+
+    with Pipeline(config) as pipeline:
+        cal = pipeline.margin_calibration(season, before_week=week)
+
+    if cal.games == 0:
+        console.print(
+            f"[yellow]No completed games replayed for {season}.[/yellow] "
+            "Either the season has not started or every stored rating is "
+            "season-final, which cannot be replayed without hindsight."
+        )
+        return
+
+    table = Table(title=f"Margin calibration — {season}", header_style="bold")
+    table.add_column("")
+    table.add_column("", justify="right")
+    table.add_row("Games replayed", str(cal.games))
+    table.add_row("Measured slope",
+                  f"{cal.raw_slope:.3f}" if cal.raw_slope is not None else "—")
+    if cal.stderr is not None:
+        table.add_row("Standard error", f"{cal.stderr:.3f}")
+    if cal.residual_sd is not None:
+        table.add_row("Residual sd", f"{cal.residual_sd:.1f} pts")
+    table.add_row("Applied slope", f"{cal.slope:.3f}")
+    table.add_row("Applied intercept", f"{cal.intercept:+.2f} pts")
+    console.print(table)
+
+    if not cal.fitted:
+        if cal.games < MIN_GAMES:
+            console.print(
+                f"[yellow]Not applied.[/yellow] {cal.games} games is under the "
+                f"{MIN_GAMES} needed; the slope is still mostly noise."
+            )
+        else:
+            console.print(
+                "[yellow]Not applied.[/yellow] The fit is outside the band "
+                "that rescaling can sensibly fix."
+            )
+        return
+
+    console.print(
+        f"A predicted margin of 10 becomes [bold]{cal.apply(10.0):+.1f}[/bold]; "
+        f"a predicted 21 becomes [bold]{cal.apply(21.0):+.1f}[/bold]."
+    )
+
+
+@main.command()
+@click.option("--season", type=int)
 @click.option("--week", type=int, help="Defaults to the current week.")
 @click.option("--push", is_flag=True, help="Commit and push, so GitHub Pages picks it up.")
 @click.pass_context

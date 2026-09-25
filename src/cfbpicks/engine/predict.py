@@ -24,6 +24,7 @@ from ..overrides import Adjustments
 from ..weather import total_adjustment
 from ..ratings.blend import BlendedRating, blend_ratings, confidence_from_blend
 from ..util.odds import spread_from_probability, win_probability
+from .calibration import IDENTITY, MarginCalibration
 
 
 @dataclass
@@ -40,6 +41,9 @@ class PredictionInputs:
     adjustments: Optional[Adjustments] = None
     #: Kickoff forecasts, keyed by game id.
     weather: dict[str, GameWeather] = field(default_factory=dict)
+    #: Scale correction fitted on completed games. Identity by default,
+    #: so nothing is corrected until there is evidence for it.
+    calibration: MarginCalibration = IDENTITY
 
 
 class Predictor:
@@ -63,7 +67,7 @@ class Predictor:
             self.predict_game(
                 game, blend, offense, defense, rest,
                 experts.get(game.game_id, []), adjustments,
-                inputs.weather.get(game.game_id),
+                inputs.weather.get(game.game_id), inputs.calibration,
             )
             for game in inputs.games
         ]
@@ -78,6 +82,7 @@ class Predictor:
         experts: Iterable[ExpertProjection] = (),
         adjustments: Optional[Adjustments] = None,
         weather: Optional[GameWeather] = None,
+        calibration: MarginCalibration = IDENTITY,
     ) -> Prediction:
         home_blend = blend.get(game.home_team)
         away_blend = blend.get(game.away_team)
@@ -143,6 +148,15 @@ class Predictor:
             components["manual_total_adjustment"] = round(manual_total, 3)
             total_note = f"{total_note} + manual"
         components["total_basis"] = total_note
+
+        # Last, so everything downstream -- win probability, fair
+        # spread, every market -- derives from the corrected number
+        # rather than only the spread doing so.
+        if calibration.fitted:
+            uncorrected = margin
+            margin = calibration.apply(margin)
+            components["uncalibrated_margin"] = round(uncorrected, 3)
+            components["calibration"] = calibration.describe()
 
         win_prob = win_probability(margin, self.model.margin_sd)
         fair_spread = spread_from_probability(win_prob, self.model.margin_sd)
