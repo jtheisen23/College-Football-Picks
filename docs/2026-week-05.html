@@ -20,6 +20,10 @@
   --tier-strong-ink: #ffffff;
   --good: #006300;
   --bad: #c0392b;
+  --win: #006300;
+  --win-ink: #ffffff;
+  --loss: #c0392b;
+  --loss-ink: #ffffff;
   --accent: #2a78d6;
   --warn: #fab219;
   --warn-bg: #fdf7e7;
@@ -44,6 +48,10 @@
     --tier-strong-ink: #101418;
     --good: #3fbf5f;
     --bad: #f0736a;
+    --win: #2f7d46;
+    --win-ink: #ffffff;
+    --loss: #a8392f;
+    --loss-ink: #ffffff;
     --accent: #6da7ec;
     --warn: #fab219;
     --warn-bg: #2a2517;
@@ -68,6 +76,10 @@
   --tier-strong-ink: #101418;
   --good: #3fbf5f;
   --bad: #f0736a;
+  --win: #2f7d46;
+  --win-ink: #ffffff;
+  --loss: #a8392f;
+  --loss-ink: #ffffff;
   --accent: #6da7ec;
   --warn: #fab219;
   --warn-bg: #2a2517;
@@ -189,6 +201,11 @@ h2 {
 .badge.lean { background: var(--tier-lean); color: var(--tier-lean-ink); }
 .badge.play { background: var(--tier-play); color: var(--tier-play-ink); }
 .badge.strong { background: var(--tier-strong); color: var(--tier-strong-ink); }
+.badge.win { background: var(--win); color: var(--win-ink); }
+.badge.loss { background: var(--loss); color: var(--loss-ink); }
+.badge.push { background: var(--tier-lean); color: var(--tier-lean-ink); }
+.tile .value.pos { color: var(--good); }
+.tile .value.neg { color: var(--bad); }
 
 .caveat { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
 
@@ -286,7 +303,7 @@ footer {
 </style></head><body><div class="wrap">
 <header><div>
 <h1>College Football Picks</h1>
-<div class="stamp">2026 · Week 5 · updated 25 Sep 2026, 23:41 UTC</div>
+<div class="stamp">2026 · Week 5 · updated 25 Sep 2026, 23:45 UTC</div>
 </div>
 <button class="toggle" id="theme-toggle" type="button">Theme</button>
 </header>
