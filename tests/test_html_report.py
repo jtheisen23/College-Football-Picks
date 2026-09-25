@@ -9,7 +9,7 @@ from click.testing import CliRunner
 
 from cfbpicks.cli import main
 from cfbpicks.models import Prediction, Recommendation
-from cfbpicks.report import render, to_html
+from cfbpicks.report import GLOSSARY, render, to_html
 
 
 def rec(tier="play", selection="Georgia -6.5", matchup="Alabama @ Georgia", notes=None):
@@ -109,6 +109,82 @@ class TestContent:
         page = to_html([], season=2026, week=3)
         assert "No bets cleared" in page
         assert "not a failure" in page
+
+
+class TestGlossary:
+    """The figures on each card have to explain themselves."""
+
+    def test_every_column_heading_is_defined(self):
+        page = to_html([rec()], season=2026, week=3)
+        headings = re.search(
+            r'class="board-head"[^>]*>(.*?)</div>', page, re.S
+        ).group(1)
+        for label in re.findall(r"<span>([^<]+)</span>", headings):
+            assert any(term == label for term, _ in GLOSSARY), (
+                f"{label} is a column with no explanation"
+            )
+
+    def test_the_hard_ones_say_what_they_measure(self):
+        page = to_html([rec()], season=2026, week=3)
+        assert "bookmaker" in page          # Market is the de-vigged price
+        assert "Model minus Market" in page  # Edge
+        assert "1% of bankroll" in page      # Units
+
+    def test_it_starts_collapsed(self):
+        """It is reference material, not something to scroll past every time."""
+        page = to_html([rec()], season=2026, week=3)
+        legend = re.search(r"<details class=\"legend\"[^>]*>", page).group(0)
+        assert " open" not in legend
+
+    def test_no_glossary_without_a_board(self):
+        assert 'class="legend"' not in to_html([], season=2026, week=3)
+
+
+class TestSearch:
+    def test_the_box_is_labelled(self):
+        page = to_html([rec()], season=2026, week=3)
+        assert '<input class="search" id="q"' in page
+        assert 'for="q"' in page
+
+    def test_a_bet_is_findable_by_either_team(self):
+        page = to_html([rec(matchup="Alabama @ Georgia")], season=2026, week=3)
+        hay = re.search(r'class="bet" data-search="([^"]*)"', page).group(1)
+        assert "alabama" in hay and "georgia" in hay
+
+    def test_a_bet_is_findable_by_side_book_and_market(self):
+        page = to_html([rec()], season=2026, week=3)
+        hay = re.search(r'class="bet" data-search="([^"]*)"', page).group(1)
+        assert "georgia -6.5" in hay
+        assert "draftkings" in hay
+        assert "spread" in hay
+        assert "play" in hay
+
+    def test_the_haystack_is_lowercased_so_matching_can_be(self):
+        page = to_html([rec()], season=2026, week=3)
+        hay = re.search(r'class="bet" data-search="([^"]*)"', page).group(1)
+        assert hay == hay.lower()
+
+    def test_projection_rows_are_searchable_too(self):
+        page = to_html([rec()], season=2026, week=3, predictions=[pred()])
+        assert 'data-search="alabama georgia"' in page
+
+    def test_the_count_starts_at_the_full_board(self):
+        page = to_html([rec(), rec(tier="strong")], season=2026, week=3)
+        assert '<span class="count" id="count" aria-live="polite">2 bets</span>' in page
+
+    def test_an_empty_result_has_somewhere_to_say_so(self):
+        page = to_html([rec()], season=2026, week=3)
+        assert 'id="no-match" hidden' in page
+
+    def test_the_haystack_cannot_break_out_of_its_attribute(self):
+        page = to_html(
+            [rec(matchup='" onfocus="alert(1)" x="  @ Georgia')], season=2026, week=3
+        )
+        assert 'onfocus="alert(1)"' not in page
+        assert "&quot;" in page
+
+    def test_no_search_box_without_a_board(self):
+        assert 'id="q"' not in to_html([], season=2026, week=3)
 
 
 class TestAccessibility:

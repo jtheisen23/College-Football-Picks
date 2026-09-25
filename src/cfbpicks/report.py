@@ -433,6 +433,37 @@ h2 {
   .caveat { grid-column: 2 / -1; margin-top: -4px; }
 }
 
+/* Filter bar. A full slate is 60-odd games; finding one team by eye is
+   the most common thing anyone does on this page. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+.toolbar { display: flex; gap: 10px; align-items: center; margin: 0 0 12px; flex-wrap: wrap; }
+.search {
+  flex: 1 1 220px; min-width: 0; padding: 9px 13px;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 999px;
+  font: inherit; font-size: 15px;
+}
+.search::placeholder { color: var(--muted); }
+.search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.count { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.no-match { padding: 22px; color: var(--ink-2); margin: 0; }
+
+/* Glossary. Secondary reference, so it opens on demand -- but the terms
+   it defines are on every row, so it sits with the board, not the footer. */
+.legend { margin: 0 0 14px; }
+.legend > summary { color: var(--ink-2); }
+.legend dl {
+  margin: 8px 0 0; padding: 14px 16px; display: grid; gap: 10px 16px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+}
+@media (min-width: 620px) { .legend dl { grid-template-columns: max-content 1fr; } }
+.legend dt { font-weight: 600; color: var(--ink); }
+.legend dd { margin: 0; color: var(--ink-2); font-size: 14px; }
+@media (max-width: 619px) { .legend dd { margin-bottom: 4px; } }
+
 .note-bar {
   display: flex; gap: 10px; align-items: flex-start;
   margin: 0 0 22px; padding: 13px 15px;
@@ -469,6 +500,48 @@ footer {
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 """
 
+_SEARCH_JS = """
+(function () {
+  var box = document.getElementById('q');
+  if (!box) return;
+  var counter = document.getElementById('count');
+  var empty = document.getElementById('no-match');
+  var bets = Array.prototype.slice.call(document.querySelectorAll('.bet[data-search]'));
+  var rows = Array.prototype.slice.call(document.querySelectorAll('tr[data-search]'));
+  var total = bets.length;
+
+  function apply() {
+    // Every space-separated word must appear somewhere in the row, so
+    // "ohio under" finds the total on an Ohio State game.
+    var terms = box.value.toLowerCase().split(/\\s+/).filter(Boolean);
+    var shown = 0;
+    bets.forEach(function (el) {
+      var hay = el.getAttribute('data-search');
+      var hit = terms.every(function (t) { return hay.indexOf(t) !== -1; });
+      el.hidden = !hit;
+      if (hit) shown++;
+    });
+    rows.forEach(function (el) {
+      var hay = el.getAttribute('data-search');
+      el.hidden = !terms.every(function (t) { return hay.indexOf(t) !== -1; });
+    });
+    if (empty) empty.hidden = shown !== 0 || total === 0;
+    if (counter) {
+      counter.textContent = terms.length
+        ? shown + ' of ' + total + ' bets'
+        : total + ' bets';
+    }
+  }
+
+  box.addEventListener('input', apply);
+  // Escape clears, which is what the native clear button does anyway.
+  box.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { box.value = ''; apply(); }
+  });
+  apply();
+})();
+"""
+
 _TOGGLE_JS = """
 (function () {
   var btn = document.getElementById('theme-toggle');
@@ -486,6 +559,31 @@ _TOGGLE_JS = """
   });
 })();
 """
+
+
+#: What each column means, in the order they appear on a row. Written
+#: for someone who has not read the README -- these numbers are
+#: meaningless without knowing that Model has already been shrunk toward
+#: Market, and that Units is a stake rather than a score.
+GLOSSARY: list[tuple[str, str]] = [
+    ("Tier", "How much conviction is behind the bet — strong, play or lean, "
+             "set by the size of the edge."),
+    ("Bet", "The side and number to take, at the price and book shown beside it."),
+    ("Model", "The model's probability this bet wins. Already shrunk toward the "
+              "market price according to how well-covered the two teams are, so "
+              "a thinly-rated game shows a number close to the market's."),
+    ("Market", "The same probability implied by the sportsbook price, with the "
+               "bookmaker's margin removed — what the market really thinks, "
+               "rather than what the posted odds say."),
+    ("Edge", "Model minus Market: how much better the model rates this bet than "
+             "the price implies. Anything under a couple of points is noise."),
+    ("Pts", "The same disagreement measured in points rather than probability — "
+            "how far the model's number sits from the market's on the spread "
+            "or total."),
+    ("Units", "Suggested stake, where one unit is 1% of bankroll. Sized by "
+              "quarter-Kelly and capped, so a large edge on an uncertain game "
+              "still gets a small bet."),
+]
 
 
 @dataclass
@@ -538,6 +636,18 @@ def _week_nav(nav: Sequence["BoardEntry"], current: Optional[int]) -> list[str]:
         )
     out.append("</nav>")
     return out
+
+
+def _glossary() -> str:
+    """A closed-by-default definition list for the column headings."""
+    rows = "".join(
+        f"<dt>{_esc(term)}</dt><dd>{_esc(meaning)}</dd>"
+        for term, meaning in GLOSSARY
+    )
+    return (
+        '<details class="legend"><summary>What these numbers mean</summary>'
+        f"<dl>{rows}</dl></details>"
+    )
 
 
 def _fig(label: str, value: str, tone: str = "") -> str:
@@ -604,7 +714,14 @@ def to_html(
     else:
         parts += [
             "<h2>Recommended bets</h2>",
-            '<div class="board">',
+            _glossary(),
+            '<div class="toolbar">',
+            '<label class="sr-only" for="q">Filter by team</label>',
+            '<input class="search" id="q" type="search" autocomplete="off" '
+            'placeholder="Filter by team, bet or book\u2026">',
+            f'<span class="count" id="count" aria-live="polite">{len(ordered)} bets</span>',
+            "</div>",
+            '<div class="board" id="board">',
             '<div class="board-head" aria-hidden="true">'
             "<span>Tier</span><span>Bet</span><span>Model</span><span>Market</span>"
             "<span>Edge</span><span>Pts</span><span>Units</span></div>",
@@ -616,8 +733,11 @@ def to_html(
                 if home else _esc(rec.matchup)
             )
             price = f"{int(rec.price):+d}"
+            haystack = " ".join([
+                rec.matchup, rec.selection, rec.book, rec.tier, rec.market,
+            ]).lower()
             parts.append(
-                '<article class="bet">'
+                f'<article class="bet" data-search="{_esc(haystack)}">'
                 f'<div><span class="badge {_esc(rec.tier)}">{_esc(rec.tier)}</span></div>'
                 f'<div class="game"><div class="matchup">{matchup}</div>'
                 f'<div class="pick">{_esc(rec.selection)}</div>'
@@ -632,6 +752,10 @@ def to_html(
                 + (f'<p class="caveat">{_esc("; ".join(rec.notes))}</p>' if rec.notes else "")
                 + "</article>"
             )
+        parts.append(
+            '<p class="no-match panel" id="no-match" hidden>'
+            "No bets match that filter.</p>"
+        )
         parts.append("</div>")
 
     if predictions:
@@ -645,8 +769,10 @@ def to_html(
         ]
         for pred in sorted(predictions, key=lambda p: -abs(p.projected_margin)):
             low = ' class="dim"' if pred.confidence < 0.3 else ""
+            row_search = f"{pred.away_team} {pred.home_team}".lower()
             parts.append(
-                f"<tr><td{low}>{_esc(pred.away_team)} @ {_esc(pred.home_team)}</td>"
+                f'<tr data-search="{_esc(row_search)}">'
+                f"<td{low}>{_esc(pred.away_team)} @ {_esc(pred.home_team)}</td>"
                 f'<td class="num">{pred.projected_margin:+.1f}</td>'
                 f'<td class="num">{pred.fair_home_spread:+.1f}</td>'
                 f'<td class="num">{pred.projected_total:.1f}</td>'
@@ -659,7 +785,7 @@ def to_html(
         "<footer>Model output, not betting advice. Stakes are fractional-Kelly "
         "units; one unit is 1% of bankroll by default. Edges are measured against "
         "the de-vigged market price at the quoted number.</footer>",
-        f"</div><script>{_TOGGLE_JS}</script></body></html>",
+        f"</div><script>{_TOGGLE_JS}{_SEARCH_JS}</script></body></html>",
     ]
     return "\n".join(parts)
 
