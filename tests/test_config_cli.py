@@ -257,3 +257,40 @@ class TestFixturesAreOptInOnly:
         monkeypatch.setenv("CFBD_API_KEY", "x")
         cfg = load_config(root=tmp_path)
         assert "cfbd" in [p.name for p in available(cfg, "games")]
+
+
+class TestMissingKeyDiagnostics:
+    """A blank key should say so, not fail three commands later."""
+
+    def _bare(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("CFBD_API_KEY", raising=False)
+        monkeypatch.delenv("ODDS_API_KEY", raising=False)
+        return CliRunner()
+
+    def test_fetch_names_the_missing_key_and_fails(self, tmp_path, monkeypatch):
+        runner = self._bare(tmp_path, monkeypatch)
+        result = runner.invoke(main, [
+            "--db", str(tmp_path / "x.sqlite"), "--offline",
+            "fetch", "--season", "2026", "--week", "4",
+        ])
+        assert result.exit_code == 1
+        assert "CFBD_API_KEY" in result.output
+        assert "Secrets and variables" in result.output
+
+    def test_it_explains_how_to_tell_a_secret_is_set(self, tmp_path, monkeypatch):
+        """The blank-vs-*** distinction is the whole diagnosis in CI."""
+        runner = self._bare(tmp_path, monkeypatch)
+        result = runner.invoke(main, [
+            "--db", str(tmp_path / "x.sqlite"), "--offline",
+            "fetch", "--season", "2026", "--week", "4",
+        ])
+        assert "***" in result.output and "blank means unset" in result.output
+
+    def test_unconfigured_providers_are_listed(self, tmp_path, monkeypatch):
+        runner = self._bare(tmp_path, monkeypatch)
+        result = runner.invoke(main, [
+            "--db", str(tmp_path / "x.sqlite"), "--offline",
+            "fetch", "--season", "2026", "--week", "4",
+        ])
+        assert "Sat out for want of an API key" in result.output
+        assert "cfbd" in result.output

@@ -19,7 +19,7 @@ from .engine.predict import PredictionInputs, Predictor
 from .engine.recommend import Recommender
 from .models import ExpertProjection, Game, MarketQuote, Prediction, Rating, Recommendation
 from .overrides import Adjustments, load_overrides, resolve as resolve_overrides
-from .providers import available, build_provider
+from .providers import available, build_provider, build_providers
 from .providers.sagarin import resolve_projections
 from .ratings.regression import SOURCE
 from .storage import Storage
@@ -36,6 +36,8 @@ class FetchReport:
     projections: int = 0
     by_provider: dict[str, str] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
+    #: Providers that could have supplied data but had no credentials.
+    unconfigured: list[str] = field(default_factory=list)
 
     def note(self, provider: str, message: str) -> None:
         self.by_provider[provider] = message
@@ -70,6 +72,12 @@ class Pipeline:
         want: Sequence[str] = ("games", "ratings", "weather", "odds"),
     ) -> FetchReport:
         report = FetchReport()
+
+        # "Fetched 0 games" with no explanation is the least useful thing
+        # this can say. Name the providers that sat out for want of a key.
+        for provider in build_providers(self.config, providers):
+            if provider.enabled and not provider.configured:
+                report.unconfigured.append(provider.name)
 
         if "games" in want:
             for provider in available(self.config, "games", providers):

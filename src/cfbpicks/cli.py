@@ -143,6 +143,30 @@ def fetch(ctx, season, week, only, games, ratings, weather, odds) -> None:
     if len(report.warnings) > 15:
         console.print(f"  [dim]… and {len(report.warnings) - 15} more warnings[/dim]")
 
+    if report.unconfigured:
+        console.print(
+            "\n[yellow]Sat out for want of an API key:[/yellow] "
+            + ", ".join(report.unconfigured)
+        )
+
+    # Nothing at all came back. Say why here, rather than letting a later
+    # command fail with "no games stored" and send someone hunting.
+    if games and report.games == 0:
+        if "cfbd" in report.unconfigured:
+            console.print(
+                "\n[red]No games fetched, and CFBD has no API key.[/red]\n"
+                "  CFBD is the only source of schedules, so nothing else can run.\n"
+                "  Locally:  [bold]export CFBD_API_KEY=...[/bold]\n"
+                "  In CI:    add a repository secret named [bold]CFBD_API_KEY[/bold]\n"
+                "            (Settings -> Secrets and variables -> Actions).\n"
+                "  A key set correctly shows as *** in the run log; blank means unset."
+            )
+            sys.exit(1)
+        console.print(
+            "\n[yellow]No games fetched.[/yellow] Check the season and week, "
+            "and that the schedule has been published."
+        )
+
 
 @main.command()
 @click.option("--season", type=int)
