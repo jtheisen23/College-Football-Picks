@@ -51,10 +51,19 @@ jobs:
       # The database carries odds history, which is what CLV is measured
       # against. A fresh key each run with a shared prefix means the most
       # recent one is restored; losing it costs history, never correctness.
+      #
+      # The HTTP cache rides along because CFBD's free tier allows 1,000
+      # requests a calendar month. A full run costs six (games, three
+      # rating systems, lines, venues), so four runs a week is about 100
+      # a month -- comfortable, but only while nothing loops per game.
+      # Responses for finished seasons are cached forever, so a backtest
+      # re-run costs nothing.
       - name: Restore database
         uses: actions/cache@v4
         with:
-          path: cfbpicks.sqlite
+          path: |
+            cfbpicks.sqlite
+            data/cache
           # v2: the v1 cache holds demo games from before sample data was
           # made opt-in. Abandoning it is the only way to evict them --
           # fixture ratings are stored under the same source names as
@@ -95,4 +104,17 @@ jobs:
             exit 0
           fi
           git commit -m "Publish board ($(date -u '+%Y-%m-%d %H:%M UTC'))"
-          git push
+
+          # Someone pushing while a run is in flight must not throw away
+          # the board it just spent minutes building. Rebase onto
+          # whatever arrived and try again; the commit only touches
+          # docs/, so it cannot conflict with ordinary work.
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt ${attempt}); rebasing onto the remote."
+            git pull --rebase origin "$(git rev-parse --abbrev-ref HEAD)"
+          done
+          echo "::error::Could not push the board after three attempts."
+          exit 1

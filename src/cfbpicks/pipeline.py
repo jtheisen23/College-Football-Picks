@@ -8,6 +8,7 @@ spending API calls again.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Iterable, Optional, Sequence
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -162,18 +163,39 @@ class Pipeline:
         return out
 
     def current_week(self, season: int) -> Optional[int]:
-        """The week to act on right now: the earliest one not yet played.
+        """The week to act on right now, decided by the calendar.
 
-        An unattended run has no one to pass `--week`, and "latest week
-        with games" is wrong the moment a season finishes. The earliest
-        week still holding an unplayed game is the one whose lines are
-        live and whose picks are actionable.
+        An unattended run has nobody to pass ``--week``. The obvious
+        heuristic -- the earliest week with an unplayed game -- looks
+        right and is wrong: one cancelled or never-scored game in week 1
+        pins the answer to week 1 for the rest of the season. That is
+        exactly what happened on the first real cloud run, which
+        published weeks 1 and 2 in late September.
+
+        So: the week containing the next kickoff. Once the season is
+        over, the week of the most recent one.
         """
-        pending = [g.week for g in self.storage.games(season) if not g.completed]
+        games = self.storage.games(season)
+        if not games:
+            return None
+
+        now = datetime.now(timezone.utc)
+        scheduled = [g for g in games if g.kickoff is not None]
+
+        if scheduled:
+            # A day of grace, so Saturday's slate stays current while it
+            # is still being played rather than jumping ahead mid-morning.
+            cutoff = now - timedelta(days=1)
+            upcoming = [g for g in scheduled if g.kickoff >= cutoff]
+            if upcoming:
+                return min(upcoming, key=lambda g: g.kickoff).week
+            return max(scheduled, key=lambda g: g.kickoff).week
+
+        # No kickoff times at all: fall back to the unplayed heuristic.
+        pending = [g.week for g in games if not g.completed]
         if pending:
             return min(pending)
-        played = [g.week for g in self.storage.games(season) if g.completed]
-        return max(played) if played else None
+        return max(g.week for g in games)
 
     # -- fitted ratings ------------------------------------------------------
     def compute_ratings(

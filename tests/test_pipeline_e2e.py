@@ -164,32 +164,65 @@ class TestCurrentWeek:
         store.close()
         return cfg
 
-    def test_picks_the_earliest_unplayed_week(self, tmp_path):
-        cfg = self._pipeline(tmp_path, [
-            Game("a", 2026, 1, None, "A", "B", home_score=21, away_score=17),
-            Game("b", 2026, 2, None, "C", "D"),
-            Game("c", 2026, 3, None, "E", "F"),
-        ])
-        with Pipeline(cfg) as pipeline:
-            assert pipeline.current_week(2026) == 2
+    def _season(self, weeks_ahead_of_now):
+        """A season laid out around today, one week per entry."""
+        from datetime import datetime, timedelta, timezone
 
-    def test_falls_back_to_the_last_played_week_once_a_season_ends(self, tmp_path):
+        now = datetime.now(timezone.utc)
+        return [
+            Game(f"g{i}", 2026, i + 1, now + timedelta(days=offset * 7),
+                 f"H{i}", f"A{i}")
+            for i, offset in enumerate(weeks_ahead_of_now)
+        ]
+
+    def test_the_current_week_is_the_next_kickoff(self, tmp_path):
+        # Weeks 1-3 are in the past, 4 and 5 ahead.
+        cfg = self._pipeline(tmp_path, self._season([-3, -2, -1, 1, 2]))
+        with Pipeline(cfg) as pipeline:
+            assert pipeline.current_week(2026) == 4
+
+    def test_one_never_scored_early_game_does_not_pin_it_to_week_one(self, tmp_path):
+        """The bug that published weeks 1 and 2 in late September.
+
+        A cancelled or never-scored game in week 1 made "earliest
+        unplayed week" answer 1 for the rest of the season.
+        """
+        games = self._season([-3, -2, -1, 1, 2])
+        # Everything in the past is final except one stray week 1 game.
+        played = []
+        for game in games:
+            if game.kickoff.timestamp() < __import__("time").time() and game.week != 1:
+                game.home_score, game.away_score = 24, 17
+            played.append(game)
+        cfg = self._pipeline(tmp_path, played)
+        with Pipeline(cfg) as pipeline:
+            assert pipeline.current_week(2026) == 4
+
+    def test_saturdays_slate_stays_current_while_it_is_played(self, tmp_path):
+        from datetime import datetime, timedelta, timezone
+
+        now = datetime.now(timezone.utc)
         cfg = self._pipeline(tmp_path, [
-            Game("a", 2026, 1, None, "A", "B", home_score=21, away_score=17),
-            Game("b", 2026, 2, None, "C", "D", home_score=10, away_score=7),
+            Game("a", 2026, 5, now - timedelta(hours=6), "A", "B",
+                 home_score=31, away_score=3),
+            Game("b", 2026, 6, now + timedelta(days=6), "C", "D"),
         ])
         with Pipeline(cfg) as pipeline:
-            assert pipeline.current_week(2026) == 2
+            assert pipeline.current_week(2026) == 5
+
+    def test_after_the_season_it_is_the_last_week_played(self, tmp_path):
+        cfg = self._pipeline(tmp_path, self._season([-14, -8, -1]))
+        with Pipeline(cfg) as pipeline:
+            assert pipeline.current_week(2026) == 3
 
     def test_an_empty_season_has_no_current_week(self, tmp_path):
         cfg = self._pipeline(tmp_path, [])
         with Pipeline(cfg) as pipeline:
             assert pipeline.current_week(2026) is None
 
-    def test_a_partly_played_week_is_still_current(self, tmp_path):
-        """Friday's game being final doesn't move us off Saturday's slate."""
+    def test_without_kickoff_times_it_falls_back_to_unplayed(self, tmp_path):
         cfg = self._pipeline(tmp_path, [
-            Game("a", 2026, 2, None, "A", "B", home_score=31, away_score=3),
+            Game("a", 2026, 1, None, "A", "B", home_score=21, away_score=17),
             Game("b", 2026, 2, None, "C", "D"),
         ])
         with Pipeline(cfg) as pipeline:
