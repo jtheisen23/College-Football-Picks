@@ -15,6 +15,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from .ratings.regression import FitResult
 
 from .config import Config
+from .diagnostics import ScaleCheck, market_scale
 from .engine.market import build_consensus
 from .engine.predict import PredictionInputs, Predictor
 from .engine.recommend import Recommender
@@ -52,6 +53,9 @@ class Pipeline:
         self.config = config
         self.storage = storage or Storage(config.database_path)
         self._owns_storage = storage is None
+        self.skipped_games: dict[str, int] = {"non_fbs": 0, "low_confidence": 0}
+        #: How the last board's margin scale compared with the market's.
+        self.last_scale = ScaleCheck()
 
     def close(self) -> None:
         if self._owns_storage:
@@ -328,6 +332,12 @@ class Pipeline:
         quotes_by_game = self.storage.quotes_for_games(game_ids)
         consensus = build_consensus(quotes_by_game, self.config)
         games = {g.game_id: g for g in self.storage.games(season, week)}
+
+        # Measured before the recommender runs, over every priced game
+        # rather than only the ones that produced a bet: selecting on
+        # disagreement would make the model look worse-calibrated than
+        # it is.
+        self.last_scale = market_scale(predictions, consensus)
 
         recs = Recommender(self.config).recommend_week(
             predictions, consensus, quotes_by_game, games

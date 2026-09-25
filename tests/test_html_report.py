@@ -349,6 +349,34 @@ class TestPublishCommand:
         assert result.exit_code == 1
         assert "fetch" in result.output
 
+    def test_the_scale_check_runs_on_every_board(self, tmp_path):
+        from cfbpicks.config import Config
+        from cfbpicks.pipeline import Pipeline
+
+        db = self._seeded(tmp_path)
+        cfg = Config(root=tmp_path)
+        cfg.database = db
+        with Pipeline(cfg) as pipeline:
+            pipeline.picks(2026, 3)
+            assert pipeline.last_scale.games > 0, "the board was never checked"
+
+    def test_a_flagged_board_says_so_on_the_page(self, tmp_path, monkeypatch):
+        """The warning has to reach the reader, not just the log."""
+        from cfbpicks import diagnostics
+
+        db = self._seeded(tmp_path)
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(
+            diagnostics, "board_warning", lambda recs, scale: "Do not bet this board."
+        )
+        result = self.runner.invoke(
+            main, ["--db", db, "publish", "--season", "2026", "--week", "3"]
+        )
+        assert result.exit_code == 0, result.output
+        page = (tmp_path / "docs" / "2026-week-03.html").read_text()
+        assert "Do not bet this board." in page
+        assert "note-bar" in page
+
     def test_it_does_not_touch_git_without_being_asked(self, tmp_path, monkeypatch):
         db = self._seeded(tmp_path)
         monkeypatch.chdir(tmp_path)
