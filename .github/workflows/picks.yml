@@ -94,6 +94,12 @@ jobs:
           # refitted from results each run, and this is the only place
           # its size is visible after the fact.
           cfbpicks calibrate ${SEASON_ARG}
+          # The only question that matters about a betting model is
+          # whether it beats the number it bet into. Graded against the
+          # weeks already played, printed every run so a board is never
+          # published without its record sitting next to it. `|| true`
+          # because an unplayed season is not a failed run.
+          cfbpicks backtest ${SEASON_ARG} || true
           cfbpicks publish ${SEASON_ARG} ${WEEK_ARG}
 
       - name: Commit the board
