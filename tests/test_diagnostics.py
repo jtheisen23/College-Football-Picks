@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import random
 
+import pytest
+
 from cfbpicks.diagnostics import (
     MIN_GAMES,
     ScaleCheck,
@@ -29,14 +31,19 @@ def consensus(game_id: str, implied: float) -> dict:
     )}
 
 
-def slate(scale: float, n: int = 60, noise: float = 0.0, seed: int = 7):
-    """A slate where the model's margins are ``scale`` x the market's."""
+def slate(scale: float, n: int = 60, noise: float = 0.0, seed: int = 7, tag: str = "g"):
+    """A slate where the model's margins are ``scale`` x the market's.
+
+    ``tag`` keeps game ids distinct between slates, so two of them can
+    be merged without one silently overwriting the other's lines.
+    """
     rng = random.Random(seed)
     preds, cons = [], {}
     for i in range(n):
         market = rng.gauss(0, 14)
-        preds.append(prediction(f"g{i}", market * scale + rng.gauss(0, noise)))
-        cons[f"g{i}"] = consensus(f"g{i}", market)
+        gid = f"{tag}{i}"
+        preds.append(prediction(gid, market * scale + rng.gauss(0, noise)))
+        cons[gid] = consensus(gid, market)
     return preds, cons
 
 
@@ -111,6 +118,37 @@ class TestMarketScale:
         assert "0.65x" in market_scale(*slate(0.65)).describe()
 
 
+class TestPooling:
+    """A thin week borrows its verdict from the weeks beside it."""
+
+    def test_adding_two_checks_matches_measuring_them_together(self):
+        a_preds, a_cons = slate(0.7, n=40, noise=5.0, seed=1, tag="a")
+        b_preds, b_cons = slate(0.7, n=40, noise=5.0, seed=2, tag="b")
+        pooled = market_scale(a_preds, a_cons) + market_scale(b_preds, b_cons)
+        together = market_scale(a_preds + b_preds, {**a_cons, **b_cons})
+        assert pooled.games == together.games == 80
+        assert pooled.slope == pytest.approx(together.slope)
+        assert pooled.stderr == pytest.approx(together.stderr)
+
+    def test_a_thin_week_alone_cannot_be_judged(self):
+        thin = market_scale(*slate(0.6, n=8, noise=3.0))
+        assert not thin.measurable and thin.healthy
+
+    def test_but_pooled_with_a_full_week_it_is(self):
+        """The defect is in the ratings, so last week's evidence counts."""
+        thin = market_scale(*slate(0.6, n=8, noise=3.0, seed=11))
+        full = market_scale(*slate(0.6, n=55, noise=3.0, seed=12))
+        assert (thin + full).measurable
+        assert not (thin + full).healthy
+
+    def test_summing_nothing_is_the_empty_check(self):
+        assert sum([ScaleCheck(), ScaleCheck()], ScaleCheck()).games == 0
+
+    def test_an_empty_check_is_the_identity(self):
+        one = market_scale(*slate(0.9, n=30, noise=4.0))
+        assert (one + ScaleCheck()).slope == pytest.approx(one.slope)
+
+
 class TestBoardWarning:
     def test_a_compressed_model_is_told_not_to_be_bet(self):
         note = board_warning([rec(+6.5)], market_scale(*slate(0.6, noise=3.0)))
@@ -139,11 +177,17 @@ class TestBoardWarning:
 
     def test_a_short_board_is_allowed_to_lean(self):
         """Five dogs in a thin week is a coincidence, not a diagnosis."""
-        assert board_warning([rec(+3.5) for _ in range(5)], ScaleCheck()) is None
+        note = board_warning([rec(+3.5) for _ in range(5)], market_scale(*slate(1.0)))
+        assert note is None
+
+    def test_an_unchecked_board_does_not_pass_itself_off_as_checked(self):
+        """Silence would read as a clean bill of health."""
+        note = board_warning([rec(+3.5), rec(-2.0)], market_scale(*slate(1.0, n=6)))
+        assert note and "not been checked" in note
 
     def test_an_empty_board_says_nothing(self):
         assert board_warning([], market_scale(*slate(0.4))) is None
 
     def test_totals_do_not_count_toward_the_spread_split(self):
         recs = [rec(+3.5, market="total") for _ in range(20)]
-        assert board_warning(recs, ScaleCheck()) is None
+        assert board_warning(recs, market_scale(*slate(1.0))) is None

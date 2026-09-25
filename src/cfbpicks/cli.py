@@ -414,7 +414,7 @@ def publish(ctx, season, week, push) -> None:
     import json
     import subprocess
 
-    from .diagnostics import board_warning
+    from .diagnostics import ScaleCheck, board_warning
     from .report import BoardEntry, to_html, to_index_html
 
     config = _config(ctx)
@@ -453,17 +453,16 @@ def publish(ctx, season, week, push) -> None:
             weeks = [week]
 
         boards = []
+        # The scale defect this guards against lives in the ratings, not
+        # in a week, so the weeks published together are judged as one
+        # sample. Next week's lines are always too thin to judge alone.
+        scale = ScaleCheck()
         for target in weeks:
             recommendations = pipeline.picks(season, target)
             predictions = pipeline.storage.predictions(season, target)
             if not predictions:
                 continue
-            # A board whose every pick leans the same way is a broken
-            # model, not a soft week, and it has to say so on the page
-            # rather than in a log nobody reads.
-            warning = board_warning(recommendations, pipeline.last_scale)
-            if warning:
-                console.print(f"[red]Week {target}:[/red] {warning}")
+            scale = scale + pipeline.last_scale
             filename = f"{season}-week-{target:02d}.html"
             manifest[filename] = {
                 "season": season, "week": target, "filename": filename,
@@ -471,7 +470,7 @@ def publish(ctx, season, week, push) -> None:
                 "staked": round(sum(r.stake_units for r in recommendations), 2),
                 "generated": generated,
             }
-            boards.append((target, filename, recommendations, predictions, warning))
+            boards.append((target, filename, recommendations, predictions))
 
     if not boards:
         console.print(
@@ -488,7 +487,13 @@ def publish(ctx, season, week, push) -> None:
     nav = [e for e in entries if e.season == season and e.week in
            {b[0] for b in boards}]
 
-    for target, filename, recommendations, predictions, warning in boards:
+    for target, filename, recommendations, predictions in boards:
+        # A board whose picks all lean the same way is a broken model,
+        # not a soft week, and it has to say so on the page rather than
+        # in a log nobody reads.
+        warning = board_warning(recommendations, scale)
+        if warning:
+            console.print(f"[red]Week {target}:[/red] {warning}")
         (docs / filename).write_text(to_html(
             recommendations, season=season, week=target,
             predictions=predictions, nav=nav, note=warning,

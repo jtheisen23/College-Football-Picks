@@ -24,7 +24,6 @@ is the kind that comes from a broken model rather than a soft line.
 from __future__ import annotations
 
 import math
-import statistics
 from dataclasses import dataclass
 from typing import Mapping, Optional, Sequence
 
@@ -51,18 +50,87 @@ MIN_PICKS_FOR_SPLIT = 12
 class ScaleCheck:
     """How the model's margin scale compares with the market's.
 
-    ``slope`` is from regressing the model's projected margin on the
-    market's implied margin across every game priced this week. One
-    means the two agree about how far apart teams are, which is the
-    precondition for a disagreement on a single game meaning anything.
+    Carries the sufficient statistics of the regression rather than its
+    result, so checks from separate weeks can be added together. That
+    matters because the defect being measured lives in the ratings, not
+    in any one week: a slope fitted on Saturday's slate is evidence
+    about next Saturday's board too, and next week's lines are usually
+    too thin to judge on their own.
     """
 
     games: int = 0
-    slope: Optional[float] = None
-    intercept: Optional[float] = None
-    stderr: Optional[float] = None
-    model_sd: float = 0.0
-    market_sd: float = 0.0
+    sum_x: float = 0.0
+    sum_y: float = 0.0
+    sum_xx: float = 0.0
+    sum_xy: float = 0.0
+    sum_yy: float = 0.0
+
+    def __add__(self, other: "ScaleCheck") -> "ScaleCheck":
+        if not isinstance(other, ScaleCheck):
+            return NotImplemented
+        return ScaleCheck(
+            games=self.games + other.games,
+            sum_x=self.sum_x + other.sum_x,
+            sum_y=self.sum_y + other.sum_y,
+            sum_xx=self.sum_xx + other.sum_xx,
+            sum_xy=self.sum_xy + other.sum_xy,
+            sum_yy=self.sum_yy + other.sum_yy,
+        )
+
+    __radd__ = __add__
+
+    @property
+    def _sxx(self) -> float:
+        if self.games < 2:
+            return 0.0
+        return self.sum_xx - self.sum_x ** 2 / self.games
+
+    @property
+    def _sxy(self) -> float:
+        if self.games < 2:
+            return 0.0
+        return self.sum_xy - self.sum_x * self.sum_y / self.games
+
+    @property
+    def _syy(self) -> float:
+        if self.games < 2:
+            return 0.0
+        return self.sum_yy - self.sum_y ** 2 / self.games
+
+    @property
+    def slope(self) -> Optional[float]:
+        if self._sxx <= 1e-9:
+            return None
+        return self._sxy / self._sxx
+
+    @property
+    def intercept(self) -> Optional[float]:
+        slope = self.slope
+        if slope is None:
+            return None
+        return (self.sum_y - slope * self.sum_x) / self.games
+
+    @property
+    def stderr(self) -> Optional[float]:
+        """Standard error of the slope, or None when undefined."""
+        slope = self.slope
+        if slope is None or self.games <= 2:
+            return None
+        # Residual sum of squares, from the sufficient statistics.
+        resid = max(self._syy - slope * self._sxy, 0.0)
+        return math.sqrt(resid / (self.games - 2) / self._sxx)
+
+    @property
+    def model_sd(self) -> float:
+        if self.games < 1:
+            return 0.0
+        return math.sqrt(max(self._syy, 0.0) / self.games)
+
+    @property
+    def market_sd(self) -> float:
+        if self.games < 1:
+            return 0.0
+        return math.sqrt(max(self._sxx, 0.0) / self.games)
 
     @property
     def measurable(self) -> bool:
@@ -80,22 +148,25 @@ class ScaleCheck:
         """
         if not self.measurable:
             return True
-        assert self.slope is not None
-        if MIN_HEALTHY_SLOPE <= self.slope <= MAX_HEALTHY_SLOPE:
+        slope = self.slope
+        assert slope is not None
+        if MIN_HEALTHY_SLOPE <= slope <= MAX_HEALTHY_SLOPE:
             return True
-        if self.stderr is None:
+        stderr = self.stderr
+        if stderr is None:
             return False
-        margin = 2.0 * self.stderr
-        if self.slope < MIN_HEALTHY_SLOPE:
-            return self.slope + margin >= MIN_HEALTHY_SLOPE
-        return self.slope - margin <= MAX_HEALTHY_SLOPE
+        margin = 2.0 * stderr
+        if slope < MIN_HEALTHY_SLOPE:
+            return slope + margin >= MIN_HEALTHY_SLOPE
+        return slope - margin <= MAX_HEALTHY_SLOPE
 
     @property
     def correction(self) -> Optional[float]:
         """What the model's margins would need multiplying by."""
-        if not self.measurable or not self.slope:
+        slope = self.slope
+        if not self.measurable or not slope:
             return None
-        return 1.0 / self.slope
+        return 1.0 / slope
 
     def describe(self) -> str:
         if not self.measurable:
@@ -119,42 +190,22 @@ def market_scale(
     residuals around that line are where any real edge lives; this only
     asks whether the line itself is at 45 degrees.
     """
-    xs: list[float] = []
-    ys: list[float] = []
+    n = 0
+    sx = sy = sxx = sxy = syy = 0.0
     for pred in predictions:
         view = consensus.get(pred.game_id, {}).get("spread")
         if view is None or view.implied_value is None:
             continue
-        xs.append(view.implied_value)
-        ys.append(pred.projected_margin)
+        x = view.implied_value
+        y = pred.projected_margin
+        n += 1
+        sx += x
+        sy += y
+        sxx += x * x
+        sxy += x * y
+        syy += y * y
 
-    n = len(xs)
-    if n < 2:
-        return ScaleCheck(games=n)
-
-    mx = statistics.fmean(xs)
-    my = statistics.fmean(ys)
-    sxx = sum((x - mx) ** 2 for x in xs)
-    if sxx <= 1e-9:
-        # Every game priced identically: nothing to regress against.
-        return ScaleCheck(games=n, model_sd=statistics.pstdev(ys))
-    sxy = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
-    slope = sxy / sxx
-    intercept = my - slope * mx
-
-    stderr = None
-    if n > 2:
-        resid = sum((y - intercept - slope * x) ** 2 for x, y in zip(xs, ys))
-        stderr = math.sqrt(resid / (n - 2) / sxx)
-
-    return ScaleCheck(
-        games=n,
-        slope=slope,
-        intercept=intercept,
-        stderr=stderr,
-        model_sd=statistics.pstdev(ys),
-        market_sd=statistics.pstdev(xs),
-    )
+    return ScaleCheck(games=n, sum_x=sx, sum_y=sy, sum_xx=sxx, sum_xy=sxy, sum_yy=syy)
 
 
 def _dog_share(recs: Sequence[Recommendation]) -> Optional[tuple[int, int]]:
@@ -202,4 +253,15 @@ def board_warning(
                     "disagrees with the market in one direction all week is "
                     "usually miscalibrated rather than right."
                 )
+
+    # Checked last, because the two checks above need no market data and
+    # are the backstop for exactly this case. Reaching here means the
+    # board looks balanced but nothing has actually been verified, and
+    # silence would read as a clean bill of health.
+    if not scale.measurable:
+        return (
+            f"This board has not been checked for calibration \u2014 only "
+            f"{scale.games} games on the slate are priced, too few to tell "
+            "whether the model's numbers are on the right scale."
+        )
     return None
