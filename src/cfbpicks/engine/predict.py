@@ -24,7 +24,12 @@ from ..overrides import Adjustments
 from ..weather import total_adjustment
 from ..ratings.blend import BlendedRating, blend_ratings, confidence_from_blend
 from ..util.odds import spread_from_probability, win_probability
-from .calibration import IDENTITY, MarginCalibration
+from .calibration import (
+    IDENTITY,
+    TOTAL_IDENTITY,
+    MarginCalibration,
+    TotalCalibration,
+)
 
 
 @dataclass
@@ -44,6 +49,8 @@ class PredictionInputs:
     #: Scale correction fitted on completed games. Identity by default,
     #: so nothing is corrected until there is evidence for it.
     calibration: MarginCalibration = IDENTITY
+    #: Level and spread correction for projected totals.
+    total_calibration: TotalCalibration = TOTAL_IDENTITY
 
 
 class Predictor:
@@ -68,6 +75,7 @@ class Predictor:
                 game, blend, offense, defense, rest,
                 experts.get(game.game_id, []), adjustments,
                 inputs.weather.get(game.game_id), inputs.calibration,
+                inputs.total_calibration,
             )
             for game in inputs.games
         ]
@@ -83,6 +91,7 @@ class Predictor:
         adjustments: Optional[Adjustments] = None,
         weather: Optional[GameWeather] = None,
         calibration: MarginCalibration = IDENTITY,
+        total_calibration: TotalCalibration = TOTAL_IDENTITY,
     ) -> Prediction:
         home_blend = blend.get(game.home_team)
         away_blend = blend.get(game.away_team)
@@ -157,6 +166,11 @@ class Predictor:
             margin = calibration.apply(margin)
             components["uncalibrated_margin"] = round(uncorrected, 3)
             components["calibration"] = calibration.describe()
+
+        if total_calibration.fitted:
+            components["uncalibrated_total"] = round(total, 3)
+            total = total_calibration.apply(total)
+            components["total_calibration"] = total_calibration.describe()
 
         win_prob = win_probability(margin, self.model.margin_sd)
         fair_spread = spread_from_probability(win_prob, self.model.margin_sd)

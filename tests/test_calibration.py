@@ -334,3 +334,80 @@ class TestItReachesThePredictions:
             PredictionInputs(games=[game], ratings=ratings)
         )[0]
         assert "calibration" not in pred.components
+
+
+def total_pairs(bias: float = 0.0, spread_scale: float = 1.0, n: int = 400,
+                outcome_noise: float = 13.0, seed: int = 9):
+    """Games whose projected totals run ``bias`` points high."""
+    rng = random.Random(seed)
+    out = []
+    for _ in range(n):
+        signal = rng.gauss(0, 7.0)
+        actual = 52.0 + signal + rng.gauss(0, outcome_noise)
+        predicted = 52.0 + bias + signal * spread_scale
+        out.append((predicted, actual))
+    return out
+
+
+class TestTotals:
+    """Totals fail by level, not by scale, and need their own fit."""
+
+    def test_a_model_that_runs_high_is_brought_down(self):
+        """The live failure: 21 Overs to 7 Unders."""
+        from cfbpicks.engine.calibration import fit_total_calibration
+
+        cal = fit_total_calibration(total_pairs(bias=4.5))
+        assert cal.fitted
+        assert cal.shift < -3.0, cal.describe()
+        assert cal.apply(56.5) < 53.5
+
+    def test_an_unbiased_total_is_left_where_it_is(self):
+        from cfbpicks.engine.calibration import fit_total_calibration
+
+        cal = fit_total_calibration(total_pairs(bias=0.0))
+        assert cal.apply(52.0) == pytest.approx(52.0, abs=1.5)
+
+    def test_correcting_twice_finds_nothing_left(self):
+        from cfbpicks.engine.calibration import fit_total_calibration
+
+        raw = total_pairs(bias=4.5)
+        first = fit_total_calibration(raw)
+        second = fit_total_calibration([(first.apply(p), a) for p, a in raw])
+        assert second.shift == pytest.approx(0.0, abs=0.6), second.describe()
+
+    def test_an_absurd_shift_is_refused(self):
+        from cfbpicks.engine.calibration import fit_total_calibration
+
+        cal = fit_total_calibration(total_pairs(bias=40.0))
+        assert not cal.fitted and cal.apply(52.0) == 52.0
+
+    def test_too_few_games_measures_without_acting(self):
+        from cfbpicks.engine.calibration import MIN_GAMES, fit_total_calibration
+
+        cal = fit_total_calibration(total_pairs(bias=5.0, n=MIN_GAMES - 1))
+        assert not cal.fitted and cal.apply(52.0) == 52.0
+        assert cal.raw_shift is not None
+
+    def test_it_reaches_the_prediction(self):
+        from cfbpicks.config import Config
+        from cfbpicks.engine.calibration import TotalCalibration
+        from cfbpicks.engine.predict import PredictionInputs, Predictor
+        from cfbpicks.models import Game, Rating
+
+        cfg = Config()
+        game = Game(game_id="g", season=2026, week=4, kickoff=None,
+                    home_team="Georgia", away_team="Auburn")
+        ratings = [Rating("cfbd_elo", 2026, 4, "Georgia", 20.0, point_in_time=True),
+                   Rating("cfbd_elo", 2026, 4, "Auburn", 5.0, point_in_time=True)]
+
+        plain = Predictor(cfg).predict_week(
+            PredictionInputs(games=[game], ratings=ratings))[0]
+        lowered = Predictor(cfg).predict_week(PredictionInputs(
+            games=[game], ratings=ratings,
+            total_calibration=TotalCalibration(
+                games=300, shift=-4.0, slope=1.0, pivot=52.0, fitted=True),
+        ))[0]
+        assert lowered.projected_total == pytest.approx(
+            plain.projected_total - 4.0, abs=0.02)
+        assert lowered.projected_margin == plain.projected_margin, \
+            "a totals correction must not move the spread"

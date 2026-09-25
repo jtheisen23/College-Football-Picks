@@ -415,6 +415,7 @@ def calibrate(ctx, season, week) -> None:
 
     with Pipeline(config) as pipeline:
         cal = pipeline.margin_calibration(season, before_week=week)
+        totals = pipeline.total_calibration_for(season, before_week=week)
 
     if cal.games == 0:
         console.print(
@@ -455,6 +456,17 @@ def calibrate(ctx, season, week) -> None:
         f"A predicted margin of 10 becomes [bold]{cal.apply(10.0):+.1f}[/bold]; "
         f"a predicted 21 becomes [bold]{cal.apply(21.0):+.1f}[/bold]."
     )
+
+    # Totals fail by level rather than scale, so they are fitted and
+    # reported separately: a model four points high takes every Over.
+    if totals.fitted:
+        console.print(
+            f"Totals: [bold]{totals.shift:+.1f}[/bold] pts, spread "
+            f"x{totals.slope:.2f} — a projected 55.0 becomes "
+            f"[bold]{totals.apply(55.0):.1f}[/bold]."
+        )
+    else:
+        console.print(f"[yellow]Totals not corrected[/yellow] ({totals.describe()}).")
 
 
 @main.command()

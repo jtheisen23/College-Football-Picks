@@ -18,8 +18,11 @@ from .config import Config
 from .diagnostics import ScaleCheck, market_scale
 from .engine.calibration import (
     MarginCalibration,
+    TotalCalibration,
     collect_margin_pairs,
+    collect_total_pairs,
     fit_margin_calibration,
+    fit_total_calibration,
 )
 from .engine.market import build_consensus
 from .engine.predict import PredictionInputs, Predictor
@@ -63,6 +66,7 @@ class Pipeline:
         self.last_scale = ScaleCheck()
         #: The scale correction applied by the last prediction run.
         self.calibration = MarginCalibration()
+        self.total_calibration = TotalCalibration()
 
     def close(self) -> None:
         if self._owns_storage:
@@ -316,6 +320,7 @@ class Pipeline:
         # before this one, so a board is never corrected using the
         # results of the games it is about to bet.
         self.calibration = self.margin_calibration(season, before_week=week)
+        self.total_calibration = self.total_calibration_for(season, before_week=week)
 
         predictor = Predictor(self.config)
         predictions = predictor.predict_week(
@@ -325,6 +330,7 @@ class Pipeline:
                 adjustments=adjustments,
                 weather=self.storage.weather([g.game_id for g in games]),
                 calibration=self.calibration,
+                total_calibration=self.total_calibration,
             )
         )
         self.storage.upsert_predictions(predictions)
@@ -338,6 +344,15 @@ class Pipeline:
             self.storage, self.config, season, before_week=before_week
         )
         return fit_margin_calibration(pairs)
+
+    def total_calibration_for(
+        self, season: int, *, before_week: Optional[int] = None
+    ) -> TotalCalibration:
+        """The level correction this season's totals imply."""
+        pairs = collect_total_pairs(
+            self.storage, self.config, season, before_week=before_week
+        )
+        return fit_total_calibration(pairs)
 
     # -- recommend ----------------------------------------------------------
     def picks(

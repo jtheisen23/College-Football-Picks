@@ -47,10 +47,10 @@ def slate(scale: float, n: int = 60, noise: float = 0.0, seed: int = 7, tag: str
     return preds, cons
 
 
-def rec(line: float, market: str = "spread") -> Recommendation:
+def rec(line: float, market: str = "spread", side: str = "home") -> Recommendation:
     return Recommendation(
         game_id="g", season=2026, week=4, matchup="A @ H", market=market,
-        side="home", selection=f"H {line:+.1f}", line=line, price=-110,
+        side=side, selection=f"H {line:+.1f}", line=line, price=-110,
         book="DraftKings", model_prob=0.56, market_prob=0.52, prob_edge=0.04,
         point_edge=2.0, expected_value=0.03, stake_units=1.0,
         kelly_fraction=0.02, tier="play",
@@ -180,6 +180,21 @@ class TestBoardWarning:
         note = board_warning([rec(+3.5) for _ in range(5)], market_scale(*slate(1.0)))
         assert note is None
 
+    def test_the_same_share_is_judged_on_its_sample_size(self):
+        """Why a flat percentage cannot do this job.
+
+        Both splits are exactly 75% on the Over. Nine of twelve is
+        inside what a fair model throws off by chance; twenty-one of
+        twenty-eight is not, and it is the one the live board hit.
+        """
+        def totals(over, under):
+            return ([rec(48.5, market="total", side="over")] * over
+                    + [rec(48.5, market="total", side="under")] * under)
+
+        clean = market_scale(*slate(1.0, noise=6.0))
+        assert board_warning(totals(9, 3), clean) is None
+        assert board_warning(totals(21, 7), clean) is not None
+
     def test_an_unchecked_board_does_not_pass_itself_off_as_checked(self):
         """Silence would read as a clean bill of health."""
         note = board_warning([rec(+3.5), rec(-2.0)], market_scale(*slate(1.0, n=6)))
@@ -188,6 +203,29 @@ class TestBoardWarning:
     def test_an_empty_board_says_nothing(self):
         assert board_warning([], market_scale(*slate(0.4))) is None
 
-    def test_totals_do_not_count_toward_the_spread_split(self):
-        recs = [rec(+3.5, market="total") for _ in range(20)]
-        assert board_warning(recs, market_scale(*slate(1.0))) is None
+    def test_totals_are_judged_in_their_own_market(self):
+        recs = [rec(48.5, market="total", side="over") for _ in range(20)]
+        note = board_warning(recs, market_scale(*slate(1.0)))
+        assert note and "20 of 20 total picks are on the Over" in note
+        assert "spread" not in note, "a totals lean is not a spread lean"
+
+    def test_a_fixed_spread_book_does_not_excuse_broken_totals(self):
+        """The live failure this check was blind to.
+
+        Calibrating margins fixed the spread split and silenced the
+        scale banner, while the totals stayed 3:1 on the Over. A board
+        that is half right must not read as a board that is right.
+        """
+        spreads = [rec(+3.5) for _ in range(12)] + [rec(-3.0) for _ in range(9)]
+        totals = ([rec(48.5, market="total", side="over") for _ in range(21)]
+                  + [rec(48.5, market="total", side="under") for _ in range(7)])
+        note = board_warning(spreads + totals, market_scale(*slate(1.0, noise=6.0)))
+        assert note, "a 3:1 Over lean must still be caught"
+        assert "21 of 28 total picks are on the Over" in note
+
+    def test_both_markets_leaning_are_both_named(self):
+        recs = ([rec(+3.5) for _ in range(14)]
+                + [rec(48.5, market="total", side="over") for _ in range(14)])
+        note = board_warning(recs, market_scale(*slate(1.0, noise=6.0)))
+        assert "spread picks are on the underdog" in note
+        assert "total picks are on the Over" in note

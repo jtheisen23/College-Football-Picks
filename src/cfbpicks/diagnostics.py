@@ -38,9 +38,13 @@ MIN_HEALTHY_SLOPE = 0.85
 MAX_HEALTHY_SLOPE = 1.20
 #: A slope fitted on a handful of games says nothing.
 MIN_GAMES = 20
-#: Share of spread picks landing on one side before the split itself is
-#: evidence. A fair model lands near half; 0.75 is a long way out.
-MAX_ONE_SIDED = 0.75
+#: How many standard errors a market's split must sit from even before
+#: it counts as evidence. A fixed share cannot work here: nine of twelve
+#: is an ordinary Tuesday while twenty-one of twenty-eight is not, and
+#: both are exactly 75%. Measuring against the binomial standard error
+#: scales the bar with the number of picks, the way the slope check
+#: already scales with its own.
+ONE_SIDED_SIGMA = 2.0
 #: ...but only once there are enough picks for the share to mean
 #: anything. Four dogs out of five is a Tuesday.
 MIN_PICKS_FOR_SPLIT = 12
@@ -208,14 +212,44 @@ def market_scale(
     return ScaleCheck(games=n, sum_x=sx, sum_y=sy, sum_xx=sxx, sum_xy=sxy, sum_yy=syy)
 
 
-def _dog_share(recs: Sequence[Recommendation]) -> Optional[tuple[int, int]]:
-    """(picks on the underdog, spread picks) for this board."""
-    spreads = [r for r in recs if r.market == "spread" and r.line is not None]
-    if not spreads:
-        return None
+def _one_sided(recs: Sequence[Recommendation]) -> list[tuple[str, str, int, int]]:
+    """Where this board leans, per market.
+
+    Each entry is ``(market, side, picks on that side, picks in that
+    market)`` for a market that leans further than it should. Spreads
+    and totals are counted separately and both are checked: a scale
+    correction that fixes one says nothing about the other, and a board
+    that is half right must not read as a board that is right.
+    """
+    out = []
+
     # The line is stored from the picked side's own perspective, so a
     # positive number is a pick taking points.
-    return sum(1 for r in spreads if r.line > 0), len(spreads)
+    spreads = [r for r in recs if r.market == "spread" and r.line is not None]
+    if spreads:
+        dogs = sum(1 for r in spreads if r.line > 0)
+        out.append(("spread", "underdog", dogs, len(spreads)))
+
+    totals = [r for r in recs if r.market == "total"]
+    if totals:
+        overs = sum(1 for r in totals if r.side == "over")
+        out.append(("total", "Over", overs, len(totals)))
+
+    leaning = []
+    for market, side, picked, total in out:
+        if total < MIN_PICKS_FOR_SPLIT:
+            continue
+        share = max(picked, total - picked) / total
+        # Standard error of a fair coin over this many picks.
+        stderr = 0.5 / math.sqrt(total)
+        if share - 0.5 > ONE_SIDED_SIGMA * stderr:
+            majority = side if picked * 2 > total else _opposite(market, side)
+            leaning.append((market, majority, max(picked, total - picked), total))
+    return leaning
+
+
+def _opposite(market: str, side: str) -> str:
+    return "Under" if market == "total" else "favourite"
 
 
 def board_warning(
@@ -240,19 +274,18 @@ def board_warning(
             "repeated on every game."
         )
 
-    split = _dog_share(recs)
-    if split is not None:
-        dogs, total = split
-        if total >= MIN_PICKS_FOR_SPLIT:
-            share = max(dogs, total - dogs) / total
-            if share > MAX_ONE_SIDED:
-                side = "underdog" if dogs * 2 > total else "favourite"
-                return (
-                    f"Treat this board with suspicion: {max(dogs, total - dogs)} "
-                    f"of {total} spread picks are on the {side}. A model that "
-                    "disagrees with the market in one direction all week is "
-                    "usually miscalibrated rather than right."
-                )
+    leaning = _one_sided(recs)
+    if leaning:
+        parts = [
+            f"{picked} of {n} {market} picks are on the {side}"
+            for market, side, picked, n in leaning
+        ]
+        return (
+            "Treat this board with suspicion: "
+            + " and ".join(parts)
+            + ". A model that disagrees with the market in one direction all "
+            "week is usually miscalibrated rather than right."
+        )
 
     # Checked last, because the two checks above need no market data and
     # are the backstop for exactly this case. Reaching here means the

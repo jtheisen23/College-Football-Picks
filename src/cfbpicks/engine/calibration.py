@@ -61,6 +61,13 @@ MAX_SLOPE = 2.00
 #: Points of systematic home-field correction allowed. The predictor
 #: already applies a home-field advantage; this only nudges it.
 MAX_INTERCEPT = 3.0
+#: Points a projected total may be shifted. Totals fail differently from
+#: margins: a margin is centred on zero and goes wrong by scale, while a
+#: total is centred near fifty and goes wrong by level -- every game
+#: projected four points high sends every pick to the Over. The shift is
+#: measured about the mean total, so this is a bound on that bias rather
+#: than on a regression intercept.
+MAX_TOTAL_SHIFT = 8.0
 
 
 @dataclass(frozen=True)
@@ -231,5 +238,129 @@ def collect_margin_pairs(
             if roster and (game.home_team not in roster or game.away_team not in roster):
                 continue
             pairs.append((prediction.projected_margin, float(game.margin)))
+
+    return pairs
+
+
+@dataclass(frozen=True)
+class TotalCalibration:
+    """A level-and-scale correction for projected totals.
+
+    Parameterised about the mean rather than as a raw intercept, because
+    a total's failure mode is a level bias: a model that projects every
+    game four points high takes the Over on everything, and a raw
+    intercept on a variable centred near fifty is both huge and
+    uninterpretable.
+    """
+
+    games: int = 0
+    shift: float = 0.0            # points added to every total
+    slope: float = 1.0            # spread about the mean
+    pivot: float = 0.0            # the mean predicted total it turns about
+    fitted: bool = False
+    raw_shift: Optional[float] = None
+    residual_sd: Optional[float] = None
+
+    def apply(self, total: float) -> float:
+        if not self.fitted:
+            return total
+        return self.pivot + self.shift + self.slope * (total - self.pivot)
+
+    def describe(self) -> str:
+        if not self.fitted:
+            return f"totals uncalibrated ({self.games} completed games)"
+        return (
+            f"totals {self.shift:+.1f} pts, spread x{self.slope:.2f} "
+            f"({self.games} games)"
+        )
+
+
+TOTAL_IDENTITY = TotalCalibration()
+
+
+def fit_total_calibration(
+    pairs: Sequence[tuple[float, float]]
+) -> TotalCalibration:
+    """Fit actual total on predicted total, as a level plus a spread."""
+    n = len(pairs)
+    if n < 3:
+        return TotalCalibration(games=n)
+
+    mx = sum(p for p, _ in pairs) / n
+    my = sum(a for _, a in pairs) / n
+    sxx = sum((p - mx) ** 2 for p, _ in pairs)
+    sxy = sum((p - mx) * (a - my) for p, a in pairs)
+
+    raw_shift = my - mx
+    raw_slope = sxy / sxx if sxx > 1e-9 else 1.0
+
+    resid = sum(
+        (a - (my + raw_slope * (p - mx))) ** 2 for p, a in pairs
+    )
+    dof = n - 2
+    residual_sd = math.sqrt(resid / dof) if dof > 0 else None
+    shift_stderr = residual_sd / math.sqrt(n) if residual_sd else None
+    slope_stderr = (
+        math.sqrt(resid / dof / sxx) if dof > 0 and resid > 0 and sxx > 1e-9 else None
+    )
+
+    if n < MIN_GAMES:
+        return TotalCalibration(
+            games=n, raw_shift=raw_shift, residual_sd=residual_sd
+        )
+
+    shift = _shrink(raw_shift, 0.0, shift_stderr)
+    slope = _shrink(raw_slope, 1.0, slope_stderr)
+
+    if abs(shift) > MAX_TOTAL_SHIFT or slope > MAX_SLOPE or slope <= 0.0:
+        return TotalCalibration(
+            games=n, raw_shift=raw_shift, residual_sd=residual_sd
+        )
+
+    return TotalCalibration(
+        games=n, shift=shift, slope=slope, pivot=mx, fitted=True,
+        raw_shift=raw_shift, residual_sd=residual_sd,
+    )
+
+
+def collect_total_pairs(
+    storage: "Storage",
+    config: "Config",
+    season: int,
+    *,
+    before_week: Optional[int] = None,
+) -> list[tuple[float, float]]:
+    """``(predicted total, actual total)`` over completed games.
+
+    Same replay discipline as the margin pairs: point-in-time ratings
+    only, and never a week's own result.
+    """
+    from .predict import PredictionInputs, Predictor
+
+    all_games = storage.games(season)
+    if not all_games:
+        return []
+
+    roster = storage.fbs_teams(season) if config.betting.fbs_only else set()
+    predictor = Predictor(config)
+    pairs: list[tuple[float, float]] = []
+
+    for week in sorted({g.week for g in all_games if g.completed}):
+        if before_week is not None and week >= before_week:
+            continue
+        games = [g for g in all_games if g.week == week]
+        ratings = storage.ratings(season, week, point_in_time_only=True)
+        if not ratings:
+            continue
+        by_id = {g.game_id: g for g in games}
+        for prediction in predictor.predict_week(
+            PredictionInputs(games=games, ratings=ratings, schedule=all_games)
+        ):
+            game = by_id.get(prediction.game_id)
+            if game is None or not game.completed or game.total_points is None:
+                continue
+            if roster and (game.home_team not in roster or game.away_team not in roster):
+                continue
+            pairs.append((prediction.projected_total, float(game.total_points)))
 
     return pairs
