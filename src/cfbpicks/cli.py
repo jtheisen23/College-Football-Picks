@@ -487,8 +487,9 @@ def publish(ctx, season, week, push) -> None:
     import json
     import subprocess
 
+    from .backtest import LookaheadError, backtest_season
     from .diagnostics import ScaleCheck, board_warning
-    from .report import BoardEntry, to_html, to_index_html
+    from .report import BoardEntry, to_html, to_index_html, to_results_html
 
     config = _config(ctx)
     season = _season(ctx, season)
@@ -575,7 +576,30 @@ def publish(ctx, season, week, push) -> None:
             f"[green]Wrote[/green] docs/{filename} ({len(recommendations)} bets)"
         )
 
-    (docs / "index.html").write_text(to_index_html(entries))
+    # The record belongs next to the board, not in a log. Replayed
+    # picks graded against final scores: the only record available
+    # before the model has been running long enough to have a real one.
+    with Pipeline(config) as pipeline:
+        try:
+            result = backtest_season(pipeline.storage, config, season)
+        except LookaheadError as exc:
+            result = None
+            console.print(f"[yellow]Results page skipped:[/yellow] {exc}")
+        played = {g.game_id: g for g in pipeline.storage.games(season)}
+
+    has_results = result is not None and bool(result.graded)
+    if result is not None:
+        (docs / "results.html").write_text(to_results_html(
+            result.graded, played, season=season, generated=generated,
+            clv=result.avg_clv, clv_unavailable=result.clv_unavailable,
+        ))
+        console.print(
+            f"[green]Wrote[/green] docs/results.html "
+            f"({result.wins}-{result.losses}, {result.roi * 100:+.1f}% ROI)"
+            if result.graded else "[green]Wrote[/green] docs/results.html (nothing graded yet)"
+        )
+
+    (docs / "index.html").write_text(to_index_html(entries, results=has_results))
     console.print("[green]Wrote[/green] docs/index.html")
 
     if not push:

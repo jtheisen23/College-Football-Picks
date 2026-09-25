@@ -465,3 +465,81 @@ class TestPublishesNextWeekToo:
         assert result.exit_code == 0, result.output
         assert "week None" not in result.output
         assert (tmp_path / "docs" / "2026-week-03.html").exists()
+
+
+def graded_bet(result="win", pnl=1.59, week=3, selection="Georgia -6.5"):
+    return (rec(selection=selection), result, pnl)
+
+
+class TestResultsPage:
+    """The record of what the picks actually did."""
+
+    def _games(self):
+        from cfbpicks.models import Game
+
+        return {"g1": Game(game_id="g1", season=2026, week=3, kickoff=None,
+                           home_team="Georgia", away_team="Alabama",
+                           home_score=31, away_score=17)}
+
+    def _page(self, graded=None, **kw):
+        from cfbpicks.report import to_results_html
+
+        return to_results_html(
+            graded if graded is not None else [graded_bet()],
+            self._games(), season=2026, generated="26 Sep 2026, 01:00 UTC", **kw
+        )
+
+    def test_a_bet_shows_its_result_and_the_final_score(self):
+        page = self._page()
+        assert re.search(r'class="badge win">win<', page)
+        assert "17–31" in page, "away-home, matching the matchup order"
+        assert "+1.59u" in page
+
+    def test_the_record_counts_wins_losses_and_pushes_apart(self):
+        page = self._page([
+            graded_bet("win", 1.59), graded_bet("win", 1.59),
+            graded_bet("loss", -1.75), graded_bet("push", 0.0),
+        ])
+        assert "2-1-1" in page
+        assert "52.4% breaks even" in page, "a winning record is not a profit"
+
+    def test_roi_is_measured_against_what_was_staked(self):
+        page = self._page([graded_bet("win", 1.59), graded_bet("loss", -1.75)])
+        # 1.59 - 1.75 = -0.16 on 3.50 staked
+        assert "-0.16u" in page
+        assert "-4.6%" in page
+
+    def test_a_push_stakes_nothing_and_wins_nothing(self):
+        page = self._page([graded_bet("push", 0.0)])
+        assert "0-0-1" in page
+        assert "on 0.0u staked" in page
+
+    def test_closing_line_value_is_shown_when_it_exists(self):
+        assert "+0.35" in self._page(clv=0.35)
+
+    def test_and_says_why_when_it_does_not(self):
+        page = self._page(clv=None, clv_unavailable=7)
+        assert "no later line for 7 bets" in page
+
+    def test_it_never_passes_replays_off_as_placed_bets(self):
+        """The whole page is honest or it is worse than nothing."""
+        page = self._page()
+        assert "Replayed picks, not placed bets" in page
+        assert "settled against the final" in page
+
+    def test_an_ungraded_season_says_so_rather_than_showing_zeroes(self):
+        page = self._page([])
+        assert "Nothing to grade yet" in page
+        assert "0-0" not in page, "an empty record must not read as 0-0"
+
+    def test_results_are_searchable_like_the_board(self):
+        page = self._page()
+        assert 'data-search="alabama @ georgia georgia -6.5 draftkings spread win"' in page
+
+    def test_the_index_links_to_it_only_when_it_exists(self):
+        from cfbpicks.report import BoardEntry, to_index_html
+
+        entries = [BoardEntry(season=2026, week=3, filename="2026-week-03.html",
+                              bets=5, staked=8.0, generated="x")]
+        assert "results.html" in to_index_html(entries, results=True)
+        assert "results.html" not in to_index_html(entries, results=False)

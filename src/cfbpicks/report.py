@@ -8,12 +8,12 @@ import io
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Mapping, Optional, Sequence
 
 from rich.console import Console
 from rich.table import Table
 
-from .models import Prediction, Recommendation
+from .models import Game, Prediction, Recommendation
 
 TIER_STYLE = {"strong": "bold green", "play": "green", "lean": "yellow", "pass": "dim"}
 TIER_ORDER = {"strong": 0, "play": 1, "lean": 2, "pass": 3}
@@ -235,6 +235,10 @@ _CSS = """
   --tier-strong-ink: #ffffff;
   --good: #006300;
   --bad: #c0392b;
+  --win: #006300;
+  --win-ink: #ffffff;
+  --loss: #c0392b;
+  --loss-ink: #ffffff;
   --accent: #2a78d6;
   --warn: #fab219;
   --warn-bg: #fdf7e7;
@@ -259,6 +263,10 @@ _CSS = """
     --tier-strong-ink: #101418;
     --good: #3fbf5f;
     --bad: #f0736a;
+    --win: #2f7d46;
+    --win-ink: #ffffff;
+    --loss: #a8392f;
+    --loss-ink: #ffffff;
     --accent: #6da7ec;
     --warn: #fab219;
     --warn-bg: #2a2517;
@@ -283,6 +291,10 @@ _CSS = """
   --tier-strong-ink: #101418;
   --good: #3fbf5f;
   --bad: #f0736a;
+  --win: #2f7d46;
+  --win-ink: #ffffff;
+  --loss: #a8392f;
+  --loss-ink: #ffffff;
   --accent: #6da7ec;
   --warn: #fab219;
   --warn-bg: #2a2517;
@@ -404,6 +416,11 @@ h2 {
 .badge.lean { background: var(--tier-lean); color: var(--tier-lean-ink); }
 .badge.play { background: var(--tier-play); color: var(--tier-play-ink); }
 .badge.strong { background: var(--tier-strong); color: var(--tier-strong-ink); }
+.badge.win { background: var(--win); color: var(--win-ink); }
+.badge.loss { background: var(--loss); color: var(--loss-ink); }
+.badge.push { background: var(--tier-lean); color: var(--tier-lean-ink); }
+.tile .value.pos { color: var(--good); }
+.tile .value.neg { color: var(--bad); }
 
 .caveat { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
 
@@ -790,15 +807,168 @@ def to_html(
     return "\n".join(parts)
 
 
-def _tile(label: str, value: str, sub: str = "") -> str:
+def _tile(label: str, value: str, sub: str = "", tone: str = "") -> str:
     sub_html = f'<div class="sub">{_esc(sub)}</div>' if sub else ""
+    # Colour is never the only signal: every toned value carries its own
+    # sign, so the tile still reads correctly in monochrome.
+    klass = f"value {tone}" if tone else "value"
     return (
         f'<div class="tile"><div class="label">{_esc(label)}</div>'
-        f'<div class="value">{_esc(value)}</div>{sub_html}</div>'
+        f'<div class="{klass}">{_esc(value)}</div>{sub_html}</div>'
     )
 
 
-def to_index_html(entries: Sequence["BoardEntry"], *, note: Optional[str] = None) -> str:
+def to_results_html(
+    graded: Sequence[tuple[Recommendation, str, float]],
+    games: Mapping[str, "Game"],
+    *,
+    season: int,
+    generated: str,
+    clv: Optional[float] = None,
+    clv_unavailable: int = 0,
+    note: Optional[str] = None,
+) -> str:
+    """Every bet the model would have made, with what happened to it.
+
+    These are replayed picks, not a diary of bets anyone placed: each
+    week is priced from the ratings as they stood before kickoff, then
+    settled against the final score. That is the only honest way to
+    keep a record before the model has been running long enough to have
+    a real one, and it is stated plainly on the page so nobody reads it
+    as a betting history.
+    """
+    decided = [g for g in graded if g[1] in ("win", "loss")]
+    wins = sum(1 for g in decided if g[1] == "win")
+    losses = len(decided) - wins
+    pushes = sum(1 for g in graded if g[1] == "push")
+    staked = sum(rec.stake_units for rec, res, _ in graded if res != "push")
+    profit = sum(p for _, _, p in graded)
+    roi = profit / staked if staked else 0.0
+    win_rate = wins / len(decided) if decided else 0.0
+
+    parts = _head(f"Results — {season}")
+    parts += _note_bar(note)
+    parts += [
+        f"<header><div><h1>Results</h1>",
+        f'<div class="stamp">{season} \u00b7 replayed picks, settled against '
+        f"final scores \u00b7 {_esc(generated)}</div></div>",
+        '<button class="toggle" id="theme-toggle" type="button">Theme</button></header>',
+        '<nav class="weeknav"><a href="index.html">\u2190 Boards</a></nav>',
+    ]
+
+    if not graded:
+        parts += [
+            '<div class="panel" style="margin-top:22px"><p class="empty">'
+            "Nothing to grade yet. Once a week has been played and its "
+            "lines are stored, every pick the model would have made shows "
+            "up here with its result.</p></div>",
+            f"</div><script>{_TOGGLE_JS}</script></body></html>",
+        ]
+        return "\n".join(parts)
+
+    # 52.4% is break-even at -110, which is the number that decides
+    # whether any of this was worth doing.
+    tone = "pos" if roi > 0 else "neg"
+    parts += [
+        '<div class="tiles">',
+        _tile("Record", f"{wins}-{losses}" + (f"-{pushes}" if pushes else ""),
+              f"{win_rate * 100:.1f}% \u00b7 52.4% breaks even"),
+        _tile("Units", f"{profit:+.2f}u", f"on {staked:.1f}u staked"),
+        _tile("ROI", f"{roi * 100:+.1f}%", "per unit staked", tone),
+        _tile("CLV", f"{clv:+.2f}" if clv is not None else "\u2014",
+              "points vs the close" if clv is not None
+              else f"no later line for {clv_unavailable} bets"),
+        "</div>",
+    ]
+
+    parts += [
+        "<h2>Every graded bet</h2>",
+        _glossary_results(),
+        '<div class="toolbar">',
+        '<label class="sr-only" for="q">Filter by team</label>',
+        '<input class="search" id="q" type="search" autocomplete="off" '
+        'placeholder="Filter by team, bet or result\u2026">',
+        f'<span class="count" id="count" aria-live="polite">{len(graded)} bets</span>',
+        "</div>",
+        '<div class="board" id="board">',
+        '<div class="board-head" aria-hidden="true">'
+        "<span>Result</span><span>Bet</span><span>Score</span>"
+        "<span>Edge</span><span>Units</span><span>P/L</span></div>",
+    ]
+
+    for rec, result, pnl in sorted(
+        graded, key=lambda g: (-g[0].week, -abs(g[2]))
+    ):
+        game = games.get(rec.game_id)
+        score = (
+            f"{game.away_score}\u2013{game.home_score}"
+            if game is not None and game.completed else "\u2014"
+        )
+        away, _, home = rec.matchup.partition(" @ ")
+        matchup = (
+            f"{_esc(away)} <span class=\"at\">@</span> {_esc(home)}"
+            if home else _esc(rec.matchup)
+        )
+        haystack = " ".join(
+            [rec.matchup, rec.selection, rec.book, rec.market, result]
+        ).lower()
+        parts.append(
+            f'<article class="bet" data-search="{_esc(haystack)}">'
+            f'<div><span class="badge {_esc(result)}">{_esc(result)}</span></div>'
+            f'<div class="game"><div class="matchup">Wk {rec.week} \u00b7 {matchup}</div>'
+            f'<div class="pick">{_esc(rec.selection)}</div>'
+            f'<div class="terms">{int(rec.price):+d} '
+            f'<span class="book">at {_esc(rec.book)}</span></div></div>'
+            '<div class="figs">'
+            + _fig("Score", score)
+            + _fig("Edge", f"{rec.prob_edge * 100:+.1f}%")
+            + _fig("Units", f"{rec.stake_units:.2f}")
+            + _fig("P/L", f"{pnl:+.2f}u", _tone(pnl))
+            + "</div></article>"
+        )
+
+    parts.append(
+        '<p class="no-match panel" id="no-match" hidden>'
+        "No bets match that filter.</p>"
+    )
+    parts.append("</div>")
+
+    parts += [
+        "<footer>Replayed picks, not placed bets: each week is priced from "
+        "the ratings available before kickoff and settled against the final "
+        "score. A few hundred bets is far too small a sample to prove an "
+        "edge \u2014 closing line value is the more trustworthy column at "
+        "this size.</footer>",
+        f"</div><script>{_TOGGLE_JS}{_SEARCH_JS}</script></body></html>",
+    ]
+    return "\n".join(parts)
+
+
+def _glossary_results() -> str:
+    rows = "".join(
+        f"<dt>{_esc(t)}</dt><dd>{_esc(d)}</dd>" for t, d in [
+            ("Record", "Wins\u2013losses, pushes last. At the usual -110 price "
+                       "you need 52.4% just to break even, so a winning record "
+                       "is not the same as a profitable one."),
+            ("Units", "Profit in units, where one unit is 1% of bankroll. "
+                      "Losing bets cost the stake; winning ones pay the price."),
+            ("ROI", "Profit divided by everything staked. This is the number "
+                    "that decides whether the model was worth running."),
+            ("CLV", "Closing line value: how many points better than the "
+                    "final market number the bet was placed at. The most "
+                    "reliable sign of a real edge, because it does not depend "
+                    "on whether the ball bounced your way."),
+            ("P/L", "What this single bet won or lost, in units."),
+        ]
+    )
+    return (
+        '<details class="legend"><summary>How to read this'
+        f"</summary><dl>{rows}</dl></details>"
+    )
+
+
+def to_index_html(entries: Sequence["BoardEntry"], *, note: Optional[str] = None,
+                  results: bool = False) -> str:
     """A landing page listing every published board, newest first."""
     parts = _head("College Football Picks")
     parts += _note_bar(note)
@@ -807,6 +977,11 @@ def to_index_html(entries: Sequence["BoardEntry"], *, note: Optional[str] = None
         '<div class="stamp">Model output, not betting advice</div></div>',
         '<button class="toggle" id="theme-toggle" type="button">Theme</button></header>',
     ]
+    if results:
+        parts.append(
+            '<nav class="weeknav"><a href="results.html">'
+            "How the picks have done \u2192</a></nav>"
+        )
 
     if not entries:
         parts.append(

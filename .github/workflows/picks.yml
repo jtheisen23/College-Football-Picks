@@ -95,11 +95,15 @@ jobs:
           # its size is visible after the fact.
           cfbpicks calibrate ${SEASON_ARG}
           # The only question that matters about a betting model is
-          # whether it beats the number it bet into. Graded against the
-          # weeks already played, printed every run so a board is never
-          # published without its record sitting next to it. `|| true`
-          # because an unplayed season is not a failed run.
-          cfbpicks backtest ${SEASON_ARG} || true
+          # whether it beats the number it bet into. `publish` writes the
+          # same record to docs/results.html; this prints it in the log
+          # too, where a bad week is visible without opening the site.
+          #
+          # backtest requires --season rather than defaulting to the
+          # current one like every other command, so SEASON_ARG being
+          # empty made this fail silently behind `|| true` the first
+          # time it ran. Resolved explicitly now.
+          cfbpicks backtest --season "${SEASON:-$(date -u +%Y)}" || true
           cfbpicks publish ${SEASON_ARG} ${WEEK_ARG}
 
       - name: Commit the board
