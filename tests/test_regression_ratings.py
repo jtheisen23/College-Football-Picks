@@ -259,3 +259,67 @@ class TestPointInTimeGuarantee:
             f"ROI {result.roi:.1%} against a market that knows every true "
             "margin indicates results are leaking into the ratings"
         )
+
+
+class TestFitPopulation:
+    """Everyone below FBS is one pooled opponent, not five hundred teams."""
+
+    def _pipeline(self, tmp_path, roster, games):
+        from cfbpicks.config import Config
+        from cfbpicks.pipeline import Pipeline
+        from cfbpicks.storage import Storage
+
+        cfg = Config(root=tmp_path)
+        store = Storage(tmp_path / "t.sqlite")
+        store.upsert_teams(2026, [{"team": t, "classification": "fbs"}
+                                  for t in roster])
+        store.upsert_games(games)
+        return Pipeline(cfg, storage=store), store
+
+    def _game(self, gid, home, away, week=1, hs=28, as_=14):
+        from cfbpicks.models import Game
+
+        return Game(game_id=gid, season=2026, week=week, kickoff=None,
+                    home_team=home, away_team=away, home_score=hs, away_score=as_)
+
+    def test_an_fbs_matchup_is_untouched(self, tmp_path):
+        games = [self._game("g1", "Georgia", "Auburn")]
+        pipe, store = self._pipeline(tmp_path, {"Georgia", "Auburn"}, games)
+        kept = pipe._fit_population(2026, games)
+        assert [(g.home_team, g.away_team) for g in kept] == [("Georgia", "Auburn")]
+        store.close()
+
+    def test_a_cross_division_game_keeps_the_fbs_side(self, tmp_path):
+        from cfbpicks.ratings.regression import NON_FBS
+
+        games = [self._game("g1", "Georgia", "Mercer")]
+        pipe, store = self._pipeline(tmp_path, {"Georgia"}, games)
+        kept = pipe._fit_population(2026, games)
+        assert [(g.home_team, g.away_team) for g in kept] == [("Georgia", NON_FBS)]
+        store.close()
+
+    def test_two_small_schools_are_dropped_entirely(self, tmp_path):
+        """Lake Forest against John Carroll prices nothing we bet."""
+        games = [self._game("g1", "Lake Forest", "John Carroll")]
+        pipe, store = self._pipeline(tmp_path, {"Georgia"}, games)
+        assert pipe._fit_population(2026, games) == []
+        store.close()
+
+    def test_the_pooled_opponent_never_reaches_the_ratings(self, tmp_path):
+        from cfbpicks.ratings.regression import NON_FBS, SOURCE
+
+        games = [self._game("g1", "Georgia", "Mercer", week=1),
+                 self._game("g2", "Auburn", "Georgia", week=1, hs=10, as_=31)]
+        pipe, store = self._pipeline(tmp_path, {"Georgia", "Auburn"}, games)
+        pipe.compute_ratings(2026, weeks=[2])
+        teams = {r.team for r in store.ratings(2026, source=SOURCE)}
+        assert NON_FBS not in teams, "the pooled bucket is not a team to rank"
+        assert "Georgia" in teams
+        store.close()
+
+    def test_without_a_team_list_nothing_is_pooled(self, tmp_path):
+        """An unfetched roster must not silently discard every game."""
+        games = [self._game("g1", "Georgia", "Mercer")]
+        pipe, store = self._pipeline(tmp_path, set(), games)
+        assert len(pipe._fit_population(2026, games)) == 1
+        store.close()

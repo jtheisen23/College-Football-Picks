@@ -44,6 +44,11 @@ from ..models import Game, Rating
 #: Name this rating is stored under.
 SOURCE = "cfbpicks_margin"
 
+#: Every team below FBS is fitted as this one pooled opponent, so a
+#: division that shares a schedule cannot spend five hundred
+#: coefficients or drag the home-field and residual estimates.
+NON_FBS = "__non_fbs__"
+
 #: Margin capping is OFF by default, deliberately. Clamping blowouts is
 #: standard for *ranking* systems, but it shrinks every fitted
 #: coefficient toward zero, and this model's output is a point spread.

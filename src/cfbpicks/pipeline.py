@@ -7,7 +7,7 @@ spending API calls again.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Iterable, Optional, Sequence
 
@@ -31,7 +31,7 @@ from .models import ExpertProjection, Game, MarketQuote, Prediction, Rating, Rec
 from .overrides import Adjustments, load_overrides, resolve as resolve_overrides
 from .providers import available, build_provider, build_providers
 from .providers.sagarin import resolve_projections
-from .ratings.regression import SOURCE
+from .ratings.regression import NON_FBS, SOURCE
 from .storage import Storage
 from .util.http import MissingCredentials, ProviderError
 
@@ -246,7 +246,7 @@ class Pipeline:
         if not all_games:
             return {}
 
-        played = [g for g in all_games if g.completed]
+        played = self._fit_population(season, [g for g in all_games if g.completed])
         target_weeks = list(weeks) if weeks else sorted({g.week for g in all_games})
 
         prior = self._carryover_prior(season) if carry_prior else None
@@ -265,9 +265,50 @@ class Pipeline:
                 recency_halflife=model.regression_recency_halflife,
                 as_of_week=week,
             )
-            self.storage.upsert_ratings(fit.to_ratings(season, week))
+            ratings = [r for r in fit.to_ratings(season, week)
+                       if r.team != NON_FBS]
+            self.storage.upsert_ratings(ratings)
             results[week] = fit
         return results
+
+    def _fit_population(self, season: int, played: Sequence[Game]) -> list[Game]:
+        """Collapse everyone below FBS into a single replacement team.
+
+        CFBD returns every division that shares a schedule with anyone,
+        so an untouched fit spent coefficients on 710 teams and put Lake
+        Forest and Grand Valley State above Ohio State. Worse than the
+        silly rankings, the scale went with them: home-field advantage
+        came out at +8.6 points against a real-world two or three, and
+        the residual sd at 26 against a configured 16. Both numbers feed
+        every win probability the engine produces.
+
+        Dropping those games outright would throw away real evidence
+        about the FBS team that played one. Pooling them into a single
+        opponent keeps the game and costs one coefficient instead of
+        five hundred, which is the usual way this is handled. Games
+        between two non-FBS teams say nothing about anyone we price and
+        are dropped.
+        """
+        roster = self.storage.fbs_teams(season)
+        if not roster:
+            # No team list fetched, so there is nothing to pool against.
+            return list(played)
+
+        pooled = []
+        for game in played:
+            home_fbs = game.home_team in roster
+            away_fbs = game.away_team in roster
+            if not home_fbs and not away_fbs:
+                continue
+            if home_fbs and away_fbs:
+                pooled.append(game)
+                continue
+            pooled.append(replace(
+                game,
+                home_team=game.home_team if home_fbs else NON_FBS,
+                away_team=game.away_team if away_fbs else NON_FBS,
+            ))
+        return pooled
 
     def _carryover_prior(self, season: int) -> Optional[dict[str, float]]:
         """Last season's final fitted ratings, shrunk toward average.
