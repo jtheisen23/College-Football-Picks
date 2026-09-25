@@ -1,0 +1,628 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFB Picks — 2026 Week 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #101418;
+  --ink-2: #55606c;
+  --muted: #6b7681;
+  --rule: #e6e9ed;
+  --border: rgba(16,20,24,0.10);
+  --tier-lean: #86b6ef;
+  --tier-play: #2a78d6;
+  --tier-strong: #184f95;
+  --tier-lean-ink: #101418;
+  --tier-play-ink: #ffffff;
+  --tier-strong-ink: #ffffff;
+  --good: #006300;
+  --bad: #c0392b;
+  --accent: #2a78d6;
+  --warn: #fab219;
+  --warn-bg: #fdf7e7;
+  --warn-edge: #f0dfae;
+  --track: #eef1f4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0e1114;
+    --surface: #171b1f;
+    --ink: #f2f5f7;
+    --ink-2: #b7c0c9;
+    --muted: #8a94a0;
+    --rule: #262c32;
+    --border: rgba(255,255,255,0.10);
+    --tier-lean: #184f95;
+    --tier-play: #2a78d6;
+    --tier-strong: #86b6ef;
+    --tier-lean-ink: #ffffff;
+    --tier-play-ink: #ffffff;
+    --tier-strong-ink: #101418;
+    --good: #3fbf5f;
+    --bad: #f0736a;
+    --accent: #6da7ec;
+    --warn: #fab219;
+    --warn-bg: #2a2517;
+    --warn-edge: #4a4126;
+    --track: #222831;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0e1114;
+  --surface: #171b1f;
+  --ink: #f2f5f7;
+  --ink-2: #b7c0c9;
+  --muted: #8a94a0;
+  --rule: #262c32;
+  --border: rgba(255,255,255,0.10);
+  --tier-lean: #184f95;
+  --tier-play: #2a78d6;
+  --tier-strong: #86b6ef;
+  --tier-lean-ink: #ffffff;
+  --tier-play-ink: #ffffff;
+  --tier-strong-ink: #101418;
+  --good: #3fbf5f;
+  --bad: #f0736a;
+  --accent: #6da7ec;
+  --warn: #fab219;
+  --warn-bg: #2a2517;
+  --warn-edge: #4a4126;
+  --track: #222831;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 15px/1.5 "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 72px; }
+@media (min-width: 700px) { .wrap { padding: 36px 28px 80px; } }
+
+h1 {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700; font-size: clamp(24px, 5vw, 34px);
+  letter-spacing: -0.02em; margin: 0; text-wrap: balance;
+}
+.stamp { color: var(--muted); font-size: 13px; margin-top: 6px; }
+header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.toggle {
+  flex: none; background: var(--surface); color: var(--ink-2);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 7px 14px; font: inherit; font-size: 13px; cursor: pointer;
+}
+.toggle:hover { color: var(--ink); border-color: var(--accent); }
+.toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Week switcher. Only rendered when there is more than one week. */
+.weeknav { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0 0; }
+.weeknav a {
+  padding: 7px 14px; border-radius: 999px; text-decoration: none;
+  font-size: 14px; font-weight: 500; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--border);
+}
+.weeknav a:hover { border-color: var(--accent); color: var(--ink); }
+.weeknav a[aria-current="page"] {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+.weeknav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.tiles {
+  display: grid; gap: 10px; margin: 22px 0 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 700px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 13px 15px; }
+.tile .label {
+  color: var(--muted); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
+.tile .value {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600; font-size: 25px; letter-spacing: -0.02em;
+  margin-top: 3px; font-variant-numeric: tabular-nums;
+}
+.tile .sub { color: var(--muted); font-size: 12px; margin-top: 1px; }
+
+h2 {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--muted); margin: 34px 0 12px;
+}
+
+/* --- the board -------------------------------------------------------
+   One grid per bet. Narrow: a card, with each figure labelled. Wide: the
+   same cells snap into shared columns under a header row. */
+.board { display: grid; gap: 10px; }
+.board-head { display: none; }
+.bet {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 15px;
+  display: grid; gap: 12px;
+  /* Badge takes only its own width; the game text gets the rest. The
+     other way round pushes the text to the right-hand edge. */
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+}
+.bet .game { min-width: 0; }
+.matchup { color: var(--ink-2); font-size: 13px; }
+.pick {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600; font-size: 18px; letter-spacing: -0.01em; margin-top: 2px;
+}
+.at { color: var(--muted); font-weight: 400; }
+.terms { color: var(--ink-2); font-size: 13px; margin-top: 3px; font-variant-numeric: tabular-nums; }
+.terms .book { color: var(--muted); }
+
+.figs {
+  grid-column: 1 / -1;
+  /* Five figures across even on a 390px screen; auto-fit rather than a
+     fixed count so a narrow phone reflows instead of orphaning one. */
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+  gap: 8px 12px; padding-top: 11px; border-top: 1px solid var(--rule);
+}
+.fig { min-width: 0; }
+.fig .lab {
+  display: block; color: var(--muted); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
+.fig .val {
+  display: block; font-variant-numeric: tabular-nums; font-size: 14px;
+  margin-top: 2px; white-space: nowrap;
+}
+.fig.edge .val { font-weight: 600; }
+.pos { color: var(--good); }
+.neg { color: var(--bad); }
+
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; white-space: nowrap;
+}
+.badge.lean { background: var(--tier-lean); color: var(--tier-lean-ink); }
+.badge.play { background: var(--tier-play); color: var(--tier-play-ink); }
+.badge.strong { background: var(--tier-strong); color: var(--tier-strong-ink); }
+
+.caveat { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+
+@media (min-width: 860px) {
+  .board { gap: 8px; }
+  .board-head, .bet {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) 78px 78px 88px 66px 74px;
+    gap: 14px; align-items: center;
+  }
+  .board-head {
+    padding: 0 15px 6px; color: var(--muted); font-size: 11px;
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .board-head span:not(:nth-child(2)) { text-align: right; }
+  .board-head span:first-child { text-align: left; }
+  .bet { padding: 12px 15px; }
+  .figs {
+    display: contents;            /* the figures become sibling columns */
+  }
+  .fig { text-align: right; }
+  .fig .lab {                     /* the label lives in the header row now */
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .fig .val { font-size: 14px; margin-top: 0; }
+  .caveat { grid-column: 2 / -1; margin-top: -4px; }
+}
+
+.note-bar {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin: 0 0 22px; padding: 13px 15px;
+  background: var(--warn-bg); color: var(--ink);
+  border: 1px solid var(--warn-edge); border-left: 4px solid var(--warn);
+  border-radius: 0 12px 12px 0; font-size: 14px; line-height: 1.45;
+}
+.note-bar .mark { flex: none; font-size: 16px; }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.empty { padding: 26px; color: var(--ink-2); margin: 0; }
+details { margin-top: 10px; }
+summary {
+  cursor: pointer; color: var(--ink-2); font-size: 14px; padding: 8px 0;
+  font-weight: 500;
+}
+summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 9px 12px; text-align: left; white-space: nowrap; }
+th {
+  color: var(--muted); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--rule);
+}
+td { border-bottom: 1px solid var(--rule); }
+tr:last-child td { border-bottom: none; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.dim { color: var(--muted); }
+
+footer {
+  margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: 13px;
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style></head><body><div class="wrap">
+<header><div>
+<h1>College Football Picks</h1>
+<div class="stamp">2026 · Week 5 · updated 25 Sep 2026, 21:17 UTC</div>
+</div>
+<button class="toggle" id="theme-toggle" type="button">Theme</button>
+</header>
+<nav class="weeknav" aria-label="Weeks">
+<a href="2026-week-04.html">Week 4</a>
+<a href="2026-week-05.html" aria-current="page">Week 5</a>
+</nav>
+<div class="tiles">
+<div class="tile"><div class="label">Bets</div><div class="value">24</div><div class="sub">16 strong</div></div>
+<div class="tile"><div class="label">Staked</div><div class="value">51.80u</div><div class="sub">fractional Kelly</div></div>
+<div class="tile"><div class="label">Expected</div><div class="value">+11.73u</div><div class="sub">if the model is right</div></div>
+<div class="tile"><div class="label">Median edge</div><div class="value">8.1%</div><div class="sub">over the no-vig price</div></div>
+</div>
+<h2>Recommended bets</h2>
+<div class="board">
+<div class="board-head" aria-hidden="true"><span>Tier</span><span>Bet</span><span>Model</span><span>Market</span><span>Edge</span><span>Pts</span><span>Units</span></div>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Ohio State <span class="at">@</span> Iowa</div><div class="pick">Iowa ML</div><div class="terms">+500 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">36.0%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">13.7%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+22.3%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+12.2</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 4% toward market (confidence 0.96); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Ohio State <span class="at">@</span> Iowa</div><div class="pick">Iowa +14</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">69.8%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+19.8%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+8.7</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 4% toward market (confidence 0.96); push chance 2.1%; single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Vanderbilt <span class="at">@</span> Georgia</div><div class="pick">Vanderbilt +23.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">68.2%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+18.2%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+8.5</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 10% toward market (confidence 0.90); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Louisville <span class="at">@</span> NC State</div><div class="pick">NC State ML</div><div class="terms">+245 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">39.8%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">26.3%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+13.5%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+9.0</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 35% toward market (confidence 0.65); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Michigan <span class="at">@</span> Minnesota</div><div class="pick">Minnesota ML</div><div class="terms">+250 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">38.7%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">26.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+12.7%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+8.2</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 33% toward market (confidence 0.67); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Florida <span class="at">@</span> Missouri</div><div class="pick">Under 53.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">60.5%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+10.5%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+5.1</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 28% toward market (confidence 0.72); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Louisville <span class="at">@</span> NC State</div><div class="pick">NC State +7.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">60.0%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+10.0%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+6.3</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 35% toward market (confidence 0.65); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Miami <span class="at">@</span> Clemson</div><div class="pick">Under 50.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">59.8%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+9.8%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+4.5</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 24% toward market (confidence 0.76); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Notre Dame <span class="at">@</span> North Carolina</div><div class="pick">North Carolina +20.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">59.0%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+9.0%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+5.5</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 33% toward market (confidence 0.67); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Michigan <span class="at">@</span> Minnesota</div><div class="pick">Minnesota +7.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">58.9%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+8.9%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+5.4</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 33% toward market (confidence 0.67); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">BYU <span class="at">@</span> TCU</div><div class="pick">TCU ML</div><div class="terms">+164 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">44.3%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">35.4%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+8.9%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+4.3</span></div><div class="fig"><span class="lab">Units</span><span class="val ">2.59</span></div></div><p class="caveat">model shrunk 14% toward market (confidence 0.86); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">BYU <span class="at">@</span> TCU</div><div class="pick">TCU +5.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">58.1%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+8.1%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.8</span></div><div class="fig"><span class="lab">Units</span><span class="val ">2.99</span></div></div><p class="caveat">model shrunk 14% toward market (confidence 0.86); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Washington <span class="at">@</span> USC</div><div class="pick">Over 57.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">57.7%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+7.7%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.2</span></div><div class="fig"><span class="lab">Units</span><span class="val ">2.77</span></div></div><p class="caveat">model shrunk 19% toward market (confidence 0.81); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Vanderbilt <span class="at">@</span> Georgia</div><div class="pick">Over 57.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">57.2%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+7.2%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.7</span></div><div class="fig"><span class="lab">Units</span><span class="val ">2.52</span></div></div><p class="caveat">model shrunk 10% toward market (confidence 0.90); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Washington <span class="at">@</span> USC</div><div class="pick">Washington ML</div><div class="terms">+285 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">28.8%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">23.3%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+5.6%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.3</span></div><div class="fig"><span class="lab">Units</span><span class="val ">0.97</span></div></div><p class="caveat">model shrunk 19% toward market (confidence 0.81); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Penn State <span class="at">@</span> Northwestern</div><div class="pick">Northwestern ML</div><div class="terms">+225 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">33.7%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">28.1%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+5.6%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.1</span></div><div class="fig"><span class="lab">Units</span><span class="val ">1.06</span></div></div><p class="caveat">model shrunk 20% toward market (confidence 0.80); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge play">play</span></div><div class="game"><div class="matchup">Miami <span class="at">@</span> Clemson</div><div class="pick">Clemson +17.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">55.5%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+5.5%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.9</span></div><div class="fig"><span class="lab">Units</span><span class="val ">1.63</span></div></div><p class="caveat">model shrunk 24% toward market (confidence 0.76); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge play">play</span></div><div class="game"><div class="matchup">Miami <span class="at">@</span> Clemson</div><div class="pick">Clemson ML</div><div class="terms">+600 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">16.4%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">11.2%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+5.2%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+4.9</span></div><div class="fig"><span class="lab">Units</span><span class="val ">0.63</span></div></div><p class="caveat">model shrunk 24% toward market (confidence 0.76); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge play">play</span></div><div class="game"><div class="matchup">Alabama <span class="at">@</span> Mississippi State</div><div class="pick">Mississippi State ML</div><div class="terms">+140 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">44.6%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">39.4%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+5.2%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+3.3</span></div><div class="fig"><span class="lab">Units</span><span class="val ">1.27</span></div></div><p class="caveat">model shrunk 36% toward market (confidence 0.64); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge play">play</span></div><div class="game"><div class="matchup">Pittsburgh <span class="at">@</span> Virginia Tech</div><div class="pick">Pittsburgh ML</div><div class="terms">+185 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">37.3%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">32.6%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+4.8%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+4.0</span></div><div class="fig"><span class="lab">Units</span><span class="val ">0.87</span></div></div><p class="caveat">model shrunk 49% toward market (confidence 0.51); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge play">play</span></div><div class="game"><div class="matchup">Auburn <span class="at">@</span> Tennessee</div><div class="pick">Tennessee -7.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">54.5%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+4.5%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.2</span></div><div class="fig"><span class="lab">Units</span><span class="val ">1.13</span></div></div><p class="caveat">model shrunk 16% toward market (confidence 0.84); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge play">play</span></div><div class="game"><div class="matchup">Alabama <span class="at">@</span> Mississippi State</div><div class="pick">Mississippi State +3.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">54.0%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+4.0%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.5</span></div><div class="fig"><span class="lab">Units</span><span class="val ">0.85</span></div></div><p class="caveat">model shrunk 36% toward market (confidence 0.64); single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge lean">lean</span></div><div class="game"><div class="matchup">Pittsburgh <span class="at">@</span> Virginia Tech</div><div class="pick">Pittsburgh +6</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">53.5%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+3.5%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.8</span></div><div class="fig"><span class="lab">Units</span><span class="val ">1.28</span></div></div><p class="caveat">model shrunk 49% toward market (confidence 0.51); push chance 2.5%; single book — no line shopping</p></article>
+<article class="bet"><div><span class="badge lean">lean</span></div><div class="game"><div class="matchup">Washington <span class="at">@</span> USC</div><div class="pick">Washington +10</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">53.4%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+3.4%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+1.7</span></div><div class="fig"><span class="lab">Units</span><span class="val ">1.24</span></div></div><p class="caveat">model shrunk 19% toward market (confidence 0.81); push chance 2.5%; single book — no line shopping</p></article>
+</div>
+<h2>All projections</h2>
+<details><summary>304 games</summary>
+<div class="panel scroll"><table><thead><tr>
+<th>Matchup</th><th class="num">Margin</th><th class="num">Fair spread</th>
+<th class="num">Total</th><th class="num">Home win</th><th class="num">Conf</th>
+</tr></thead><tbody>
+<tr><td>Wayne State (MI) @ Grand Valley State</td><td class="num">+29.6</td><td class="num">-29.6</td><td class="num">53.4</td><td class="num">97%</td><td class="num">0.50</td></tr>
+<tr><td>Lawrence @ Lake Forest</td><td class="num">+27.2</td><td class="num">-27.2</td><td class="num">54.0</td><td class="num">96%</td><td class="num">0.50</td></tr>
+<tr><td>New Haven @ Austin Peay</td><td class="num">+25.4</td><td class="num">-25.4</td><td class="num">53.0</td><td class="num">94%</td><td class="num">0.59</td></tr>
+<tr><td>The Citadel @ South Carolina State</td><td class="num">+23.2</td><td class="num">-23.2</td><td class="num">54.0</td><td class="num">93%</td><td class="num">0.50</td></tr>
+<tr><td>UTEP @ New Mexico</td><td class="num">+21.8</td><td class="num">-21.8</td><td class="num">50.1</td><td class="num">91%</td><td class="num">0.64</td></tr>
+<tr><td>Indiana @ Rutgers</td><td class="num">-21.1</td><td class="num">+21.1</td><td class="num">61.4</td><td class="num">9%</td><td class="num">0.76</td></tr>
+<tr><td>Murray State @ North Dakota</td><td class="num">+21.0</td><td class="num">-21.0</td><td class="num">54.0</td><td class="num">91%</td><td class="num">0.97</td></tr>
+<tr><td>Wyoming @ North Dakota State</td><td class="num">+20.8</td><td class="num">-20.8</td><td class="num">40.2</td><td class="num">90%</td><td class="num">0.79</td></tr>
+<tr><td>CSU Pueblo @ Adams State</td><td class="num">-20.5</td><td class="num">+20.5</td><td class="num">54.0</td><td class="num">10%</td><td class="num">0.50</td></tr>
+<tr><td>Kentucky Wesleyan @ Northwood</td><td class="num">+20.4</td><td class="num">-20.4</td><td class="num">53.0</td><td class="num">90%</td><td class="num">0.50</td></tr>
+<tr><td>Oberlin @ DePauw</td><td class="num">+18.9</td><td class="num">-18.9</td><td class="num">53.7</td><td class="num">88%</td><td class="num">0.50</td></tr>
+<tr><td>McNeese @ LSU</td><td class="num">+18.8</td><td class="num">-18.8</td><td class="num">54.0</td><td class="num">88%</td><td class="num">0.50</td></tr>
+<tr><td>Marshall @ James Madison</td><td class="num">+18.1</td><td class="num">-18.1</td><td class="num">62.9</td><td class="num">87%</td><td class="num">0.68</td></tr>
+<tr><td>Boston College @ SMU</td><td class="num">+17.6</td><td class="num">-17.6</td><td class="num">55.5</td><td class="num">86%</td><td class="num">0.83</td></tr>
+<tr><td>Northwestern State @ Lamar</td><td class="num">+17.5</td><td class="num">-17.5</td><td class="num">54.0</td><td class="num">86%</td><td class="num">0.97</td></tr>
+<tr><td>Arkansas @ Texas A&amp;M</td><td class="num">+17.2</td><td class="num">-17.2</td><td class="num">65.3</td><td class="num">86%</td><td class="num">0.75</td></tr>
+<tr><td>Ferris State @ Northern Michigan</td><td class="num">-17.1</td><td class="num">+17.1</td><td class="num">54.0</td><td class="num">14%</td><td class="num">0.50</td></tr>
+<tr><td>Montana State @ Idaho</td><td class="num">-16.9</td><td class="num">+16.9</td><td class="num">54.0</td><td class="num">15%</td><td class="num">0.78</td></tr>
+<tr><td>Rhodes @ Millsaps</td><td class="num">+16.7</td><td class="num">-16.7</td><td class="num">54.0</td><td class="num">85%</td><td class="num">0.50</td></tr>
+<tr><td>Eureka @ Wisconsin Lutheran</td><td class="num">+16.6</td><td class="num">-16.6</td><td class="num">54.0</td><td class="num">85%</td><td class="num">0.50</td></tr>
+<tr><td>Keystone @ Mary Hardin Baylor</td><td class="num">+16.5</td><td class="num">-16.5</td><td class="num">54.0</td><td class="num">85%</td><td class="num">0.50</td></tr>
+<tr><td>Louisiana Monroe @ South Alabama</td><td class="num">+16.3</td><td class="num">-16.3</td><td class="num">61.8</td><td class="num">85%</td><td class="num">0.56</td></tr>
+<tr><td>North Park @ Wheaton (IL)</td><td class="num">+15.5</td><td class="num">-15.5</td><td class="num">54.0</td><td class="num">83%</td><td class="num">0.50</td></tr>
+<tr><td>Clark Atlanta @ Benedict</td><td class="num">+15.3</td><td class="num">-15.3</td><td class="num">54.0</td><td class="num">83%</td><td class="num">0.50</td></tr>
+<tr><td>Notre Dame @ North Carolina</td><td class="num">-15.0</td><td class="num">+15.0</td><td class="num">49.0</td><td class="num">17%</td><td class="num">0.67</td></tr>
+<tr><td>Vanderbilt @ Georgia</td><td class="num">+15.0</td><td class="num">-15.0</td><td class="num">60.2</td><td class="num">83%</td><td class="num">0.90</td></tr>
+<tr><td>Fordham @ Lehigh</td><td class="num">+14.9</td><td class="num">-14.9</td><td class="num">54.0</td><td class="num">82%</td><td class="num">0.62</td></tr>
+<tr><td>Chicago State @ Tarleton State</td><td class="num">+14.8</td><td class="num">-14.8</td><td class="num">53.6</td><td class="num">82%</td><td class="num">0.65</td></tr>
+<tr><td>Southwestern Oklahoma State @ Henderson State</td><td class="num">+14.7</td><td class="num">-14.7</td><td class="num">54.0</td><td class="num">82%</td><td class="num">0.50</td></tr>
+<tr><td>Towson @ Monmouth</td><td class="num">+14.6</td><td class="num">-14.6</td><td class="num">54.0</td><td class="num">82%</td><td class="num">0.50</td></tr>
+<tr><td>Miami @ Clemson</td><td class="num">-14.6</td><td class="num">+14.6</td><td class="num">46.0</td><td class="num">18%</td><td class="num">0.76</td></tr>
+<tr><td>Millersville @ Shepherd</td><td class="num">+14.5</td><td class="num">-14.5</td><td class="num">54.0</td><td class="num">82%</td><td class="num">0.50</td></tr>
+<tr><td>Utah State @ Boise State</td><td class="num">+14.4</td><td class="num">-14.4</td><td class="num">53.8</td><td class="num">82%</td><td class="num">0.83</td></tr>
+<tr><td>UVA Wise @ Newberry</td><td class="num">+14.3</td><td class="num">-14.3</td><td class="num">54.0</td><td class="num">81%</td><td class="num">0.50</td></tr>
+<tr><td>Concordia State Paul @ Minnesota State</td><td class="num">+14.3</td><td class="num">-14.3</td><td class="num">52.7</td><td class="num">81%</td><td class="num">0.50</td></tr>
+<tr><td>Memphis @ Charlotte</td><td class="num">-14.1</td><td class="num">+14.1</td><td class="num">66.1</td><td class="num">19%</td><td class="num">0.58</td></tr>
+<tr><td>Merrimack @ Yale</td><td class="num">+14.0</td><td class="num">-14.0</td><td class="num">54.0</td><td class="num">81%</td><td class="num">0.95</td></tr>
+<tr><td>Bowling Green @ Miami (OH)</td><td class="num">+14.0</td><td class="num">-14.0</td><td class="num">43.8</td><td class="num">81%</td><td class="num">0.68</td></tr>
+<tr><td>William Paterson @ Christopher Newport</td><td class="num">+14.0</td><td class="num">-14.0</td><td class="num">54.0</td><td class="num">81%</td><td class="num">0.50</td></tr>
+<tr><td>Buffalo State @ Rochester (NY)</td><td class="num">+13.7</td><td class="num">-13.7</td><td class="num">54.0</td><td class="num">80%</td><td class="num">0.50</td></tr>
+<tr><td>Texas Southern @ Florida Atlantic</td><td class="num">+13.5</td><td class="num">-13.5</td><td class="num">53.0</td><td class="num">80%</td><td class="num">0.71</td></tr>
+<tr><td>Gannon @ Slippery Rock</td><td class="num">+13.4</td><td class="num">-13.4</td><td class="num">54.0</td><td class="num">80%</td><td class="num">0.50</td></tr>
+<tr><td>Middle Tennessee @ Kansas</td><td class="num">+13.4</td><td class="num">-13.4</td><td class="num">54.9</td><td class="num">80%</td><td class="num">0.59</td></tr>
+<tr><td>Allegheny @ Thiel</td><td class="num">-13.1</td><td class="num">+13.1</td><td class="num">54.0</td><td class="num">21%</td><td class="num">0.50</td></tr>
+<tr><td>Toledo @ Ball State</td><td class="num">-13.1</td><td class="num">+13.1</td><td class="num">48.8</td><td class="num">21%</td><td class="num">0.56</td></tr>
+<tr><td>Concordia (MN) @ Saint Scholastica</td><td class="num">-13.0</td><td class="num">+13.0</td><td class="num">53.5</td><td class="num">21%</td><td class="num">0.50</td></tr>
+<tr><td>Stanford @ Wake Forest</td><td class="num">+12.9</td><td class="num">-12.9</td><td class="num">47.1</td><td class="num">79%</td><td class="num">0.66</td></tr>
+<tr><td>Allen @ Savannah State</td><td class="num">-12.8</td><td class="num">+12.8</td><td class="num">54.0</td><td class="num">21%</td><td class="num">0.50</td></tr>
+<tr><td>Minnesota Duluth @ Southwest Minnesota State</td><td class="num">-12.5</td><td class="num">+12.5</td><td class="num">49.0</td><td class="num">22%</td><td class="num">0.50</td></tr>
+<tr><td>Indiana State @ South Dakota</td><td class="num">+12.4</td><td class="num">-12.4</td><td class="num">54.0</td><td class="num">78%</td><td class="num">0.81</td></tr>
+<tr><td>Dubuque @ Central College</td><td class="num">+12.3</td><td class="num">-12.3</td><td class="num">53.5</td><td class="num">78%</td><td class="num">0.50</td></tr>
+<tr><td>Tennessee State @ Western Illinois</td><td class="num">+12.1</td><td class="num">-12.1</td><td class="num">54.0</td><td class="num">77%</td><td class="num">0.55</td></tr>
+<tr><td>Dayton @ Drake</td><td class="num">-11.7</td><td class="num">+11.7</td><td class="num">53.3</td><td class="num">23%</td><td class="num">0.53</td></tr>
+<tr><td>Wagner @ Central Connecticut</td><td class="num">+11.4</td><td class="num">-11.4</td><td class="num">54.0</td><td class="num">76%</td><td class="num">0.96</td></tr>
+<tr><td>Franklin @ Rose Hulman</td><td class="num">+11.3</td><td class="num">-11.3</td><td class="num">53.2</td><td class="num">76%</td><td class="num">0.50</td></tr>
+<tr><td>Hilbert @ Rensselaer</td><td class="num">+11.2</td><td class="num">-11.2</td><td class="num">54.0</td><td class="num">76%</td><td class="num">0.50</td></tr>
+<tr><td>Mercer @ VMI</td><td class="num">-11.2</td><td class="num">+11.2</td><td class="num">54.0</td><td class="num">24%</td><td class="num">0.99</td></tr>
+<tr><td>Nicholls @ Houston Christian</td><td class="num">+11.0</td><td class="num">-11.0</td><td class="num">54.0</td><td class="num">75%</td><td class="num">0.33</td></tr>
+<tr><td>UT Rio Grande Valley @ East Texas A&amp;M</td><td class="num">-11.0</td><td class="num">+11.0</td><td class="num">54.0</td><td class="num">25%</td><td class="num">0.50</td></tr>
+<tr><td>Elon @ New Hampshire</td><td class="num">-10.9</td><td class="num">+10.9</td><td class="num">54.0</td><td class="num">25%</td><td class="num">0.63</td></tr>
+<tr><td>Texas Tech @ Colorado</td><td class="num">-10.7</td><td class="num">+10.7</td><td class="num">50.6</td><td class="num">25%</td><td class="num">0.64</td></tr>
+<tr><td>Western Michigan @ Buffalo</td><td class="num">-10.7</td><td class="num">+10.7</td><td class="num">39.3</td><td class="num">25%</td><td class="num">0.67</td></tr>
+<tr><td>Delaware State @ UAlbany</td><td class="num">+10.6</td><td class="num">-10.6</td><td class="num">54.0</td><td class="num">75%</td><td class="num">0.50</td></tr>
+<tr><td>Saint Vincent @ Waynesburg</td><td class="num">-10.5</td><td class="num">+10.5</td><td class="num">54.0</td><td class="num">26%</td><td class="num">0.50</td></tr>
+<tr><td>Southern Utah @ Utah Tech</td><td class="num">-10.4</td><td class="num">+10.4</td><td class="num">52.1</td><td class="num">26%</td><td class="num">0.75</td></tr>
+<tr><td>Pacific (OR) @ Whitworth</td><td class="num">+10.2</td><td class="num">-10.2</td><td class="num">54.0</td><td class="num">74%</td><td class="num">0.50</td></tr>
+<tr><td>Northwestern (OK) @ Southern Arkansas</td><td class="num">+10.1</td><td class="num">-10.1</td><td class="num">54.0</td><td class="num">74%</td><td class="num">0.50</td></tr>
+<tr><td>Missouri S&amp;T @ Upper Iowa</td><td class="num">+10.0</td><td class="num">-10.0</td><td class="num">53.6</td><td class="num">73%</td><td class="num">0.50</td></tr>
+<tr><td>Alcorn State @ Grambling</td><td class="num">+10.0</td><td class="num">-10.0</td><td class="num">54.0</td><td class="num">73%</td><td class="num">0.50</td></tr>
+<tr><td>Purdue @ Illinois</td><td class="num">+10.0</td><td class="num">-10.0</td><td class="num">63.4</td><td class="num">73%</td><td class="num">0.59</td></tr>
+<tr><td>Elizabeth City State @ Virginia Union</td><td class="num">+10.0</td><td class="num">-10.0</td><td class="num">54.0</td><td class="num">73%</td><td class="num">0.50</td></tr>
+<tr><td>Greenville @ Westminster (MO)</td><td class="num">+9.9</td><td class="num">-9.9</td><td class="num">54.0</td><td class="num">73%</td><td class="num">0.50</td></tr>
+<tr><td>Johnson C. Smith @ Bluefield State</td><td class="num">-9.8</td><td class="num">+9.8</td><td class="num">54.0</td><td class="num">27%</td><td class="num">0.50</td></tr>
+<tr><td>Temple @ South Florida</td><td class="num">+9.8</td><td class="num">-9.8</td><td class="num">67.3</td><td class="num">73%</td><td class="num">0.66</td></tr>
+<tr><td>Auburn @ Tennessee</td><td class="num">+9.7</td><td class="num">-9.7</td><td class="num">57.9</td><td class="num">73%</td><td class="num">0.84</td></tr>
+<tr><td>Augustana (IL) @ North Central College</td><td class="num">+9.6</td><td class="num">-9.6</td><td class="num">54.0</td><td class="num">73%</td><td class="num">0.50</td></tr>
+<tr><td>Alabama A&amp;M @ Jackson State</td><td class="num">+9.5</td><td class="num">-9.5</td><td class="num">52.8</td><td class="num">72%</td><td class="num">0.37</td></tr>
+<tr><td>Gettysburg @ Franklin &amp; Marshall</td><td class="num">+9.5</td><td class="num">-9.5</td><td class="num">54.0</td><td class="num">72%</td><td class="num">0.50</td></tr>
+<tr><td>Belhaven @ Brevard</td><td class="num">+9.5</td><td class="num">-9.5</td><td class="num">54.0</td><td class="num">72%</td><td class="num">0.50</td></tr>
+<tr><td class="dim">Nelson (TX) @ Howard Payne</td><td class="num">+9.5</td><td class="num">-9.5</td><td class="num">54.0</td><td class="num">72%</td><td class="num">0.10</td></tr>
+<tr><td>Northern Arizona @ Idaho State</td><td class="num">+9.4</td><td class="num">-9.4</td><td class="num">54.0</td><td class="num">72%</td><td class="num">0.68</td></tr>
+<tr><td>Moravian @ Western Connecticut State</td><td class="num">+9.2</td><td class="num">-9.2</td><td class="num">54.0</td><td class="num">72%</td><td class="num">0.50</td></tr>
+<tr><td>Missouri Western @ Emporia State</td><td class="num">+9.1</td><td class="num">-9.1</td><td class="num">52.7</td><td class="num">71%</td><td class="num">0.50</td></tr>
+<tr><td>Fitchburg State @ Framingham State</td><td class="num">+9.1</td><td class="num">-9.1</td><td class="num">54.0</td><td class="num">71%</td><td class="num">0.50</td></tr>
+<tr><td>Bloomsburg @ Lackawanna</td><td class="num">-8.9</td><td class="num">+8.9</td><td class="num">54.0</td><td class="num">29%</td><td class="num">0.50</td></tr>
+<tr><td>UMass Dartmouth @ Mass Maritime</td><td class="num">+8.9</td><td class="num">-8.9</td><td class="num">54.0</td><td class="num">71%</td><td class="num">0.50</td></tr>
+<tr><td>Carthage @ Illinois Wesleyan</td><td class="num">+8.8</td><td class="num">-8.8</td><td class="num">54.0</td><td class="num">71%</td><td class="num">0.50</td></tr>
+<tr><td>Wofford @ Furman</td><td class="num">+8.8</td><td class="num">-8.8</td><td class="num">54.0</td><td class="num">71%</td><td class="num">0.71</td></tr>
+<tr><td>Wisconsin Stevens Point @ Wisconsin Eau Claire</td><td class="num">+8.8</td><td class="num">-8.8</td><td class="num">53.0</td><td class="num">71%</td><td class="num">0.50</td></tr>
+<tr><td>Lane College @ Miles</td><td class="num">+8.8</td><td class="num">-8.8</td><td class="num">54.0</td><td class="num">71%</td><td class="num">0.50</td></tr>
+<tr><td>Missouri Southern State @ Fort Hays</td><td class="num">+8.6</td><td class="num">-8.6</td><td class="num">53.4</td><td class="num">70%</td><td class="num">0.50</td></tr>
+<tr><td>Redlands @ Azusa Pacific</td><td class="num">+8.5</td><td class="num">-8.5</td><td class="num">54.0</td><td class="num">70%</td><td class="num">0.50</td></tr>
+<tr><td>Ohio @ Kent State</td><td class="num">-8.5</td><td class="num">+8.5</td><td class="num">47.0</td><td class="num">30%</td><td class="num">0.57</td></tr>
+<tr><td>Incarnate Word @ Stephen F. Austin</td><td class="num">+8.5</td><td class="num">-8.5</td><td class="num">54.0</td><td class="num">70%</td><td class="num">0.51</td></tr>
+<tr><td>Arkansas Tech @ Southeastern Oklahoma State</td><td class="num">+8.3</td><td class="num">-8.3</td><td class="num">54.0</td><td class="num">70%</td><td class="num">0.50</td></tr>
+<tr><td>Washington @ USC</td><td class="num">+8.3</td><td class="num">-8.3</td><td class="num">60.7</td><td class="num">70%</td><td class="num">0.81</td></tr>
+<tr><td>Wisconsin Platteville @ Wisconsin Stout</td><td class="num">-8.2</td><td class="num">+8.2</td><td class="num">53.0</td><td class="num">30%</td><td class="num">0.50</td></tr>
+<tr><td>Glenville State @ Fairmont State</td><td class="num">+8.2</td><td class="num">-8.2</td><td class="num">54.0</td><td class="num">70%</td><td class="num">0.50</td></tr>
+<tr><td>Mercyhurst @ Long Island</td><td class="num">+8.2</td><td class="num">-8.2</td><td class="num">54.0</td><td class="num">70%</td><td class="num">0.50</td></tr>
+<tr><td>Findlay @ Ohio Dominican</td><td class="num">-8.2</td><td class="num">+8.2</td><td class="num">54.0</td><td class="num">30%</td><td class="num">0.50</td></tr>
+<tr><td>Worcester State @ Bridgewater State</td><td class="num">+8.1</td><td class="num">-8.1</td><td class="num">54.0</td><td class="num">69%</td><td class="num">0.50</td></tr>
+<tr><td>Tennessee Tech @ Western Carolina</td><td class="num">-8.1</td><td class="num">+8.1</td><td class="num">53.0</td><td class="num">31%</td><td class="num">0.65</td></tr>
+<tr><td>Carroll (WI) @ Millikin</td><td class="num">-8.1</td><td class="num">+8.1</td><td class="num">54.0</td><td class="num">31%</td><td class="num">0.50</td></tr>
+<tr><td>Lewis &amp; Clark @ Puget Sound</td><td class="num">-8.1</td><td class="num">+8.1</td><td class="num">54.0</td><td class="num">31%</td><td class="num">0.50</td></tr>
+<tr><td>UTSA @ Rice</td><td class="num">-8.0</td><td class="num">+8.0</td><td class="num">57.2</td><td class="num">31%</td><td class="num">0.55</td></tr>
+<tr><td>Kutztown @ Shippensburg</td><td class="num">-7.8</td><td class="num">+7.8</td><td class="num">54.0</td><td class="num">31%</td><td class="num">0.50</td></tr>
+<tr><td>Pace @ Post</td><td class="num">-7.7</td><td class="num">+7.7</td><td class="num">53.7</td><td class="num">31%</td><td class="num">0.50</td></tr>
+<tr><td>Eastern Washington @ UC Davis</td><td class="num">+7.7</td><td class="num">-7.7</td><td class="num">51.1</td><td class="num">68%</td><td class="num">0.93</td></tr>
+<tr><td>Lyon @ Texas Lutheran</td><td class="num">+7.6</td><td class="num">-7.6</td><td class="num">54.0</td><td class="num">68%</td><td class="num">0.50</td></tr>
+<tr><td>Geneva @ Washington &amp; Jefferson</td><td class="num">+7.6</td><td class="num">-7.6</td><td class="num">54.0</td><td class="num">68%</td><td class="num">0.50</td></tr>
+<tr><td>New England College @ Curry</td><td class="num">+7.6</td><td class="num">-7.6</td><td class="num">54.0</td><td class="num">68%</td><td class="num">0.50</td></tr>
+<tr><td class="dim">Eastern Michigan @ Massachusetts</td><td class="num">+7.4</td><td class="num">-7.4</td><td class="num">49.0</td><td class="num">68%</td><td class="num">0.29</td></tr>
+<tr><td>Shorter @ Delta State</td><td class="num">-7.3</td><td class="num">+7.3</td><td class="num">54.0</td><td class="num">32%</td><td class="num">0.50</td></tr>
+<tr><td>Case Western Reserve @ Westminster (PA)</td><td class="num">-7.3</td><td class="num">+7.3</td><td class="num">54.0</td><td class="num">32%</td><td class="num">0.50</td></tr>
+<tr><td>Tusculum @ Mars Hill</td><td class="num">+7.3</td><td class="num">-7.3</td><td class="num">54.0</td><td class="num">67%</td><td class="num">0.50</td></tr>
+<tr><td>Central Oklahoma @ Central Missouri</td><td class="num">+7.1</td><td class="num">-7.1</td><td class="num">53.5</td><td class="num">67%</td><td class="num">0.50</td></tr>
+<tr><td>East Texas Baptist @ Louisiana Christian</td><td class="num">-7.0</td><td class="num">+7.0</td><td class="num">54.0</td><td class="num">33%</td><td class="num">0.50</td></tr>
+<tr><td class="dim">UFTL @ Hardin Simmons</td><td class="num">+7.0</td><td class="num">-7.0</td><td class="num">54.0</td><td class="num">67%</td><td class="num">0.10</td></tr>
+<tr><td>Western New England @ Husson</td><td class="num">-7.0</td><td class="num">+7.0</td><td class="num">54.0</td><td class="num">33%</td><td class="num">0.50</td></tr>
+<tr><td>Endicott @ New England</td><td class="num">-6.9</td><td class="num">+6.9</td><td class="num">54.0</td><td class="num">33%</td><td class="num">0.50</td></tr>
+<tr><td>Jamestown @ Of Mary</td><td class="num">+6.9</td><td class="num">-6.9</td><td class="num">48.5</td><td class="num">67%</td><td class="num">0.50</td></tr>
+<tr><td>Ripon @ Cornell (IA)</td><td class="num">-6.8</td><td class="num">+6.8</td><td class="num">53.9</td><td class="num">34%</td><td class="num">0.50</td></tr>
+<tr><td>Salisbury @ The College of New Jersey</td><td class="num">-6.7</td><td class="num">+6.7</td><td class="num">54.0</td><td class="num">34%</td><td class="num">0.50</td></tr>
+<tr><td>Wartburg @ Nebraska Wesleyan</td><td class="num">-6.7</td><td class="num">+6.7</td><td class="num">51.6</td><td class="num">34%</td><td class="num">0.50</td></tr>
+<tr><td>Alma @ Trine</td><td class="num">+6.7</td><td class="num">-6.7</td><td class="num">53.8</td><td class="num">66%</td><td class="num">0.50</td></tr>
+<tr><td>Bridgewater @ Randolph Macon</td><td class="num">+6.7</td><td class="num">-6.7</td><td class="num">54.0</td><td class="num">66%</td><td class="num">0.50</td></tr>
+<tr><td>Centenary (LA) @ Austin</td><td class="num">+6.6</td><td class="num">-6.6</td><td class="num">51.2</td><td class="num">66%</td><td class="num">0.50</td></tr>
+<tr><td>Alfred State @ SUNY Morrisville</td><td class="num">-6.6</td><td class="num">+6.6</td><td class="num">54.0</td><td class="num">34%</td><td class="num">0.50</td></tr>
+<tr><td>North Carolina A&amp;T @ Bryant</td><td class="num">+6.6</td><td class="num">-6.6</td><td class="num">54.0</td><td class="num">66%</td><td class="num">0.50</td></tr>
+<tr><td>Hampden Sydney @ Shenandoah</td><td class="num">+6.5</td><td class="num">-6.5</td><td class="num">54.0</td><td class="num">66%</td><td class="num">0.50</td></tr>
+<tr><td>Kentucky @ South Carolina</td><td class="num">+6.5</td><td class="num">-6.5</td><td class="num">50.2</td><td class="num">66%</td><td class="num">0.67</td></tr>
+<tr><td>Marist @ Stetson</td><td class="num">-6.5</td><td class="num">+6.5</td><td class="num">54.0</td><td class="num">34%</td><td class="num">0.52</td></tr>
+<tr><td>Western Kentucky @ New Mexico State</td><td class="num">+6.5</td><td class="num">-6.5</td><td class="num">58.0</td><td class="num">66%</td><td class="num">0.64</td></tr>
+<tr><td>North Texas @ Tulsa</td><td class="num">+6.4</td><td class="num">-6.4</td><td class="num">62.7</td><td class="num">66%</td><td class="num">0.42</td></tr>
+<tr><td>Colgate @ Harvard</td><td class="num">+6.3</td><td class="num">-6.3</td><td class="num">54.0</td><td class="num">65%</td><td class="num">0.68</td></tr>
+<tr><td>Loras @ Coe</td><td class="num">-6.1</td><td class="num">+6.1</td><td class="num">53.6</td><td class="num">35%</td><td class="num">0.50</td></tr>
+<tr><td>Penn State @ Northwestern</td><td class="num">-6.1</td><td class="num">+6.1</td><td class="num">47.7</td><td class="num">35%</td><td class="num">0.80</td></tr>
+<tr><td>Akron @ Central Michigan</td><td class="num">+6.1</td><td class="num">-6.1</td><td class="num">40.2</td><td class="num">65%</td><td class="num">0.32</td></tr>
+<tr><td>Holy Cross @ William &amp; Mary</td><td class="num">+6.0</td><td class="num">-6.0</td><td class="num">54.0</td><td class="num">65%</td><td class="num">0.93</td></tr>
+<tr><td>Chadron State @ Colorado Mesa</td><td class="num">+5.9</td><td class="num">-5.9</td><td class="num">52.5</td><td class="num">64%</td><td class="num">0.50</td></tr>
+<tr><td>Northern Colorado @ Montana</td><td class="num">+5.8</td><td class="num">-5.8</td><td class="num">54.0</td><td class="num">64%</td><td class="num">0.89</td></tr>
+<tr><td>Arkansas-Pine Bluff @ Southern</td><td class="num">-5.8</td><td class="num">+5.8</td><td class="num">53.8</td><td class="num">36%</td><td class="num">0.50</td></tr>
+<tr><td>Crown @ Minnesota Morris</td><td class="num">+5.8</td><td class="num">-5.8</td><td class="num">51.1</td><td class="num">64%</td><td class="num">0.50</td></tr>
+<tr><td>Erskine @ Valdosta State</td><td class="num">+5.7</td><td class="num">-5.7</td><td class="num">53.6</td><td class="num">64%</td><td class="num">0.50</td></tr>
+<tr><td>Michigan Tech @ Roosevelt</td><td class="num">+5.7</td><td class="num">-5.7</td><td class="num">54.0</td><td class="num">64%</td><td class="num">0.50</td></tr>
+<tr><td>Maryville (TN) @ Centre</td><td class="num">+5.6</td><td class="num">-5.6</td><td class="num">53.0</td><td class="num">64%</td><td class="num">0.50</td></tr>
+<tr><td>South Dakota State @ Illinois State</td><td class="num">+5.6</td><td class="num">-5.6</td><td class="num">53.8</td><td class="num">64%</td><td class="num">0.38</td></tr>
+<tr><td>Southern Virginia @ Greensboro</td><td class="num">+5.6</td><td class="num">-5.6</td><td class="num">54.0</td><td class="num">64%</td><td class="num">0.50</td></tr>
+<tr><td>Saint John Fisher @ Brockport</td><td class="num">+5.6</td><td class="num">-5.6</td><td class="num">54.0</td><td class="num">64%</td><td class="num">0.50</td></tr>
+<tr><td>LaGrange @ North Carolina Wesleyan</td><td class="num">+5.5</td><td class="num">-5.5</td><td class="num">54.0</td><td class="num">63%</td><td class="num">0.50</td></tr>
+<tr><td>SUNY Maritime @ Coast Guard</td><td class="num">+5.4</td><td class="num">-5.4</td><td class="num">54.0</td><td class="num">63%</td><td class="num">0.50</td></tr>
+<tr><td>Wooster @ Ohio Wesleyan</td><td class="num">+5.4</td><td class="num">-5.4</td><td class="num">54.0</td><td class="num">63%</td><td class="num">0.50</td></tr>
+<tr><td>Ohio State @ Iowa</td><td class="num">-5.3</td><td class="num">+5.3</td><td class="num">45.9</td><td class="num">37%</td><td class="num">0.96</td></tr>
+<tr><td>Chowan @ West Alabama</td><td class="num">+5.3</td><td class="num">-5.3</td><td class="num">53.0</td><td class="num">63%</td><td class="num">0.50</td></tr>
+<tr><td>Davidson @ San Diego</td><td class="num">+5.3</td><td class="num">-5.3</td><td class="num">54.0</td><td class="num">63%</td><td class="num">0.97</td></tr>
+<tr><td>Bethel (MN) @ Saint John&#x27;s (MN)</td><td class="num">+5.2</td><td class="num">-5.2</td><td class="num">52.5</td><td class="num">63%</td><td class="num">0.50</td></tr>
+<tr><td>Maryland @ Nebraska</td><td class="num">+5.2</td><td class="num">-5.2</td><td class="num">51.4</td><td class="num">63%</td><td class="num">0.54</td></tr>
+<tr><td>Texas State @ San Diego State</td><td class="num">+5.1</td><td class="num">-5.1</td><td class="num">66.6</td><td class="num">63%</td><td class="num">0.76</td></tr>
+<tr><td>Roanoke College @ Guilford</td><td class="num">-5.0</td><td class="num">+5.0</td><td class="num">54.0</td><td class="num">38%</td><td class="num">0.50</td></tr>
+<tr><td>Bemidji State @ Northern State</td><td class="num">+5.0</td><td class="num">-5.0</td><td class="num">53.3</td><td class="num">62%</td><td class="num">0.50</td></tr>
+<tr><td>Dean @ Plymouth State</td><td class="num">+5.0</td><td class="num">-5.0</td><td class="num">54.0</td><td class="num">62%</td><td class="num">0.50</td></tr>
+<tr><td>Whittier @ Chapman</td><td class="num">+5.0</td><td class="num">-5.0</td><td class="num">54.0</td><td class="num">62%</td><td class="num">0.50</td></tr>
+<tr><td>IU Pennsylvania @ Edinboro</td><td class="num">-4.9</td><td class="num">+4.9</td><td class="num">54.0</td><td class="num">38%</td><td class="num">0.50</td></tr>
+<tr><td>Pittsburg State @ Nebraska Kearney</td><td class="num">+4.9</td><td class="num">-4.9</td><td class="num">52.6</td><td class="num">62%</td><td class="num">0.50</td></tr>
+<tr><td>Michigan State @ Wisconsin</td><td class="num">+4.9</td><td class="num">-4.9</td><td class="num">42.4</td><td class="num">62%</td><td class="num">0.75</td></tr>
+<tr><td>West Virginia @ Iowa State</td><td class="num">+4.8</td><td class="num">-4.8</td><td class="num">48.9</td><td class="num">62%</td><td class="num">0.54</td></tr>
+<tr><td>Mount Union @ Muskingum</td><td class="num">-4.8</td><td class="num">+4.8</td><td class="num">54.0</td><td class="num">38%</td><td class="num">0.50</td></tr>
+<tr><td>Sacred Heart @ Maine</td><td class="num">-4.8</td><td class="num">+4.8</td><td class="num">54.0</td><td class="num">38%</td><td class="num">0.63</td></tr>
+<tr><td>Hope @ Olivet</td><td class="num">-4.8</td><td class="num">+4.8</td><td class="num">54.0</td><td class="num">38%</td><td class="num">0.50</td></tr>
+<tr><td>George Fox @ Linfield</td><td class="num">+4.7</td><td class="num">-4.7</td><td class="num">52.9</td><td class="num">62%</td><td class="num">0.50</td></tr>
+<tr><td>Chicago @ Beloit</td><td class="num">-4.7</td><td class="num">+4.7</td><td class="num">54.0</td><td class="num">38%</td><td class="num">0.50</td></tr>
+<tr><td>Merchant Marine @ MIT</td><td class="num">+4.7</td><td class="num">-4.7</td><td class="num">54.0</td><td class="num">61%</td><td class="num">0.50</td></tr>
+<tr><td>Howard @ Hampton</td><td class="num">-4.7</td><td class="num">+4.7</td><td class="num">54.0</td><td class="num">39%</td><td class="num">0.99</td></tr>
+<tr><td>La Verne @ Pomona Pitzer</td><td class="num">-4.6</td><td class="num">+4.6</td><td class="num">54.0</td><td class="num">39%</td><td class="num">0.50</td></tr>
+<tr><td class="dim">Saint Francis @ Hiram</td><td class="num">+4.6</td><td class="num">-4.6</td><td class="num">54.0</td><td class="num">61%</td><td class="num">0.10</td></tr>
+<tr><td>Cal Lutheran @ Claremont Mudd Scripps</td><td class="num">-4.5</td><td class="num">+4.5</td><td class="num">54.0</td><td class="num">39%</td><td class="num">0.50</td></tr>
+<tr><td>UCF @ Houston</td><td class="num">+4.4</td><td class="num">-4.4</td><td class="num">51.2</td><td class="num">61%</td><td class="num">0.45</td></tr>
+<tr><td>Minnesota State Moorhead @ Minot State</td><td class="num">+4.4</td><td class="num">-4.4</td><td class="num">50.0</td><td class="num">61%</td><td class="num">0.50</td></tr>
+<tr><td>Bethany (WV) @ Grove City</td><td class="num">+4.4</td><td class="num">-4.4</td><td class="num">54.0</td><td class="num">61%</td><td class="num">0.50</td></tr>
+<tr><td>Carnegie Mellon @ McDaniel</td><td class="num">-4.4</td><td class="num">+4.4</td><td class="num">54.0</td><td class="num">39%</td><td class="num">0.50</td></tr>
+<tr><td>Samford @ UAB</td><td class="num">+4.3</td><td class="num">-4.3</td><td class="num">54.0</td><td class="num">61%</td><td class="num">0.70</td></tr>
+<tr><td>Valparaiso @ Morehead State</td><td class="num">-4.2</td><td class="num">+4.2</td><td class="num">54.0</td><td class="num">40%</td><td class="num">0.49</td></tr>
+<tr><td>Anderson (IN) @ Bluffton</td><td class="num">-4.2</td><td class="num">+4.2</td><td class="num">54.0</td><td class="num">40%</td><td class="num">0.50</td></tr>
+<tr><td>Shaw @ Bowie State</td><td class="num">-4.1</td><td class="num">+4.1</td><td class="num">54.0</td><td class="num">40%</td><td class="num">0.50</td></tr>
+<tr><td>Macalester @ Hamline</td><td class="num">-4.1</td><td class="num">+4.1</td><td class="num">53.4</td><td class="num">40%</td><td class="num">0.50</td></tr>
+<tr><td>Cincinnati @ Arizona</td><td class="num">+4.1</td><td class="num">-4.1</td><td class="num">59.5</td><td class="num">60%</td><td class="num">0.82</td></tr>
+<tr><td>Tuskegee @ Morehouse</td><td class="num">-4.1</td><td class="num">+4.1</td><td class="num">54.0</td><td class="num">40%</td><td class="num">0.50</td></tr>
+<tr><td>Arkansas State @ Louisiana</td><td class="num">+4.0</td><td class="num">-4.0</td><td class="num">62.8</td><td class="num">60%</td><td class="num">0.71</td></tr>
+<tr><td>Harding @ East Central</td><td class="num">-4.0</td><td class="num">+4.0</td><td class="num">54.0</td><td class="num">40%</td><td class="num">0.50</td></tr>
+<tr><td>Liberty @ Delaware</td><td class="num">-3.9</td><td class="num">+3.9</td><td class="num">61.1</td><td class="num">40%</td><td class="num">0.61</td></tr>
+<tr><td>Cornell @ Georgetown</td><td class="num">-3.9</td><td class="num">+3.9</td><td class="num">54.0</td><td class="num">40%</td><td class="num">0.65</td></tr>
+<tr><td>North Alabama @ Eastern Kentucky</td><td class="num">-3.8</td><td class="num">+3.8</td><td class="num">54.0</td><td class="num">41%</td><td class="num">0.80</td></tr>
+<tr><td>Youngstown State @ Southern Illinois</td><td class="num">-3.8</td><td class="num">+3.8</td><td class="num">54.0</td><td class="num">41%</td><td class="num">0.91</td></tr>
+<tr><td>Muhlenberg @ Ursinus</td><td class="num">+3.8</td><td class="num">-3.8</td><td class="num">54.0</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr><td>Winona State @ Wayne State (NE)</td><td class="num">+3.8</td><td class="num">-3.8</td><td class="num">51.4</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr><td>Arkansas Monticello @ Southern Nazarene</td><td class="num">-3.7</td><td class="num">+3.7</td><td class="num">54.0</td><td class="num">41%</td><td class="num">0.50</td></tr>
+<tr><td>Lincoln (MO) @ Southwest Baptist</td><td class="num">+3.7</td><td class="num">-3.7</td><td class="num">53.8</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr><td>Springfield @ Salve Regina</td><td class="num">+3.7</td><td class="num">-3.7</td><td class="num">54.0</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr><td>Northwestern (MN) @ Martin Luther</td><td class="num">+3.6</td><td class="num">-3.6</td><td class="num">52.4</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr><td>Williams @ Trinity (CT)</td><td class="num">+3.6</td><td class="num">-3.6</td><td class="num">54.0</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr><td>Wabash @ Denison</td><td class="num">+3.6</td><td class="num">-3.6</td><td class="num">54.0</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr><td>Virginia State @ Lincoln (PA)</td><td class="num">-3.5</td><td class="num">+3.5</td><td class="num">54.0</td><td class="num">41%</td><td class="num">0.50</td></tr>
+<tr><td>SUNY Cortland @ Utica</td><td class="num">-3.4</td><td class="num">+3.4</td><td class="num">54.0</td><td class="num">41%</td><td class="num">0.50</td></tr>
+<tr><td>Virginia @ Florida State</td><td class="num">-3.4</td><td class="num">+3.4</td><td class="num">51.8</td><td class="num">42%</td><td class="num">0.75</td></tr>
+<tr><td>Catholic @ Lycoming</td><td class="num">+3.4</td><td class="num">-3.4</td><td class="num">54.0</td><td class="num">58%</td><td class="num">0.50</td></tr>
+<tr><td>Mount State Joseph @ Hanover</td><td class="num">-3.4</td><td class="num">+3.4</td><td class="num">54.0</td><td class="num">42%</td><td class="num">0.50</td></tr>
+<tr><td>Clarion @ Lock Haven</td><td class="num">-3.4</td><td class="num">+3.4</td><td class="num">54.0</td><td class="num">42%</td><td class="num">0.50</td></tr>
+<tr><td>Brown @ Rhode Island</td><td class="num">+3.3</td><td class="num">-3.3</td><td class="num">54.0</td><td class="num">58%</td><td class="num">0.73</td></tr>
+<tr><td>Alfred @ Hartwick</td><td class="num">-3.3</td><td class="num">+3.3</td><td class="num">54.0</td><td class="num">42%</td><td class="num">0.50</td></tr>
+<tr><td>Sioux Falls @ Augustana (SD)</td><td class="num">+3.3</td><td class="num">-3.3</td><td class="num">52.1</td><td class="num">58%</td><td class="num">0.50</td></tr>
+<tr><td>West Texas @ Texas A&amp;M-Kingsville</td><td class="num">+3.2</td><td class="num">-3.2</td><td class="num">52.9</td><td class="num">58%</td><td class="num">0.50</td></tr>
+<tr><td>Pittsburgh @ Virginia Tech</td><td class="num">+3.2</td><td class="num">-3.2</td><td class="num">56.0</td><td class="num">58%</td><td class="num">0.51</td></tr>
+<tr><td>Augsburg @ Saint Olaf</td><td class="num">-3.1</td><td class="num">+3.1</td><td class="num">52.6</td><td class="num">42%</td><td class="num">0.50</td></tr>
+<tr><td>Alabama State @ Bethune-Cookman</td><td class="num">-3.0</td><td class="num">+3.0</td><td class="num">53.5</td><td class="num">43%</td><td class="num">0.75</td></tr>
+<tr><td>Southwestern @ Sewanee</td><td class="num">+3.0</td><td class="num">-3.0</td><td class="num">54.0</td><td class="num">57%</td><td class="num">0.50</td></tr>
+<tr><td>Indianapolis @ William Jewell</td><td class="num">+3.0</td><td class="num">-3.0</td><td class="num">54.0</td><td class="num">57%</td><td class="num">0.50</td></tr>
+<tr><td>Wilkes @ Juniata</td><td class="num">-2.9</td><td class="num">+2.9</td><td class="num">54.0</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr><td>Chattanooga @ East Tennessee State</td><td class="num">-2.9</td><td class="num">+2.9</td><td class="num">54.0</td><td class="num">43%</td><td class="num">0.84</td></tr>
+<tr><td>Walsh @ Thomas More</td><td class="num">-2.9</td><td class="num">+2.9</td><td class="num">54.0</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr><td>Richmond @ Lafayette</td><td class="num">+2.9</td><td class="num">-2.9</td><td class="num">54.0</td><td class="num">57%</td><td class="num">0.96</td></tr>
+<tr><td>Hendrix @ Schreiner</td><td class="num">-2.9</td><td class="num">+2.9</td><td class="num">54.0</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr><td>Calvin @ Adrian</td><td class="num">-2.9</td><td class="num">+2.9</td><td class="num">54.0</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr><td>Ouachita Baptist @ Oklahoma Baptist</td><td class="num">-2.9</td><td class="num">+2.9</td><td class="num">53.8</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr><td>Davenport @ Saginaw Valley State</td><td class="num">+2.9</td><td class="num">-2.9</td><td class="num">53.5</td><td class="num">57%</td><td class="num">0.50</td></tr>
+<tr><td>Baylor @ Arizona State</td><td class="num">+2.9</td><td class="num">-2.9</td><td class="num">55.6</td><td class="num">57%</td><td class="num">0.73</td></tr>
+<tr><td>Old Dominion @ Georgia State</td><td class="num">+2.8</td><td class="num">-2.8</td><td class="num">53.4</td><td class="num">57%</td><td class="num">0.31</td></tr>
+<tr><td>Kenyon @ Wittenberg</td><td class="num">+2.8</td><td class="num">-2.8</td><td class="num">54.0</td><td class="num">57%</td><td class="num">0.50</td></tr>
+<tr><td>Saint Thomas Mn @ Presbyterian</td><td class="num">-2.8</td><td class="num">+2.8</td><td class="num">54.0</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr><td>Knox @ Grinnell</td><td class="num">+2.8</td><td class="num">-2.8</td><td class="num">53.6</td><td class="num">57%</td><td class="num">0.50</td></tr>
+<tr><td>Kentucky State @ Edward Waters</td><td class="num">-2.7</td><td class="num">+2.7</td><td class="num">53.8</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr><td>Prairie View A&amp;M @ Mississippi Valley State</td><td class="num">-2.7</td><td class="num">+2.7</td><td class="num">54.0</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr><td>Norfolk State @ Robert Morris</td><td class="num">+2.7</td><td class="num">-2.7</td><td class="num">54.0</td><td class="num">57%</td><td class="num">0.65</td></tr>
+<tr><td>Weber State @ Cal Poly</td><td class="num">+2.7</td><td class="num">-2.7</td><td class="num">54.0</td><td class="num">57%</td><td class="num">0.50</td></tr>
+<tr><td>Wesleyan (CT) @ Hamilton</td><td class="num">-2.6</td><td class="num">+2.6</td><td class="num">54.0</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr><td>Bowdoin @ Amherst</td><td class="num">+2.6</td><td class="num">-2.6</td><td class="num">54.0</td><td class="num">56%</td><td class="num">0.50</td></tr>
+<tr><td>Franklin Pierce @ American International</td><td class="num">-2.5</td><td class="num">+2.5</td><td class="num">54.0</td><td class="num">44%</td><td class="num">0.50</td></tr>
+<tr><td>San José State @ Hawai&#x27;i</td><td class="num">+2.5</td><td class="num">-2.5</td><td class="num">51.0</td><td class="num">56%</td><td class="num">0.80</td></tr>
+<tr><td>Quincy @ McKendree</td><td class="num">+2.5</td><td class="num">-2.5</td><td class="num">54.0</td><td class="num">56%</td><td class="num">0.50</td></tr>
+<tr><td>North Greenville @ UNC Pembroke</td><td class="num">+2.5</td><td class="num">-2.5</td><td class="num">54.0</td><td class="num">56%</td><td class="num">0.50</td></tr>
+<tr><td>Pennsylvania @ Dartmouth</td><td class="num">+2.4</td><td class="num">-2.4</td><td class="num">54.0</td><td class="num">56%</td><td class="num">0.68</td></tr>
+<tr><td>Army @ Louisiana Tech</td><td class="num">-2.4</td><td class="num">+2.4</td><td class="num">54.7</td><td class="num">44%</td><td class="num">0.60</td></tr>
+<tr><td>Bentley @ Assumption</td><td class="num">-2.4</td><td class="num">+2.4</td><td class="num">54.0</td><td class="num">44%</td><td class="num">0.50</td></tr>
+<tr><td>UT Permian Basin @ Northeastern State</td><td class="num">+2.3</td><td class="num">-2.3</td><td class="num">54.0</td><td class="num">56%</td><td class="num">0.50</td></tr>
+<tr><td>Kalamazoo @ Albion</td><td class="num">+2.2</td><td class="num">-2.2</td><td class="num">54.0</td><td class="num">55%</td><td class="num">0.50</td></tr>
+<tr><td>Ferrum @ Barton</td><td class="num">+2.1</td><td class="num">-2.1</td><td class="num">54.0</td><td class="num">55%</td><td class="num">0.50</td></tr>
+<tr><td>Maine Maritime @ Nichols</td><td class="num">+2.1</td><td class="num">-2.1</td><td class="num">54.0</td><td class="num">55%</td><td class="num">0.50</td></tr>
+<tr><td>Johns Hopkins @ Dickinson</td><td class="num">+2.1</td><td class="num">-2.1</td><td class="num">54.0</td><td class="num">55%</td><td class="num">0.50</td></tr>
+<tr><td>Southern Connecticut State @ Saint Anselm</td><td class="num">-2.1</td><td class="num">+2.1</td><td class="num">54.0</td><td class="num">45%</td><td class="num">0.50</td></tr>
+<tr><td>Black Hills State @ Colorado School of Mines</td><td class="num">+2.1</td><td class="num">-2.1</td><td class="num">54.0</td><td class="num">55%</td><td class="num">0.50</td></tr>
+<tr><td>Michigan @ Minnesota</td><td class="num">-2.1</td><td class="num">+2.1</td><td class="num">42.0</td><td class="num">45%</td><td class="num">0.67</td></tr>
+<tr><td>Fayetteville State @ Livingstone</td><td class="num">-2.1</td><td class="num">+2.1</td><td class="num">54.0</td><td class="num">45%</td><td class="num">0.50</td></tr>
+<tr><td>Western Colorado @ New Mexico Highlands</td><td class="num">-2.0</td><td class="num">+2.0</td><td class="num">53.1</td><td class="num">45%</td><td class="num">0.50</td></tr>
+<tr><td>West Chester @ East Stroudsburg</td><td class="num">+2.0</td><td class="num">-2.0</td><td class="num">54.0</td><td class="num">55%</td><td class="num">0.50</td></tr>
+<tr><td>California @ UNLV</td><td class="num">-2.0</td><td class="num">+2.0</td><td class="num">59.7</td><td class="num">45%</td><td class="num">0.66</td></tr>
+<tr><td>Emory &amp; Henry @ Anderson (SC)</td><td class="num">+1.9</td><td class="num">-1.9</td><td class="num">54.0</td><td class="num">55%</td><td class="num">0.50</td></tr>
+<tr><td>Eastern New Mexico @ Sul Ross State</td><td class="num">-1.9</td><td class="num">+1.9</td><td class="num">54.0</td><td class="num">45%</td><td class="num">0.50</td></tr>
+<tr><td>Berry @ Trinity (TX)</td><td class="num">+1.9</td><td class="num">-1.9</td><td class="num">54.0</td><td class="num">55%</td><td class="num">0.50</td></tr>
+<tr><td>Frostburg State @ Concord</td><td class="num">-1.8</td><td class="num">+1.8</td><td class="num">54.0</td><td class="num">46%</td><td class="num">0.50</td></tr>
+<tr><td>BYU @ TCU</td><td class="num">-1.7</td><td class="num">+1.7</td><td class="num">53.5</td><td class="num">46%</td><td class="num">0.86</td></tr>
+<tr><td>Florida @ Missouri</td><td class="num">-1.7</td><td class="num">+1.7</td><td class="num">48.4</td><td class="num">46%</td><td class="num">0.72</td></tr>
+<tr><td>Union @ Saint Lawrence</td><td class="num">-1.7</td><td class="num">+1.7</td><td class="num">54.0</td><td class="num">46%</td><td class="num">0.50</td></tr>
+<tr><td>Fresno State @ Washington State</td><td class="num">-1.6</td><td class="num">+1.6</td><td class="num">37.9</td><td class="num">46%</td><td class="num">0.85</td></tr>
+<tr><td>Campbell @ North Carolina Central</td><td class="num">+1.6</td><td class="num">-1.6</td><td class="num">54.0</td><td class="num">54%</td><td class="num">0.50</td></tr>
+<tr><td>Hillsdale @ Lake Erie</td><td class="num">-1.6</td><td class="num">+1.6</td><td class="num">54.0</td><td class="num">46%</td><td class="num">0.50</td></tr>
+<tr><td>Simpson (IA) @ Buena Vista</td><td class="num">-1.6</td><td class="num">+1.6</td><td class="num">51.9</td><td class="num">46%</td><td class="num">0.50</td></tr>
+<tr><td>Illinois College @ Luther</td><td class="num">-1.5</td><td class="num">+1.5</td><td class="num">53.4</td><td class="num">46%</td><td class="num">0.50</td></tr>
+<tr><td>Wisconsin River Falls @ Wisconsin Whitewater</td><td class="num">-1.4</td><td class="num">+1.4</td><td class="num">53.7</td><td class="num">47%</td><td class="num">0.50</td></tr>
+<tr><td>Tufts @ Bates</td><td class="num">+1.3</td><td class="num">-1.3</td><td class="num">54.0</td><td class="num">53%</td><td class="num">0.50</td></tr>
+<tr><td>Navy @ Air Force</td><td class="num">+1.3</td><td class="num">-1.3</td><td class="num">58.8</td><td class="num">53%</td><td class="num">0.91</td></tr>
+<tr><td>Tiffin @ Ashland</td><td class="num">-1.2</td><td class="num">+1.2</td><td class="num">54.0</td><td class="num">47%</td><td class="num">0.50</td></tr>
+<tr><td>Louisville @ NC State</td><td class="num">-1.2</td><td class="num">+1.2</td><td class="num">61.7</td><td class="num">47%</td><td class="num">0.65</td></tr>
+<tr><td>Concordia Chicago @ Concordia (WI)</td><td class="num">-1.1</td><td class="num">+1.1</td><td class="num">54.0</td><td class="num">47%</td><td class="num">0.50</td></tr>
+<tr><td>Gardner-Webb @ Charleston Southern</td><td class="num">+1.1</td><td class="num">-1.1</td><td class="num">54.0</td><td class="num">53%</td><td class="num">0.46</td></tr>
+<tr><td>Fort Valley State @ Central State</td><td class="num">+1.1</td><td class="num">-1.1</td><td class="num">54.0</td><td class="num">53%</td><td class="num">0.50</td></tr>
+<tr><td>Norwich @ WPI</td><td class="num">-1.1</td><td class="num">+1.1</td><td class="num">54.0</td><td class="num">47%</td><td class="num">0.50</td></tr>
+<tr><td>Alabama @ Mississippi State</td><td class="num">-1.0</td><td class="num">+1.0</td><td class="num">57.8</td><td class="num">48%</td><td class="num">0.64</td></tr>
+<tr><td>Central Washington @ Angelo State</td><td class="num">-1.0</td><td class="num">+1.0</td><td class="num">54.0</td><td class="num">48%</td><td class="num">0.50</td></tr>
+<tr><td>Averett @ Washington and Lee</td><td class="num">+1.0</td><td class="num">-1.0</td><td class="num">54.0</td><td class="num">52%</td><td class="num">0.50</td></tr>
+<tr><td>John Carroll @ Washington State Louis</td><td class="num">+0.9</td><td class="num">-0.9</td><td class="num">54.0</td><td class="num">52%</td><td class="num">0.50</td></tr>
+<tr><td>Carson Newman @ Lenoir Rhyne</td><td class="num">+0.9</td><td class="num">-0.9</td><td class="num">54.0</td><td class="num">52%</td><td class="num">0.50</td></tr>
+<tr><td>Gustavus Adolphus @ Carleton</td><td class="num">-0.9</td><td class="num">+0.9</td><td class="num">52.6</td><td class="num">48%</td><td class="num">0.50</td></tr>
+<tr><td>Ithaca @ Hobart</td><td class="num">-0.9</td><td class="num">+0.9</td><td class="num">54.0</td><td class="num">48%</td><td class="num">0.50</td></tr>
+<tr><td>Oregon State @ Colorado State</td><td class="num">+0.9</td><td class="num">-0.9</td><td class="num">46.5</td><td class="num">52%</td><td class="num">0.59</td></tr>
+<tr><td>Kean @ Montclair State</td><td class="num">+0.8</td><td class="num">-0.8</td><td class="num">54.0</td><td class="num">52%</td><td class="num">0.50</td></tr>
+<tr><td>South Dakota Mines @ Fort Lewis</td><td class="num">+0.8</td><td class="num">-0.8</td><td class="num">54.0</td><td class="num">52%</td><td class="num">0.50</td></tr>
+<tr><td>Georgia Southern @ Coastal Carolina</td><td class="num">+0.7</td><td class="num">-0.7</td><td class="num">58.4</td><td class="num">52%</td><td class="num">0.55</td></tr>
+<tr><td>Wingate @ Catawba</td><td class="num">+0.7</td><td class="num">-0.7</td><td class="num">54.0</td><td class="num">52%</td><td class="num">0.50</td></tr>
+<tr><td>Syracuse @ Connecticut</td><td class="num">+0.6</td><td class="num">-0.6</td><td class="num">50.4</td><td class="num">52%</td><td class="num">0.50</td></tr>
+<tr><td>Manchester @ Otterbein</td><td class="num">-0.6</td><td class="num">+0.6</td><td class="num">54.0</td><td class="num">48%</td><td class="num">0.50</td></tr>
+<tr><td>West Liberty @ West Virginia State</td><td class="num">+0.6</td><td class="num">-0.6</td><td class="num">54.0</td><td class="num">52%</td><td class="num">0.50</td></tr>
+<tr><td>Benedictine (IL) @ Lakeland</td><td class="num">+0.6</td><td class="num">-0.6</td><td class="num">54.0</td><td class="num">52%</td><td class="num">0.50</td></tr>
+<tr><td>West Florida @ Abilene Christian</td><td class="num">+0.5</td><td class="num">-0.5</td><td class="num">53.4</td><td class="num">51%</td><td class="num">0.62</td></tr>
+<tr><td>Colby @ Middlebury</td><td class="num">-0.4</td><td class="num">+0.4</td><td class="num">53.6</td><td class="num">49%</td><td class="num">0.50</td></tr>
+<tr><td>Huntingdon @ Methodist</td><td class="num">+0.4</td><td class="num">-0.4</td><td class="num">54.0</td><td class="num">51%</td><td class="num">0.50</td></tr>
+<tr><td>Saint Norbert @ Rockford</td><td class="num">+0.4</td><td class="num">-0.4</td><td class="num">54.0</td><td class="num">51%</td><td class="num">0.50</td></tr>
+<tr><td>Morgan State @ Villanova</td><td class="num">-0.3</td><td class="num">+0.3</td><td class="num">54.0</td><td class="num">49%</td><td class="num">0.75</td></tr>
+<tr><td>California (PA) @ Seton Hill</td><td class="num">-0.3</td><td class="num">+0.3</td><td class="num">54.0</td><td class="num">49%</td><td class="num">0.50</td></tr>
+<tr><td>Baldwin Wallace @ Heidelberg</td><td class="num">+0.3</td><td class="num">-0.3</td><td class="num">54.0</td><td class="num">51%</td><td class="num">0.50</td></tr>
+<tr><td>Wheeling @ West Virginia Wesleyan</td><td class="num">+0.2</td><td class="num">-0.2</td><td class="num">54.0</td><td class="num">51%</td><td class="num">0.50</td></tr>
+<tr><td>Western Oregon @ Midwestern State</td><td class="num">-0.2</td><td class="num">+0.2</td><td class="num">54.0</td><td class="num">50%</td><td class="num">0.50</td></tr>
+<tr><td>Pacific Lutheran @ Willamette</td><td class="num">-0.2</td><td class="num">+0.2</td><td class="num">53.1</td><td class="num">50%</td><td class="num">0.50</td></tr>
+<tr><td>Vermont State Castleton @ Rowan</td><td class="num">-0.1</td><td class="num">+0.1</td><td class="num">54.0</td><td class="num">50%</td><td class="num">0.50</td></tr>
+<tr><td>Wisconsin La Crosse @ Wisconsin Oshkosh</td><td class="num">+0.1</td><td class="num">-0.1</td><td class="num">53.2</td><td class="num">50%</td><td class="num">0.50</td></tr>
+<tr><td>Princeton @ Columbia</td><td class="num">+0.0</td><td class="num">-0.0</td><td class="num">54.0</td><td class="num">50%</td><td class="num">0.66</td></tr>
+</tbody></table></div></details>
+<footer>Model output, not betting advice. Stakes are fractional-Kelly units; one unit is 1% of bankroll by default. Edges are measured against the de-vigged market price at the quoted number.</footer>
+</div><script>
+(function () {
+  var btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  var root = document.documentElement;
+  try {
+    var saved = localStorage.getItem('cfbpicks-theme');
+    if (saved) root.setAttribute('data-theme', saved);
+  } catch (e) {}
+  btn.addEventListener('click', function () {
+    var dark = getComputedStyle(root).colorScheme.indexOf('dark') !== -1;
+    var next = dark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('cfbpicks-theme', next); } catch (e) {}
+  });
+})();
+</script></body></html>

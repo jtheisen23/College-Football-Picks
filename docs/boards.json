@@ -6,5 +6,21 @@
     "season": 2026,
     "staked": 35.37,
     "week": 3
+  },
+  "2026-week-04.html": {
+    "bets": 231,
+    "filename": "2026-week-04.html",
+    "generated": "25 Sep 2026, 21:17 UTC",
+    "season": 2026,
+    "staked": 563.87,
+    "week": 4
+  },
+  "2026-week-05.html": {
+    "bets": 24,
+    "filename": "2026-week-05.html",
+    "generated": "25 Sep 2026, 21:17 UTC",
+    "season": 2026,
+    "staked": 51.8,
+    "week": 5
   }
 }
