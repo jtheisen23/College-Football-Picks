@@ -16,6 +16,12 @@ from dataclasses import dataclass, field
 from typing import Iterable, Optional, Sequence
 
 from .config import Config
+from .engine.calibration import (
+    collect_margin_pairs,
+    collect_total_pairs,
+    fit_margin_calibration,
+    fit_total_calibration,
+)
 from .engine.market import build_consensus
 from .engine.predict import PredictionInputs, Predictor
 from .engine.recommend import Recommender
@@ -222,9 +228,20 @@ def backtest_season(
         if not ratings:
             continue
 
-        predictions = predictor.predict_week(
-            PredictionInputs(games=games, ratings=ratings, schedule=all_games)
-        )
+        # Graded against the model as it actually is, correction and
+        # all, or the record describes something nobody is publishing.
+        # Fitted strictly on earlier weeks, so a week is never priced
+        # with a correction derived from its own results -- the same
+        # discipline the live path uses.
+        predictions = predictor.predict_week(PredictionInputs(
+            games=games, ratings=ratings, schedule=all_games,
+            calibration=fit_margin_calibration(
+                collect_margin_pairs(storage, config, season, before_week=week)
+            ),
+            total_calibration=fit_total_calibration(
+                collect_total_pairs(storage, config, season, before_week=week)
+            ),
+        ))
         quotes_by_game = storage.quotes_for_games([g.game_id for g in games])
         if not quotes_by_game:
             continue

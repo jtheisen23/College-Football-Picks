@@ -172,3 +172,44 @@ class TestCfbdProvenanceLabels:
         payload = [{"team": "Georgia", "elo": 1800}, {"team": "Vandy", "elo": 1400}]
         rows = self._rows("elo", payload, monkeypatch)
         assert all(r.point_in_time for r in rows)
+
+
+class TestBacktestUsesTheLiveModel:
+    """The record has to describe the model that publishes the board."""
+
+    def _season(self, storage):
+        games, ratings = [], []
+        for week in (1, 2, 3):
+            for i in range(20):
+                games.append(Game(
+                    game_id=f"w{week}g{i}", season=2026, week=week, kickoff=None,
+                    home_team=f"H{i}", away_team=f"A{i}",
+                    home_score=24 + i, away_score=17,
+                ))
+                ratings += [
+                    Rating("cfbd_elo", 2026, week, f"H{i}", 9.0, point_in_time=True),
+                    Rating("cfbd_elo", 2026, week, f"A{i}", 3.0, point_in_time=True),
+                ]
+        storage.upsert_games(games)
+        storage.upsert_ratings(ratings)
+
+    def test_the_correction_is_fitted_only_on_earlier_weeks(self, storage, monkeypatch):
+        """A week must never be graded using its own results."""
+        from cfbpicks.config import Config
+        from cfbpicks import backtest as backtest_mod
+
+        self._season(storage)
+        seen = []
+        real = backtest_mod.collect_margin_pairs
+
+        def spy(store, config, season, *, before_week=None):
+            seen.append(before_week)
+            return real(store, config, season, before_week=before_week)
+
+        monkeypatch.setattr(backtest_mod, "collect_margin_pairs", spy)
+        backtest_season(storage, Config(), 2026)
+
+        assert seen, "the backtest should be fitting a correction at all"
+        assert all(w is not None for w in seen), "an unbounded fit sees the future"
+        # Each week asks only for what came before it.
+        assert seen == sorted(seen) and seen[0] == 1
