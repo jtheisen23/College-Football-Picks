@@ -40,11 +40,19 @@
     "week": 7
   },
   "2026-week-08.html": {
-    "bets": 37,
+    "bets": 111,
     "filename": "2026-week-08.html",
-    "generated": "17 Oct 2026, 16:12 UTC",
+    "generated": "20 Oct 2026, 19:01 UTC",
     "season": 2026,
-    "staked": 93.42,
+    "staked": 268.98,
     "week": 8
+  },
+  "2026-week-09.html": {
+    "bets": 7,
+    "filename": "2026-week-09.html",
+    "generated": "20 Oct 2026, 19:01 UTC",
+    "season": 2026,
+    "staked": 15.73,
+    "week": 9
   }
 }
