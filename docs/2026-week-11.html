@@ -1,0 +1,720 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFB Picks — 2026 Week 11</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #101418;
+  --ink-2: #55606c;
+  --muted: #6b7681;
+  --rule: #e6e9ed;
+  --border: rgba(16,20,24,0.10);
+  --tier-lean: #86b6ef;
+  --tier-play: #2a78d6;
+  --tier-strong: #184f95;
+  --tier-lean-ink: #101418;
+  --tier-play-ink: #ffffff;
+  --tier-strong-ink: #ffffff;
+  --good: #006300;
+  --bad: #c0392b;
+  --win: #006300;
+  --win-ink: #ffffff;
+  --loss: #c0392b;
+  --loss-ink: #ffffff;
+  --accent: #2a78d6;
+  --warn: #fab219;
+  --warn-bg: #fdf7e7;
+  --warn-edge: #f0dfae;
+  --track: #eef1f4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0e1114;
+    --surface: #171b1f;
+    --ink: #f2f5f7;
+    --ink-2: #b7c0c9;
+    --muted: #8a94a0;
+    --rule: #262c32;
+    --border: rgba(255,255,255,0.10);
+    --tier-lean: #184f95;
+    --tier-play: #2a78d6;
+    --tier-strong: #86b6ef;
+    --tier-lean-ink: #ffffff;
+    --tier-play-ink: #ffffff;
+    --tier-strong-ink: #101418;
+    --good: #3fbf5f;
+    --bad: #f0736a;
+    --win: #2f7d46;
+    --win-ink: #ffffff;
+    --loss: #a8392f;
+    --loss-ink: #ffffff;
+    --accent: #6da7ec;
+    --warn: #fab219;
+    --warn-bg: #2a2517;
+    --warn-edge: #4a4126;
+    --track: #222831;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0e1114;
+  --surface: #171b1f;
+  --ink: #f2f5f7;
+  --ink-2: #b7c0c9;
+  --muted: #8a94a0;
+  --rule: #262c32;
+  --border: rgba(255,255,255,0.10);
+  --tier-lean: #184f95;
+  --tier-play: #2a78d6;
+  --tier-strong: #86b6ef;
+  --tier-lean-ink: #ffffff;
+  --tier-play-ink: #ffffff;
+  --tier-strong-ink: #101418;
+  --good: #3fbf5f;
+  --bad: #f0736a;
+  --win: #2f7d46;
+  --win-ink: #ffffff;
+  --loss: #a8392f;
+  --loss-ink: #ffffff;
+  --accent: #6da7ec;
+  --warn: #fab219;
+  --warn-bg: #2a2517;
+  --warn-edge: #4a4126;
+  --track: #222831;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 15px/1.5 "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 72px; }
+@media (min-width: 700px) { .wrap { padding: 36px 28px 80px; } }
+
+h1 {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700; font-size: clamp(24px, 5vw, 34px);
+  letter-spacing: -0.02em; margin: 0; text-wrap: balance;
+}
+.stamp { color: var(--muted); font-size: 13px; margin-top: 6px; }
+header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.toggle {
+  flex: none; background: var(--surface); color: var(--ink-2);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 7px 14px; font: inherit; font-size: 13px; cursor: pointer;
+}
+.toggle:hover { color: var(--ink); border-color: var(--accent); }
+.toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Week switcher. Only rendered when there is more than one week. */
+.weeknav { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0 0; }
+.weeknav a {
+  padding: 7px 14px; border-radius: 999px; text-decoration: none;
+  font-size: 14px; font-weight: 500; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--border);
+}
+.weeknav a:hover { border-color: var(--accent); color: var(--ink); }
+.weeknav a[aria-current="page"] {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+.weeknav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.tiles {
+  display: grid; gap: 10px; margin: 22px 0 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 700px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 13px 15px; }
+.tile .label {
+  color: var(--muted); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
+.tile .value {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600; font-size: 25px; letter-spacing: -0.02em;
+  margin-top: 3px; font-variant-numeric: tabular-nums;
+}
+.tile .sub { color: var(--muted); font-size: 12px; margin-top: 1px; }
+
+h2 {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--muted); margin: 34px 0 12px;
+}
+
+/* --- the board -------------------------------------------------------
+   One grid per bet. Narrow: a card, with each figure labelled. Wide: the
+   same cells snap into shared columns under a header row. */
+.board { display: grid; gap: 10px; }
+.board-head { display: none; }
+.bet {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 15px;
+  display: grid; gap: 12px;
+  /* Badge takes only its own width; the game text gets the rest. The
+     other way round pushes the text to the right-hand edge. */
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+}
+.bet .game { min-width: 0; }
+.matchup { color: var(--ink-2); font-size: 13px; }
+.pick {
+  font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600; font-size: 18px; letter-spacing: -0.01em; margin-top: 2px;
+}
+.at { color: var(--muted); font-weight: 400; }
+.terms { color: var(--ink-2); font-size: 13px; margin-top: 3px; font-variant-numeric: tabular-nums; }
+.terms .book { color: var(--muted); }
+
+.figs {
+  grid-column: 1 / -1;
+  /* Five figures across even on a 390px screen; auto-fit rather than a
+     fixed count so a narrow phone reflows instead of orphaning one. */
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+  gap: 8px 12px; padding-top: 11px; border-top: 1px solid var(--rule);
+}
+.fig { min-width: 0; }
+.fig .lab {
+  display: block; color: var(--muted); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
+.fig .val {
+  display: block; font-variant-numeric: tabular-nums; font-size: 14px;
+  margin-top: 2px; white-space: nowrap;
+}
+.fig.edge .val { font-weight: 600; }
+.pos { color: var(--good); }
+.neg { color: var(--bad); }
+
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; white-space: nowrap;
+}
+.badge.lean { background: var(--tier-lean); color: var(--tier-lean-ink); }
+.badge.play { background: var(--tier-play); color: var(--tier-play-ink); }
+.badge.strong { background: var(--tier-strong); color: var(--tier-strong-ink); }
+.badge.win { background: var(--win); color: var(--win-ink); }
+.badge.loss { background: var(--loss); color: var(--loss-ink); }
+.badge.push { background: var(--tier-lean); color: var(--tier-lean-ink); }
+.tile .value.pos { color: var(--good); }
+.tile .value.neg { color: var(--bad); }
+
+.caveat { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+
+@media (min-width: 860px) {
+  .board { gap: 8px; }
+  .board-head, .bet {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) 78px 78px 88px 66px 74px;
+    gap: 14px; align-items: center;
+  }
+  .board-head {
+    padding: 0 15px 6px; color: var(--muted); font-size: 11px;
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .board-head span:not(:nth-child(2)) { text-align: right; }
+  .board-head span:first-child { text-align: left; }
+  .bet { padding: 12px 15px; }
+  .figs {
+    display: contents;            /* the figures become sibling columns */
+  }
+  .fig { text-align: right; }
+  .fig .lab {                     /* the label lives in the header row now */
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .fig .val { font-size: 14px; margin-top: 0; }
+  .caveat { grid-column: 2 / -1; margin-top: -4px; }
+}
+
+/* Filter bar. A full slate is 60-odd games; finding one team by eye is
+   the most common thing anyone does on this page. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+.toolbar { display: flex; gap: 10px; align-items: center; margin: 0 0 12px; flex-wrap: wrap; }
+.search {
+  flex: 1 1 220px; min-width: 0; padding: 9px 13px;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 999px;
+  font: inherit; font-size: 15px;
+}
+.search::placeholder { color: var(--muted); }
+.search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.count { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.no-match { padding: 22px; color: var(--ink-2); margin: 0; }
+
+/* Glossary. Secondary reference, so it opens on demand -- but the terms
+   it defines are on every row, so it sits with the board, not the footer. */
+.legend { margin: 0 0 14px; }
+.legend > summary { color: var(--ink-2); }
+.legend dl {
+  margin: 8px 0 0; padding: 14px 16px; display: grid; gap: 10px 16px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+}
+@media (min-width: 620px) { .legend dl { grid-template-columns: max-content 1fr; } }
+.legend dt { font-weight: 600; color: var(--ink); }
+.legend dd { margin: 0; color: var(--ink-2); font-size: 14px; }
+@media (max-width: 619px) { .legend dd { margin-bottom: 4px; } }
+
+.note-bar {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin: 0 0 22px; padding: 13px 15px;
+  background: var(--warn-bg); color: var(--ink);
+  border: 1px solid var(--warn-edge); border-left: 4px solid var(--warn);
+  border-radius: 0 12px 12px 0; font-size: 14px; line-height: 1.45;
+}
+.note-bar .mark { flex: none; font-size: 16px; }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.empty { padding: 26px; color: var(--ink-2); margin: 0; }
+details { margin-top: 10px; }
+summary {
+  cursor: pointer; color: var(--ink-2); font-size: 14px; padding: 8px 0;
+  font-weight: 500;
+}
+summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 9px 12px; text-align: left; white-space: nowrap; }
+th {
+  color: var(--muted); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--rule);
+}
+td { border-bottom: 1px solid var(--rule); }
+tr:last-child td { border-bottom: none; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.dim { color: var(--muted); }
+
+footer {
+  margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: 13px;
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style></head><body><div class="wrap">
+<header><div>
+<h1>College Football Picks</h1>
+<div class="stamp">2026 · Week 11 · updated 03 Nov 2026, 20:51 UTC</div>
+</div>
+<button class="toggle" id="theme-toggle" type="button">Theme</button>
+</header>
+<nav class="weeknav" aria-label="Weeks">
+<a href="2026-week-10.html">Week 10</a>
+<a href="2026-week-11.html" aria-current="page">Week 11</a>
+</nav>
+<div class="tiles">
+<div class="tile"><div class="label">Bets</div><div class="value">16</div><div class="sub">15 strong</div></div>
+<div class="tile"><div class="label">Staked</div><div class="value">43.71u</div><div class="sub">fractional Kelly</div></div>
+<div class="tile"><div class="label">Expected</div><div class="value">+19.50u</div><div class="sub">if the model is right</div></div>
+<div class="tile"><div class="label">Median edge</div><div class="value">20.5%</div><div class="sub">over the no-vig price</div></div>
+</div>
+<h2>Recommended bets</h2>
+<details class="legend"><summary>What these numbers mean</summary><dl><dt>Tier</dt><dd>How much conviction is behind the bet — strong, play or lean, set by the size of the edge.</dd><dt>Bet</dt><dd>The side and number to take, at the price and book shown beside it.</dd><dt>Model</dt><dd>The model&#x27;s probability this bet wins. Already shrunk toward the market price according to how well-covered the two teams are, so a thinly-rated game shows a number close to the market&#x27;s.</dd><dt>Market</dt><dd>The same probability implied by the sportsbook price, with the bookmaker&#x27;s margin removed — what the market really thinks, rather than what the posted odds say.</dd><dt>Edge</dt><dd>Model minus Market: how much better the model rates this bet than the price implies. Anything under a couple of points is noise.</dd><dt>Pts</dt><dd>The same disagreement measured in points rather than probability — how far the model&#x27;s number sits from the market&#x27;s on the spread or total.</dd><dt>Units</dt><dd>Suggested stake, where one unit is 1% of bankroll. Sized by quarter-Kelly and capped, so a large edge on an uncertain game still gets a small bet.</dd></dl></details>
+<div class="toolbar">
+<label class="sr-only" for="q">Filter by team</label>
+<input class="search" id="q" type="search" autocomplete="off" placeholder="Filter by team, bet or book…">
+<span class="count" id="count" aria-live="polite">16 bets</span>
+</div>
+<div class="board" id="board">
+<div class="board-head" aria-hidden="true"><span>Tier</span><span>Bet</span><span>Model</span><span>Market</span><span>Edge</span><span>Pts</span><span>Units</span></div>
+<article class="bet" data-search="michigan @ oregon under 53.5 draftkings strong total"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Michigan <span class="at">@</span> Oregon</div><div class="pick">Under 53.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">86.3%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+36.3%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+19.0</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 14% toward market (confidence 0.86); single book — no line shopping</p></article>
+<article class="bet" data-search="tennessee @ texas a&amp;m tennessee ml draftkings strong moneyline"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Tennessee <span class="at">@</span> Texas A&amp;M</div><div class="pick">Tennessee ML</div><div class="terms">+285 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">52.0%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">23.3%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+28.8%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+14.2</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 13% toward market (confidence 0.87); single book — no line shopping</p></article>
+<article class="bet" data-search="mississippi @ oklahoma mississippi ml draftkings strong moneyline"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Mississippi <span class="at">@</span> Oklahoma</div><div class="pick">Mississippi ML</div><div class="terms">+164 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">61.0%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">35.4%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+25.6%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+12.1</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 13% toward market (confidence 0.87); single book — no line shopping</p></article>
+<article class="bet" data-search="texas @ lsu lsu ml draftkings strong moneyline"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Texas <span class="at">@</span> LSU</div><div class="pick">LSU ML</div><div class="terms">+120 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">67.8%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">43.3%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+24.6%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+10.5</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 3% toward market (confidence 0.97); single book — no line shopping</p></article>
+<article class="bet" data-search="texas @ lsu lsu +2.5 draftkings strong spread"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Texas <span class="at">@</span> LSU</div><div class="pick">LSU +2.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">73.2%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+23.2%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+10.3</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 3% toward market (confidence 0.97); single book — no line shopping</p></article>
+<article class="bet" data-search="tennessee @ texas a&amp;m tennessee +8.5 draftkings strong spread"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Tennessee <span class="at">@</span> Texas A&amp;M</div><div class="pick">Tennessee +8.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">72.2%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+22.2%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+11.0</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 13% toward market (confidence 0.87); single book — no line shopping</p></article>
+<article class="bet" data-search="texas tech @ oklahoma state oklahoma state ml draftkings strong moneyline"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Texas Tech <span class="at">@</span> Oklahoma State</div><div class="pick">Oklahoma State ML</div><div class="terms">+500 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">34.8%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">13.7%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+21.1%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+16.7</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 38% toward market (confidence 0.62); single book — no line shopping</p></article>
+<article class="bet" data-search="mississippi @ oklahoma mississippi +4 draftkings strong spread"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Mississippi <span class="at">@</span> Oklahoma</div><div class="pick">Mississippi +4</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">70.5%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+20.5%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+10.1</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 13% toward market (confidence 0.87); push chance 2.0%; single book — no line shopping</p></article>
+<article class="bet" data-search="texas tech @ oklahoma state oklahoma state +15.5 draftkings strong spread"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Texas Tech <span class="at">@</span> Oklahoma State</div><div class="pick">Oklahoma State +15.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">69.7%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+19.7%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+14.7</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 38% toward market (confidence 0.62); single book — no line shopping</p></article>
+<article class="bet" data-search="mississippi @ oklahoma under 53.5 draftkings strong total"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Mississippi <span class="at">@</span> Oklahoma</div><div class="pick">Under 53.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">67.3%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+17.3%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+7.1</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 13% toward market (confidence 0.87); single book — no line shopping</p></article>
+<article class="bet" data-search="texas @ lsu under 54.5 draftkings strong total"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Texas <span class="at">@</span> LSU</div><div class="pick">Under 54.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">65.7%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+15.7%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+5.6</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 3% toward market (confidence 0.97); single book — no line shopping</p></article>
+<article class="bet" data-search="usc @ indiana under 58.5 draftkings strong total"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">USC <span class="at">@</span> Indiana</div><div class="pick">Under 58.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">65.3%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+15.3%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+5.8</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 8% toward market (confidence 0.92); single book — no line shopping</p></article>
+<article class="bet" data-search="tennessee @ texas a&amp;m under 55.5 draftkings strong total"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Tennessee <span class="at">@</span> Texas A&amp;M</div><div class="pick">Under 55.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">64.1%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+14.1%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+5.6</span></div><div class="fig"><span class="lab">Units</span><span class="val ">3.00</span></div></div><p class="caveat">model shrunk 13% toward market (confidence 0.87); single book — no line shopping</p></article>
+<article class="bet" data-search="michigan @ oregon michigan ml draftkings strong moneyline"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">Michigan <span class="at">@</span> Oregon</div><div class="pick">Michigan ML</div><div class="terms">+440 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">22.5%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">15.6%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+6.9%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+4.7</span></div><div class="fig"><span class="lab">Units</span><span class="val ">1.22</span></div></div><p class="caveat">model shrunk 14% toward market (confidence 0.86); single book — no line shopping</p></article>
+<article class="bet" data-search="usc @ indiana indiana -10 draftkings strong spread"><div><span class="badge strong">strong</span></div><div class="game"><div class="matchup">USC <span class="at">@</span> Indiana</div><div class="pick">Indiana -10</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">55.8%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+5.8%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.5</span></div><div class="fig"><span class="lab">Units</span><span class="val ">2.51</span></div></div><p class="caveat">model shrunk 8% toward market (confidence 0.92); push chance 2.5%; single book — no line shopping</p></article>
+<article class="bet" data-search="michigan @ oregon michigan +13.5 draftkings play spread"><div><span class="badge play">play</span></div><div class="game"><div class="matchup">Michigan <span class="at">@</span> Oregon</div><div class="pick">Michigan +13.5</div><div class="terms">-110 <span class="book">at DraftKings</span></div></div><div class="figs"><div class="fig"><span class="lab">Model</span><span class="val ">54.3%</span></div><div class="fig"><span class="lab">Market</span><span class="val ">50.0%</span></div><div class="fig edge"><span class="lab">Edge</span><span class="val pos">+4.3%</span></div><div class="fig"><span class="lab">Pts</span><span class="val ">+2.0</span></div><div class="fig"><span class="lab">Units</span><span class="val ">0.98</span></div></div><p class="caveat">model shrunk 14% toward market (confidence 0.86); single book — no line shopping</p></article>
+<p class="no-match panel" id="no-match" hidden>No bets match that filter.</p>
+</div>
+<h2>All projections</h2>
+<details><summary>309 games</summary>
+<div class="panel scroll"><table><thead><tr>
+<th>Matchup</th><th class="num">Margin</th><th class="num">Fair spread</th>
+<th class="num">Total</th><th class="num">Home win</th><th class="num">Conf</th>
+</tr></thead><tbody>
+<tr data-search="north carolina central south carolina state"><td class="dim">North Carolina Central @ South Carolina State</td><td class="num">+37.0</td><td class="num">-37.0</td><td class="num">52.5</td><td class="num">99%</td><td class="num">0.21</td></tr>
+<tr data-search="boston college notre dame"><td>Boston College @ Notre Dame</td><td class="num">+34.6</td><td class="num">-34.6</td><td class="num">50.6</td><td class="num">98%</td><td class="num">0.71</td></tr>
+<tr data-search="middle tennessee liberty"><td>Middle Tennessee @ Liberty</td><td class="num">+29.0</td><td class="num">-29.0</td><td class="num">49.0</td><td class="num">97%</td><td class="num">0.61</td></tr>
+<tr data-search="lackawanna slippery rock"><td>Lackawanna @ Slippery Rock</td><td class="num">+28.1</td><td class="num">-28.1</td><td class="num">52.5</td><td class="num">96%</td><td class="num">0.50</td></tr>
+<tr data-search="nicholls incarnate word"><td>Nicholls @ Incarnate Word</td><td class="num">+26.9</td><td class="num">-26.9</td><td class="num">50.5</td><td class="num">95%</td><td class="num">0.43</td></tr>
+<tr data-search="millersville clarion"><td>Millersville @ Clarion</td><td class="num">+25.1</td><td class="num">-25.1</td><td class="num">52.5</td><td class="num">94%</td><td class="num">0.50</td></tr>
+<tr data-search="wayne state (mi) michigan tech"><td>Wayne State (MI) @ Michigan Tech</td><td class="num">+24.4</td><td class="num">-24.4</td><td class="num">52.5</td><td class="num">94%</td><td class="num">0.50</td></tr>
+<tr data-search="thiel grove city"><td>Thiel @ Grove City</td><td class="num">+23.6</td><td class="num">-23.6</td><td class="num">52.5</td><td class="num">93%</td><td class="num">0.50</td></tr>
+<tr data-search="wooster washington state louis"><td>Wooster @ Washington State Louis</td><td class="num">+23.6</td><td class="num">-23.6</td><td class="num">52.5</td><td class="num">93%</td><td class="num">0.50</td></tr>
+<tr data-search="davidson dayton"><td>Davidson @ Dayton</td><td class="num">+23.6</td><td class="num">-23.6</td><td class="num">52.5</td><td class="num">93%</td><td class="num">0.50</td></tr>
+<tr data-search="houston christian northwestern state"><td>Houston Christian @ Northwestern State</td><td class="num">-23.6</td><td class="num">+23.6</td><td class="num">52.5</td><td class="num">7%</td><td class="num">0.36</td></tr>
+<tr data-search="louisiana louisiana monroe"><td>Louisiana @ Louisiana Monroe</td><td class="num">-23.3</td><td class="num">+23.3</td><td class="num">54.5</td><td class="num">7%</td><td class="num">0.53</td></tr>
+<tr data-search="pacific (or) lewis &amp; clark"><td>Pacific (OR) @ Lewis &amp; Clark</td><td class="num">+22.4</td><td class="num">-22.4</td><td class="num">52.5</td><td class="num">92%</td><td class="num">0.50</td></tr>
+<tr data-search="texas southern alabama a&amp;m"><td>Texas Southern @ Alabama A&amp;M</td><td class="num">+22.0</td><td class="num">-22.0</td><td class="num">52.5</td><td class="num">92%</td><td class="num">0.73</td></tr>
+<tr data-search="arkansas tech harding"><td>Arkansas Tech @ Harding</td><td class="num">+21.9</td><td class="num">-21.9</td><td class="num">52.5</td><td class="num">91%</td><td class="num">0.50</td></tr>
+<tr data-search="stanford virginia tech"><td>Stanford @ Virginia Tech</td><td class="num">+21.6</td><td class="num">-21.6</td><td class="num">55.8</td><td class="num">91%</td><td class="num">0.49</td></tr>
+<tr data-search="alabama vanderbilt"><td>Alabama @ Vanderbilt</td><td class="num">-21.5</td><td class="num">+21.5</td><td class="num">57.1</td><td class="num">9%</td><td class="num">0.66</td></tr>
+<tr data-search="guilford shenandoah"><td>Guilford @ Shenandoah</td><td class="num">+21.4</td><td class="num">-21.4</td><td class="num">52.1</td><td class="num">91%</td><td class="num">0.50</td></tr>
+<tr data-search="juniata susquehanna"><td>Juniata @ Susquehanna</td><td class="num">+20.9</td><td class="num">-20.9</td><td class="num">52.5</td><td class="num">90%</td><td class="num">0.50</td></tr>
+<tr data-search="crown westminster (mo)"><td>Crown @ Westminster (MO)</td><td class="num">+20.8</td><td class="num">-20.8</td><td class="num">52.5</td><td class="num">90%</td><td class="num">0.50</td></tr>
+<tr data-search="mississippi valley state florida a&amp;m"><td>Mississippi Valley State @ Florida A&amp;M</td><td class="num">+20.4</td><td class="num">-20.4</td><td class="num">52.5</td><td class="num">90%</td><td class="num">0.80</td></tr>
+<tr data-search="muskingum baldwin wallace"><td>Muskingum @ Baldwin Wallace</td><td class="num">+20.2</td><td class="num">-20.2</td><td class="num">52.5</td><td class="num">90%</td><td class="num">0.50</td></tr>
+<tr data-search="duke miami"><td>Duke @ Miami</td><td class="num">+20.1</td><td class="num">-20.1</td><td class="num">57.8</td><td class="num">90%</td><td class="num">0.89</td></tr>
+<tr data-search="carleton concordia (mn)"><td>Carleton @ Concordia (MN)</td><td class="num">+19.8</td><td class="num">-19.8</td><td class="num">52.5</td><td class="num">89%</td><td class="num">0.50</td></tr>
+<tr data-search="pittsburg state northwest missouri state"><td>Pittsburg State @ Northwest Missouri State</td><td class="num">+19.7</td><td class="num">-19.7</td><td class="num">52.5</td><td class="num">89%</td><td class="num">0.50</td></tr>
+<tr data-search="saint anselm franklin pierce"><td>Saint Anselm @ Franklin Pierce</td><td class="num">+19.6</td><td class="num">-19.6</td><td class="num">52.5</td><td class="num">89%</td><td class="num">0.50</td></tr>
+<tr data-search="wisconsin stevens point wisconsin river falls"><td>Wisconsin Stevens Point @ Wisconsin River Falls</td><td class="num">+19.5</td><td class="num">-19.5</td><td class="num">52.5</td><td class="num">89%</td><td class="num">0.50</td></tr>
+<tr data-search="eureka aurora"><td>Eureka @ Aurora</td><td class="num">+19.4</td><td class="num">-19.4</td><td class="num">52.5</td><td class="num">89%</td><td class="num">0.50</td></tr>
+<tr data-search="southern mississippi louisiana tech"><td>Southern Mississippi @ Louisiana Tech</td><td class="num">+19.3</td><td class="num">-19.3</td><td class="num">54.9</td><td class="num">89%</td><td class="num">0.63</td></tr>
+<tr data-search="jamestown northern state"><td>Jamestown @ Northern State</td><td class="num">+19.2</td><td class="num">-19.2</td><td class="num">52.5</td><td class="num">89%</td><td class="num">0.50</td></tr>
+<tr data-search="wpi salve regina"><td>WPI @ Salve Regina</td><td class="num">+19.1</td><td class="num">-19.1</td><td class="num">52.5</td><td class="num">88%</td><td class="num">0.50</td></tr>
+<tr data-search="beloit illinois college"><td>Beloit @ Illinois College</td><td class="num">+18.9</td><td class="num">-18.9</td><td class="num">52.5</td><td class="num">88%</td><td class="num">0.50</td></tr>
+<tr data-search="saint scholastica bethel (mn)"><td>Saint Scholastica @ Bethel (MN)</td><td class="num">+18.9</td><td class="num">-18.9</td><td class="num">52.5</td><td class="num">88%</td><td class="num">0.50</td></tr>
+<tr data-search="western michigan akron"><td>Western Michigan @ Akron</td><td class="num">-18.9</td><td class="num">+18.9</td><td class="num">48.6</td><td class="num">12%</td><td class="num">0.42</td></tr>
+<tr data-search="lake forest chicago"><td>Lake Forest @ Chicago</td><td class="num">-18.7</td><td class="num">+18.7</td><td class="num">52.5</td><td class="num">12%</td><td class="num">0.50</td></tr>
+<tr data-search="abilene christian austin peay"><td>Abilene Christian @ Austin Peay</td><td class="num">+18.4</td><td class="num">-18.4</td><td class="num">52.5</td><td class="num">88%</td><td class="num">0.55</td></tr>
+<tr data-search="uva wise emory &amp; henry"><td>UVA Wise @ Emory &amp; Henry</td><td class="num">+18.4</td><td class="num">-18.4</td><td class="num">52.5</td><td class="num">87%</td><td class="num">0.50</td></tr>
+<tr data-search="murray state indiana state"><td>Murray State @ Indiana State</td><td class="num">+18.2</td><td class="num">-18.2</td><td class="num">52.5</td><td class="num">87%</td><td class="num">0.83</td></tr>
+<tr data-search="valdosta state delta state"><td>Valdosta State @ Delta State</td><td class="num">-18.2</td><td class="num">+18.2</td><td class="num">52.5</td><td class="num">13%</td><td class="num">0.50</td></tr>
+<tr data-search="lafayette colgate"><td>Lafayette @ Colgate</td><td class="num">+18.1</td><td class="num">-18.1</td><td class="num">51.7</td><td class="num">87%</td><td class="num">0.72</td></tr>
+<tr data-search="purdue iowa"><td>Purdue @ Iowa</td><td class="num">+17.7</td><td class="num">-17.7</td><td class="num">50.7</td><td class="num">87%</td><td class="num">0.65</td></tr>
+<tr data-search="massachusetts toledo"><td>Massachusetts @ Toledo</td><td class="num">+17.4</td><td class="num">-17.4</td><td class="num">49.8</td><td class="num">86%</td><td class="num">0.64</td></tr>
+<tr data-search="kentucky wesleyan thomas more"><td>Kentucky Wesleyan @ Thomas More</td><td class="num">+17.0</td><td class="num">-17.0</td><td class="num">52.5</td><td class="num">86%</td><td class="num">0.50</td></tr>
+<tr data-search="drake saint thomas mn"><td>Drake @ Saint Thomas Mn</td><td class="num">+16.9</td><td class="num">-16.9</td><td class="num">52.5</td><td class="num">85%</td><td class="num">0.88</td></tr>
+<tr data-search="merrimack monmouth"><td>Merrimack @ Monmouth</td><td class="num">+16.9</td><td class="num">-16.9</td><td class="num">52.4</td><td class="num">85%</td><td class="num">0.91</td></tr>
+<tr data-search="kalamazoo adrian"><td>Kalamazoo @ Adrian</td><td class="num">+16.9</td><td class="num">-16.9</td><td class="num">52.5</td><td class="num">85%</td><td class="num">0.50</td></tr>
+<tr data-search="unlv new mexico"><td>UNLV @ New Mexico</td><td class="num">+16.8</td><td class="num">-16.8</td><td class="num">45.0</td><td class="num">85%</td><td class="num">0.86</td></tr>
+<tr data-search="northern iowa south dakota"><td>Northern Iowa @ South Dakota</td><td class="num">+16.7</td><td class="num">-16.7</td><td class="num">52.5</td><td class="num">85%</td><td class="num">0.83</td></tr>
+<tr data-search="montana state northern colorado"><td>Montana State @ Northern Colorado</td><td class="num">-16.5</td><td class="num">+16.5</td><td class="num">52.5</td><td class="num">15%</td><td class="num">0.64</td></tr>
+<tr data-search="hobart buffalo state"><td>Hobart @ Buffalo State</td><td class="num">-16.4</td><td class="num">+16.4</td><td class="num">52.5</td><td class="num">15%</td><td class="num">0.50</td></tr>
+<tr data-search="northwestern ohio state"><td>Northwestern @ Ohio State</td><td class="num">+16.2</td><td class="num">-16.2</td><td class="num">49.5</td><td class="num">84%</td><td class="num">0.90</td></tr>
+<tr data-search="towson rhode island"><td>Towson @ Rhode Island</td><td class="num">+16.0</td><td class="num">-16.0</td><td class="num">52.5</td><td class="num">84%</td><td class="num">0.73</td></tr>
+<tr data-search="rose hulman bluffton"><td>Rose Hulman @ Bluffton</td><td class="num">-15.9</td><td class="num">+15.9</td><td class="num">52.5</td><td class="num">16%</td><td class="num">0.50</td></tr>
+<tr data-search="oberlin wittenberg"><td>Oberlin @ Wittenberg</td><td class="num">+15.8</td><td class="num">-15.8</td><td class="num">52.5</td><td class="num">84%</td><td class="num">0.50</td></tr>
+<tr data-search="sacramento state central michigan"><td>Sacramento State @ Central Michigan</td><td class="num">+15.8</td><td class="num">-15.8</td><td class="num">43.6</td><td class="num">84%</td><td class="num">0.50</td></tr>
+<tr data-search="nebraska rutgers"><td>Nebraska @ Rutgers</td><td class="num">-15.7</td><td class="num">+15.7</td><td class="num">59.3</td><td class="num">16%</td><td class="num">0.68</td></tr>
+<tr data-search="california virginia"><td>California @ Virginia</td><td class="num">+15.7</td><td class="num">-15.7</td><td class="num">49.5</td><td class="num">84%</td><td class="num">0.59</td></tr>
+<tr data-search="mercer tennessee tech"><td>Mercer @ Tennessee Tech</td><td class="num">+15.6</td><td class="num">-15.6</td><td class="num">52.5</td><td class="num">84%</td><td class="num">0.67</td></tr>
+<tr data-search="maine ualbany"><td>Maine @ UAlbany</td><td class="num">+15.5</td><td class="num">-15.5</td><td class="num">52.5</td><td class="num">83%</td><td class="num">0.86</td></tr>
+<tr data-search="houston colorado"><td>Houston @ Colorado</td><td class="num">-15.5</td><td class="num">+15.5</td><td class="num">56.0</td><td class="num">17%</td><td class="num">0.56</td></tr>
+<tr data-search="rockford lakeland"><td>Rockford @ Lakeland</td><td class="num">+15.2</td><td class="num">-15.2</td><td class="num">52.3</td><td class="num">83%</td><td class="num">0.50</td></tr>
+<tr data-search="lawrence ripon"><td>Lawrence @ Ripon</td><td class="num">+15.0</td><td class="num">-15.0</td><td class="num">52.3</td><td class="num">83%</td><td class="num">0.50</td></tr>
+<tr data-search="western oregon sul ross state"><td>Western Oregon @ Sul Ross State</td><td class="num">-14.9</td><td class="num">+14.9</td><td class="num">52.5</td><td class="num">18%</td><td class="num">0.50</td></tr>
+<tr data-search="saginaw valley state northern michigan"><td>Saginaw Valley State @ Northern Michigan</td><td class="num">-14.8</td><td class="num">+14.8</td><td class="num">52.5</td><td class="num">18%</td><td class="num">0.50</td></tr>
+<tr data-search="east carolina charlotte"><td>East Carolina @ Charlotte</td><td class="num">-14.6</td><td class="num">+14.6</td><td class="num">52.5</td><td class="num">18%</td><td class="num">0.52</td></tr>
+<tr data-search="nevada northern illinois"><td>Nevada @ Northern Illinois</td><td class="num">-14.6</td><td class="num">+14.6</td><td class="num">45.1</td><td class="num">18%</td><td class="num">0.49</td></tr>
+<tr data-search="illinois ucla"><td>Illinois @ UCLA</td><td class="num">+14.5</td><td class="num">-14.5</td><td class="num">53.5</td><td class="num">82%</td><td class="num">0.79</td></tr>
+<tr data-search="william paterson vermont state castleton"><td>William Paterson @ Vermont State Castleton</td><td class="num">+14.4</td><td class="num">-14.4</td><td class="num">52.5</td><td class="num">82%</td><td class="num">0.50</td></tr>
+<tr data-search="northwestern (ok) southwestern oklahoma state"><td>Northwestern (OK) @ Southwestern Oklahoma State</td><td class="num">+14.3</td><td class="num">-14.3</td><td class="num">52.3</td><td class="num">81%</td><td class="num">0.50</td></tr>
+<tr data-search="missouri georgia"><td>Missouri @ Georgia</td><td class="num">+14.3</td><td class="num">-14.3</td><td class="num">47.6</td><td class="num">81%</td><td class="num">0.91</td></tr>
+<tr data-search="north alabama west georgia"><td>North Alabama @ West Georgia</td><td class="num">-14.2</td><td class="num">+14.2</td><td class="num">52.5</td><td class="num">19%</td><td class="num">0.88</td></tr>
+<tr data-search="georgia tech clemson"><td>Georgia Tech @ Clemson</td><td class="num">+14.0</td><td class="num">-14.0</td><td class="num">47.7</td><td class="num">81%</td><td class="num">0.70</td></tr>
+<tr data-search="albion olivet"><td>Albion @ Olivet</td><td class="num">+13.8</td><td class="num">-13.8</td><td class="num">52.5</td><td class="num">81%</td><td class="num">0.50</td></tr>
+<tr data-search="texas a&amp;m-kingsville ut permian basin"><td>Texas A&amp;M-Kingsville @ UT Permian Basin</td><td class="num">+13.8</td><td class="num">-13.8</td><td class="num">49.4</td><td class="num">81%</td><td class="num">0.50</td></tr>
+<tr data-search="lehigh richmond"><td>Lehigh @ Richmond</td><td class="num">-13.5</td><td class="num">+13.5</td><td class="num">52.5</td><td class="num">20%</td><td class="num">0.55</td></tr>
+<tr data-search="trinity (tx) rhodes"><td>Trinity (TX) @ Rhodes</td><td class="num">-13.5</td><td class="num">+13.5</td><td class="num">52.5</td><td class="num">20%</td><td class="num">0.50</td></tr>
+<tr data-search="southern virginia lagrange"><td>Southern Virginia @ LaGrange</td><td class="num">+13.2</td><td class="num">-13.2</td><td class="num">52.5</td><td class="num">80%</td><td class="num">0.50</td></tr>
+<tr data-search="marietta mount state joseph"><td>Marietta @ Mount State Joseph</td><td class="num">+12.9</td><td class="num">-12.9</td><td class="num">52.5</td><td class="num">79%</td><td class="num">0.50</td></tr>
+<tr data-search="north dakota state hawai&#x27;i"><td>North Dakota State @ Hawai&#x27;i</td><td class="num">-12.9</td><td class="num">+12.9</td><td class="num">36.8</td><td class="num">21%</td><td class="num">0.78</td></tr>
+<tr data-search="presbyterian morehead state"><td>Presbyterian @ Morehead State</td><td class="num">+12.8</td><td class="num">-12.8</td><td class="num">52.5</td><td class="num">79%</td><td class="num">0.79</td></tr>
+<tr data-search="clark atlanta fort valley state"><td>Clark Atlanta @ Fort Valley State</td><td class="num">+12.7</td><td class="num">-12.7</td><td class="num">52.5</td><td class="num">79%</td><td class="num">0.50</td></tr>
+<tr data-search="heidelberg wilmington (oh)"><td>Heidelberg @ Wilmington (OH)</td><td class="num">-12.7</td><td class="num">+12.7</td><td class="num">52.5</td><td class="num">21%</td><td class="num">0.50</td></tr>
+<tr data-search="fort lewis adams state"><td>Fort Lewis @ Adams State</td><td class="num">-12.7</td><td class="num">+12.7</td><td class="num">52.5</td><td class="num">21%</td><td class="num">0.50</td></tr>
+<tr data-search="usc indiana"><td>USC @ Indiana</td><td class="num">+12.5</td><td class="num">-12.5</td><td class="num">52.7</td><td class="num">78%</td><td class="num">0.92</td></tr>
+<tr data-search="mit norwich"><td>MIT @ Norwich</td><td class="num">-12.5</td><td class="num">+12.5</td><td class="num">52.5</td><td class="num">22%</td><td class="num">0.50</td></tr>
+<tr data-search="ouachita baptist henderson state"><td>Ouachita Baptist @ Henderson State</td><td class="num">+12.3</td><td class="num">-12.3</td><td class="num">52.5</td><td class="num">78%</td><td class="num">0.50</td></tr>
+<tr data-search="nebraska kearney central missouri"><td>Nebraska Kearney @ Central Missouri</td><td class="num">+12.3</td><td class="num">-12.3</td><td class="num">52.5</td><td class="num">78%</td><td class="num">0.50</td></tr>
+<tr data-search="wheaton (il) carthage"><td>Wheaton (IL) @ Carthage</td><td class="num">-12.3</td><td class="num">+12.3</td><td class="num">52.5</td><td class="num">22%</td><td class="num">0.50</td></tr>
+<tr data-search="missouri southern state washburn"><td>Missouri Southern State @ Washburn</td><td class="num">+12.2</td><td class="num">-12.2</td><td class="num">52.5</td><td class="num">78%</td><td class="num">0.50</td></tr>
+<tr data-search="loras dubuque"><td>Loras @ Dubuque</td><td class="num">-12.1</td><td class="num">+12.1</td><td class="num">52.5</td><td class="num">22%</td><td class="num">0.50</td></tr>
+<tr data-search="winona state southwest minnesota state"><td>Winona State @ Southwest Minnesota State</td><td class="num">-12.1</td><td class="num">+12.1</td><td class="num">52.5</td><td class="num">23%</td><td class="num">0.50</td></tr>
+<tr data-search="bentley post"><td>Bentley @ Post</td><td class="num">-11.9</td><td class="num">+11.9</td><td class="num">51.8</td><td class="num">23%</td><td class="num">0.50</td></tr>
+<tr data-search="east texas a&amp;m lamar"><td>East Texas A&amp;M @ Lamar</td><td class="num">+11.8</td><td class="num">-11.8</td><td class="num">52.5</td><td class="num">77%</td><td class="num">0.90</td></tr>
+<tr data-search="coe wartburg"><td>Coe @ Wartburg</td><td class="num">+11.7</td><td class="num">-11.7</td><td class="num">52.5</td><td class="num">77%</td><td class="num">0.50</td></tr>
+<tr data-search="san josé state air force"><td>San José State @ Air Force</td><td class="num">+11.7</td><td class="num">-11.7</td><td class="num">44.8</td><td class="num">77%</td><td class="num">0.73</td></tr>
+<tr data-search="michigan oregon"><td>Michigan @ Oregon</td><td class="num">+11.5</td><td class="num">-11.5</td><td class="num">34.5</td><td class="num">76%</td><td class="num">0.86</td></tr>
+<tr data-search="pacific lutheran george fox"><td>Pacific Lutheran @ George Fox</td><td class="num">+11.2</td><td class="num">-11.2</td><td class="num">52.5</td><td class="num">76%</td><td class="num">0.50</td></tr>
+<tr data-search="coast guard merchant marine"><td>Coast Guard @ Merchant Marine</td><td class="num">+11.2</td><td class="num">-11.2</td><td class="num">52.3</td><td class="num">76%</td><td class="num">0.50</td></tr>
+<tr data-search="southern utah portland state"><td>Southern Utah @ Portland State</td><td class="num">-11.2</td><td class="num">+11.2</td><td class="num">52.5</td><td class="num">24%</td><td class="num">0.69</td></tr>
+<tr data-search="wyoming utep"><td>Wyoming @ UTEP</td><td class="num">-11.0</td><td class="num">+11.0</td><td class="num">38.9</td><td class="num">25%</td><td class="num">0.48</td></tr>
+<tr data-search="wisconsin lutheran concordia chicago"><td>Wisconsin Lutheran @ Concordia Chicago</td><td class="num">+11.0</td><td class="num">-11.0</td><td class="num">52.5</td><td class="num">75%</td><td class="num">0.50</td></tr>
+<tr data-search="denison john carroll"><td>Denison @ John Carroll</td><td class="num">+11.0</td><td class="num">-11.0</td><td class="num">52.5</td><td class="num">75%</td><td class="num">0.50</td></tr>
+<tr data-search="eastern washington utah tech"><td>Eastern Washington @ Utah Tech</td><td class="num">-10.9</td><td class="num">+10.9</td><td class="num">52.5</td><td class="num">25%</td><td class="num">0.79</td></tr>
+<tr data-search="minnesota penn state"><td>Minnesota @ Penn State</td><td class="num">+10.9</td><td class="num">-10.9</td><td class="num">39.8</td><td class="num">75%</td><td class="num">0.68</td></tr>
+<tr data-search="saint john&#x27;s (mn) saint olaf"><td>Saint John&#x27;s (MN) @ Saint Olaf</td><td class="num">-10.8</td><td class="num">+10.8</td><td class="num">52.5</td><td class="num">25%</td><td class="num">0.50</td></tr>
+<tr data-search="western colorado csu pueblo"><td>Western Colorado @ CSU Pueblo</td><td class="num">+10.7</td><td class="num">-10.7</td><td class="num">52.5</td><td class="num">75%</td><td class="num">0.50</td></tr>
+<tr data-search="grand valley state davenport"><td>Grand Valley State @ Davenport</td><td class="num">-10.6</td><td class="num">+10.6</td><td class="num">52.3</td><td class="num">25%</td><td class="num">0.50</td></tr>
+<tr data-search="columbia brown"><td>Columbia @ Brown</td><td class="num">+10.6</td><td class="num">-10.6</td><td class="num">52.5</td><td class="num">75%</td><td class="num">0.74</td></tr>
+<tr data-search="south carolina arkansas"><td>South Carolina @ Arkansas</td><td class="num">-10.5</td><td class="num">+10.5</td><td class="num">60.4</td><td class="num">26%</td><td class="num">0.68</td></tr>
+<tr data-search="linfield willamette"><td>Linfield @ Willamette</td><td class="num">-10.5</td><td class="num">+10.5</td><td class="num">52.5</td><td class="num">26%</td><td class="num">0.50</td></tr>
+<tr data-search="west alabama northeastern state"><td>West Alabama @ Northeastern State</td><td class="num">+10.3</td><td class="num">-10.3</td><td class="num">52.5</td><td class="num">74%</td><td class="num">0.50</td></tr>
+<tr data-search="middlebury tufts"><td>Middlebury @ Tufts</td><td class="num">+10.2</td><td class="num">-10.2</td><td class="num">52.5</td><td class="num">74%</td><td class="num">0.50</td></tr>
+<tr data-search="endicott curry"><td>Endicott @ Curry</td><td class="num">-10.2</td><td class="num">+10.2</td><td class="num">52.5</td><td class="num">26%</td><td class="num">0.50</td></tr>
+<tr data-search="sewanee berry"><td>Sewanee @ Berry</td><td class="num">+9.8</td><td class="num">-9.8</td><td class="num">52.5</td><td class="num">73%</td><td class="num">0.50</td></tr>
+<tr data-search="augustana (il) carroll (wi)"><td>Augustana (IL) @ Carroll (WI)</td><td class="num">+9.7</td><td class="num">-9.7</td><td class="num">52.1</td><td class="num">73%</td><td class="num">0.50</td></tr>
+<tr data-search="south dakota state southern illinois"><td>South Dakota State @ Southern Illinois</td><td class="num">-9.7</td><td class="num">+9.7</td><td class="num">52.5</td><td class="num">27%</td><td class="num">0.69</td></tr>
+<tr data-search="concordia state paul sioux falls"><td>Concordia State Paul @ Sioux Falls</td><td class="num">+9.7</td><td class="num">-9.7</td><td class="num">52.5</td><td class="num">73%</td><td class="num">0.50</td></tr>
+<tr data-search="mcdaniel gettysburg"><td>McDaniel @ Gettysburg</td><td class="num">+9.6</td><td class="num">-9.6</td><td class="num">51.9</td><td class="num">73%</td><td class="num">0.50</td></tr>
+<tr data-search="kutztown seton hill"><td>Kutztown @ Seton Hill</td><td class="num">-9.5</td><td class="num">+9.5</td><td class="num">52.5</td><td class="num">28%</td><td class="num">0.50</td></tr>
+<tr data-search="wisconsin maryland"><td>Wisconsin @ Maryland</td><td class="num">-9.5</td><td class="num">+9.5</td><td class="num">41.7</td><td class="num">28%</td><td class="num">0.65</td></tr>
+<tr data-search="illinois wesleyan north central college"><td>Illinois Wesleyan @ North Central College</td><td class="num">+9.4</td><td class="num">-9.4</td><td class="num">52.5</td><td class="num">72%</td><td class="num">0.50</td></tr>
+<tr data-search="minnesota state minnesota state moorhead"><td>Minnesota State @ Minnesota State Moorhead</td><td class="num">-9.2</td><td class="num">+9.2</td><td class="num">52.5</td><td class="num">28%</td><td class="num">0.50</td></tr>
+<tr data-search="virginia lynchburg chicago state"><td>Virginia Lynchburg @ Chicago State</td><td class="num">+9.2</td><td class="num">-9.2</td><td class="num">52.5</td><td class="num">72%</td><td class="num">0.43</td></tr>
+<tr data-search="trine hope"><td>Trine @ Hope</td><td class="num">+9.0</td><td class="num">-9.0</td><td class="num">52.1</td><td class="num">71%</td><td class="num">0.50</td></tr>
+<tr data-search="the citadel vmi"><td>The Citadel @ VMI</td><td class="num">-8.9</td><td class="num">+8.9</td><td class="num">52.5</td><td class="num">29%</td><td class="num">0.87</td></tr>
+<tr data-search="missouri western central oklahoma"><td>Missouri Western @ Central Oklahoma</td><td class="num">+8.9</td><td class="num">-8.9</td><td class="num">52.5</td><td class="num">71%</td><td class="num">0.50</td></tr>
+<tr data-search="roosevelt ferris state"><td>Roosevelt @ Ferris State</td><td class="num">+8.9</td><td class="num">-8.9</td><td class="num">52.5</td><td class="num">71%</td><td class="num">0.50</td></tr>
+<tr data-search="saint john fisher alfred state"><td>Saint John Fisher @ Alfred State</td><td class="num">+8.8</td><td class="num">-8.8</td><td class="num">52.5</td><td class="num">71%</td><td class="num">0.50</td></tr>
+<tr data-search="augsburg hamline"><td>Augsburg @ Hamline</td><td class="num">-8.7</td><td class="num">+8.7</td><td class="num">52.5</td><td class="num">29%</td><td class="num">0.50</td></tr>
+<tr data-search="kent state bowling green"><td>Kent State @ Bowling Green</td><td class="num">+8.7</td><td class="num">-8.7</td><td class="num">43.4</td><td class="num">71%</td><td class="num">0.47</td></tr>
+<tr data-search="florida state pittsburgh"><td>Florida State @ Pittsburgh</td><td class="num">+8.7</td><td class="num">-8.7</td><td class="num">59.9</td><td class="num">71%</td><td class="num">0.84</td></tr>
+<tr data-search="hanover franklin"><td>Hanover @ Franklin</td><td class="num">-8.7</td><td class="num">+8.7</td><td class="num">52.5</td><td class="num">29%</td><td class="num">0.50</td></tr>
+<tr data-search="stony brook new hampshire"><td>Stony Brook @ New Hampshire</td><td class="num">-8.6</td><td class="num">+8.6</td><td class="num">52.5</td><td class="num">29%</td><td class="num">0.87</td></tr>
+<tr data-search="bridgewater state mass maritime"><td>Bridgewater State @ Mass Maritime</td><td class="num">+8.6</td><td class="num">-8.6</td><td class="num">52.5</td><td class="num">70%</td><td class="num">0.50</td></tr>
+<tr data-search="calvin alma"><td>Calvin @ Alma</td><td class="num">-8.5</td><td class="num">+8.5</td><td class="num">52.5</td><td class="num">30%</td><td class="num">0.50</td></tr>
+<tr data-search="quincy southwest baptist"><td>Quincy @ Southwest Baptist</td><td class="num">+8.4</td><td class="num">-8.4</td><td class="num">52.5</td><td class="num">70%</td><td class="num">0.50</td></tr>
+<tr data-search="millsaps maryville (tn)"><td>Millsaps @ Maryville (TN)</td><td class="num">-8.2</td><td class="num">+8.2</td><td class="num">52.5</td><td class="num">30%</td><td class="num">0.50</td></tr>
+<tr data-search="alvernia stevenson"><td>Alvernia @ Stevenson</td><td class="num">+8.2</td><td class="num">-8.2</td><td class="num">52.5</td><td class="num">70%</td><td class="num">0.50</td></tr>
+<tr data-search="worcester state framingham state"><td>Worcester State @ Framingham State</td><td class="num">+8.0</td><td class="num">-8.0</td><td class="num">52.5</td><td class="num">69%</td><td class="num">0.50</td></tr>
+<tr data-search="walsh northwood"><td>Walsh @ Northwood</td><td class="num">+7.9</td><td class="num">-7.9</td><td class="num">52.5</td><td class="num">69%</td><td class="num">0.50</td></tr>
+<tr data-search="shepherd iu pennsylvania"><td>Shepherd @ IU Pennsylvania</td><td class="num">+7.9</td><td class="num">-7.9</td><td class="num">52.5</td><td class="num">69%</td><td class="num">0.50</td></tr>
+<tr data-search="nebraska wesleyan buena vista"><td>Nebraska Wesleyan @ Buena Vista</td><td class="num">+7.9</td><td class="num">-7.9</td><td class="num">52.5</td><td class="num">69%</td><td class="num">0.50</td></tr>
+<tr data-search="valparaiso stetson"><td>Valparaiso @ Stetson</td><td class="num">-7.8</td><td class="num">+7.8</td><td class="num">52.5</td><td class="num">31%</td><td class="num">0.52</td></tr>
+<tr data-search="texas lsu"><td>Texas @ LSU</td><td class="num">+7.8</td><td class="num">-7.8</td><td class="num">48.9</td><td class="num">69%</td><td class="num">0.97</td></tr>
+<tr data-search="fairmont state frostburg state"><td>Fairmont State @ Frostburg State</td><td class="num">+7.8</td><td class="num">-7.8</td><td class="num">51.8</td><td class="num">69%</td><td class="num">0.50</td></tr>
+<tr data-search="oregon state boise state"><td>Oregon State @ Boise State</td><td class="num">+7.6</td><td class="num">-7.6</td><td class="num">61.8</td><td class="num">68%</td><td class="num">0.85</td></tr>
+<tr data-search="southern connecticut state american international"><td>Southern Connecticut State @ American International</td><td class="num">+7.5</td><td class="num">-7.5</td><td class="num">52.5</td><td class="num">68%</td><td class="num">0.50</td></tr>
+<tr data-search="fitchburg state westfield state"><td>Fitchburg State @ Westfield State</td><td class="num">+7.4</td><td class="num">-7.4</td><td class="num">52.5</td><td class="num">68%</td><td class="num">0.50</td></tr>
+<tr data-search="james madison connecticut"><td>James Madison @ Connecticut</td><td class="num">-7.4</td><td class="num">+7.4</td><td class="num">59.7</td><td class="num">32%</td><td class="num">0.89</td></tr>
+<tr data-search="assumption pace"><td>Assumption @ Pace</td><td class="num">+7.3</td><td class="num">-7.3</td><td class="num">52.5</td><td class="num">68%</td><td class="num">0.50</td></tr>
+<tr data-search="ferrum concord"><td>Ferrum @ Concord</td><td class="num">+7.2</td><td class="num">-7.2</td><td class="num">52.5</td><td class="num">67%</td><td class="num">0.50</td></tr>
+<tr data-search="hartwick hilbert"><td>Hartwick @ Hilbert</td><td class="num">-7.2</td><td class="num">+7.2</td><td class="num">52.5</td><td class="num">33%</td><td class="num">0.50</td></tr>
+<tr data-search="southern nazarene oklahoma baptist"><td>Southern Nazarene @ Oklahoma Baptist</td><td class="num">+7.1</td><td class="num">-7.1</td><td class="num">52.5</td><td class="num">67%</td><td class="num">0.50</td></tr>
+<tr data-search="lycoming moravian"><td>Lycoming @ Moravian</td><td class="num">-7.0</td><td class="num">+7.0</td><td class="num">52.2</td><td class="num">33%</td><td class="num">0.50</td></tr>
+<tr data-search="new mexico highlands colorado school of mines"><td>New Mexico Highlands @ Colorado School of Mines</td><td class="num">+7.0</td><td class="num">-7.0</td><td class="num">52.5</td><td class="num">67%</td><td class="num">0.50</td></tr>
+<tr data-search="georgetown fordham"><td>Georgetown @ Fordham</td><td class="num">+6.9</td><td class="num">-6.9</td><td class="num">52.5</td><td class="num">67%</td><td class="num">0.77</td></tr>
+<tr data-search="florida atlantic tulsa"><td>Florida Atlantic @ Tulsa</td><td class="num">+6.9</td><td class="num">-6.9</td><td class="num">67.4</td><td class="num">67%</td><td class="num">0.66</td></tr>
+<tr data-search="eastern fdu florham"><td>Eastern @ FDU Florham</td><td class="num">-6.9</td><td class="num">+6.9</td><td class="num">52.5</td><td class="num">33%</td><td class="num">0.50</td></tr>
+<tr data-search="southern arkansas arkansas monticello"><td>Southern Arkansas @ Arkansas Monticello</td><td class="num">+6.8</td><td class="num">-6.8</td><td class="num">52.5</td><td class="num">67%</td><td class="num">0.50</td></tr>
+<tr data-search="baylor byu"><td>Baylor @ BYU</td><td class="num">+6.8</td><td class="num">-6.8</td><td class="num">47.2</td><td class="num">66%</td><td class="num">0.85</td></tr>
+<tr data-search="western new england nichols"><td>Western New England @ Nichols</td><td class="num">-6.8</td><td class="num">+6.8</td><td class="num">52.5</td><td class="num">34%</td><td class="num">0.50</td></tr>
+<tr data-search="umass dartmouth plymouth state"><td>UMass Dartmouth @ Plymouth State</td><td class="num">-6.8</td><td class="num">+6.8</td><td class="num">52.5</td><td class="num">34%</td><td class="num">0.50</td></tr>
+<tr data-search="washington &amp; jefferson westminster (pa)"><td>Washington &amp; Jefferson @ Westminster (PA)</td><td class="num">-6.8</td><td class="num">+6.8</td><td class="num">52.5</td><td class="num">34%</td><td class="num">0.50</td></tr>
+<tr data-search="hardin simmons mary hardin baylor"><td>Hardin Simmons @ Mary Hardin Baylor</td><td class="num">+6.7</td><td class="num">-6.7</td><td class="num">52.5</td><td class="num">66%</td><td class="num">0.50</td></tr>
+<tr data-search="jacksonville state western kentucky"><td>Jacksonville State @ Western Kentucky</td><td class="num">-6.7</td><td class="num">+6.7</td><td class="num">50.8</td><td class="num">34%</td><td class="num">0.68</td></tr>
+<tr data-search="minot state minnesota duluth"><td>Minot State @ Minnesota Duluth</td><td class="num">+6.7</td><td class="num">-6.7</td><td class="num">52.5</td><td class="num">66%</td><td class="num">0.50</td></tr>
+<tr data-search="wisconsin platteville wisconsin la crosse"><td>Wisconsin Platteville @ Wisconsin La Crosse</td><td class="num">-6.6</td><td class="num">+6.6</td><td class="num">52.5</td><td class="num">34%</td><td class="num">0.50</td></tr>
+<tr data-search="midwestern state eastern new mexico"><td>Midwestern State @ Eastern New Mexico</td><td class="num">-6.6</td><td class="num">+6.6</td><td class="num">52.3</td><td class="num">34%</td><td class="num">0.50</td></tr>
+<tr data-search="franklin &amp; marshall johns hopkins"><td>Franklin &amp; Marshall @ Johns Hopkins</td><td class="num">-6.5</td><td class="num">+6.5</td><td class="num">52.5</td><td class="num">34%</td><td class="num">0.50</td></tr>
+<tr data-search="saint lawrence rochester (ny)"><td>Saint Lawrence @ Rochester (NY)</td><td class="num">+6.4</td><td class="num">-6.4</td><td class="num">52.5</td><td class="num">66%</td><td class="num">0.50</td></tr>
+<tr data-search="montclair state rowan"><td>Montclair State @ Rowan</td><td class="num">+6.4</td><td class="num">-6.4</td><td class="num">52.5</td><td class="num">65%</td><td class="num">0.50</td></tr>
+<tr data-search="randolph macon hampden sydney"><td>Randolph Macon @ Hampden Sydney</td><td class="num">+6.3</td><td class="num">-6.3</td><td class="num">52.5</td><td class="num">65%</td><td class="num">0.50</td></tr>
+<tr data-search="colorado state washington state"><td>Colorado State @ Washington State</td><td class="num">+6.3</td><td class="num">-6.3</td><td class="num">58.6</td><td class="num">65%</td><td class="num">0.56</td></tr>
+<tr data-search="mcmurry schreiner"><td>McMurry @ Schreiner</td><td class="num">-6.3</td><td class="num">+6.3</td><td class="num">52.5</td><td class="num">35%</td><td class="num">0.50</td></tr>
+<tr data-search="mckendree truman state"><td>McKendree @ Truman State</td><td class="num">+6.2</td><td class="num">-6.2</td><td class="num">52.5</td><td class="num">65%</td><td class="num">0.50</td></tr>
+<tr data-search="florida international delaware"><td>Florida International @ Delaware</td><td class="num">+6.2</td><td class="num">-6.2</td><td class="num">48.3</td><td class="num">65%</td><td class="num">0.68</td></tr>
+<tr data-search="bethany (wv) waynesburg"><td>Bethany (WV) @ Waynesburg</td><td class="num">-6.2</td><td class="num">+6.2</td><td class="num">52.5</td><td class="num">35%</td><td class="num">0.50</td></tr>
+<tr data-search="mississippi oklahoma"><td>Mississippi @ Oklahoma</td><td class="num">-6.1</td><td class="num">+6.1</td><td class="num">46.4</td><td class="num">35%</td><td class="num">0.87</td></tr>
+<tr data-search="angelo state western new mexico"><td>Angelo State @ Western New Mexico</td><td class="num">-6.1</td><td class="num">+6.1</td><td class="num">52.5</td><td class="num">35%</td><td class="num">0.50</td></tr>
+<tr data-search="geneva saint francis"><td class="dim">Geneva @ Saint Francis</td><td class="num">+5.9</td><td class="num">-5.9</td><td class="num">52.2</td><td class="num">64%</td><td class="num">0.10</td></tr>
+<tr data-search="central connecticut long island"><td>Central Connecticut @ Long Island</td><td class="num">-5.9</td><td class="num">+5.9</td><td class="num">52.5</td><td class="num">36%</td><td class="num">0.96</td></tr>
+<tr data-search="southeastern oklahoma state east central"><td>Southeastern Oklahoma State @ East Central</td><td class="num">+5.8</td><td class="num">-5.8</td><td class="num">52.3</td><td class="num">64%</td><td class="num">0.50</td></tr>
+<tr data-search="stephen f. austin ut rio grande valley"><td>Stephen F. Austin @ UT Rio Grande Valley</td><td class="num">-5.8</td><td class="num">+5.8</td><td class="num">51.5</td><td class="num">36%</td><td class="num">0.57</td></tr>
+<tr data-search="lindenwood ut martin"><td>Lindenwood @ UT Martin</td><td class="num">+5.8</td><td class="num">-5.8</td><td class="num">52.5</td><td class="num">64%</td><td class="num">0.91</td></tr>
+<tr data-search="northwestern (mn) minnesota morris"><td>Northwestern (MN) @ Minnesota Morris</td><td class="num">+5.6</td><td class="num">-5.6</td><td class="num">52.5</td><td class="num">64%</td><td class="num">0.50</td></tr>
+<tr data-search="weber state northern arizona"><td>Weber State @ Northern Arizona</td><td class="num">+5.6</td><td class="num">-5.6</td><td class="num">52.5</td><td class="num">64%</td><td class="num">0.86</td></tr>
+<tr data-search="colby bowdoin"><td>Colby @ Bowdoin</td><td class="num">+5.6</td><td class="num">-5.6</td><td class="num">52.5</td><td class="num">64%</td><td class="num">0.50</td></tr>
+<tr data-search="kansas state tcu"><td>Kansas State @ TCU</td><td class="num">+5.6</td><td class="num">-5.6</td><td class="num">43.9</td><td class="num">64%</td><td class="num">0.87</td></tr>
+<tr data-search="husson maine maritime"><td>Husson @ Maine Maritime</td><td class="num">+5.5</td><td class="num">-5.5</td><td class="num">52.5</td><td class="num">63%</td><td class="num">0.50</td></tr>
+<tr data-search="anderson (sc) newberry"><td>Anderson (SC) @ Newberry</td><td class="num">+5.5</td><td class="num">-5.5</td><td class="num">52.5</td><td class="num">63%</td><td class="num">0.50</td></tr>
+<tr data-search="tulane rice"><td>Tulane @ Rice</td><td class="num">-5.5</td><td class="num">+5.5</td><td class="num">47.7</td><td class="num">37%</td><td class="num">0.56</td></tr>
+<tr data-search="bucknell william &amp; mary"><td>Bucknell @ William &amp; Mary</td><td class="num">+5.4</td><td class="num">-5.4</td><td class="num">52.5</td><td class="num">63%</td><td class="num">0.86</td></tr>
+<tr data-search="mount union otterbein"><td>Mount Union @ Otterbein</td><td class="num">-5.3</td><td class="num">+5.3</td><td class="num">52.5</td><td class="num">37%</td><td class="num">0.50</td></tr>
+<tr data-search="albright lebanon valley"><td>Albright @ Lebanon Valley</td><td class="num">-5.2</td><td class="num">+5.2</td><td class="num">52.1</td><td class="num">37%</td><td class="num">0.50</td></tr>
+<tr data-search="new england new england college"><td>New England @ New England College</td><td class="num">-5.2</td><td class="num">+5.2</td><td class="num">52.5</td><td class="num">37%</td><td class="num">0.50</td></tr>
+<tr data-search="west virginia wesleyan glenville state"><td>West Virginia Wesleyan @ Glenville State</td><td class="num">-5.1</td><td class="num">+5.1</td><td class="num">52.5</td><td class="num">37%</td><td class="num">0.50</td></tr>
+<tr data-search="arizona state ucf"><td>Arizona State @ UCF</td><td class="num">+5.1</td><td class="num">-5.1</td><td class="num">48.9</td><td class="num">62%</td><td class="num">0.65</td></tr>
+<tr data-search="washington and lee roanoke college"><td>Washington and Lee @ Roanoke College</td><td class="num">+5.1</td><td class="num">-5.1</td><td class="num">52.5</td><td class="num">62%</td><td class="num">0.50</td></tr>
+<tr data-search="central arkansas eastern kentucky"><td>Central Arkansas @ Eastern Kentucky</td><td class="num">-5.0</td><td class="num">+5.0</td><td class="num">52.5</td><td class="num">38%</td><td class="num">0.69</td></tr>
+<tr data-search="elmhurst north park"><td>Elmhurst @ North Park</td><td class="num">+4.9</td><td class="num">-4.9</td><td class="num">52.5</td><td class="num">62%</td><td class="num">0.50</td></tr>
+<tr data-search="concordia (wi) benedictine (il)"><td>Concordia (WI) @ Benedictine (IL)</td><td class="num">+4.9</td><td class="num">-4.9</td><td class="num">52.5</td><td class="num">62%</td><td class="num">0.50</td></tr>
+<tr data-search="ashland lake erie"><td>Ashland @ Lake Erie</td><td class="num">+4.8</td><td class="num">-4.8</td><td class="num">52.5</td><td class="num">62%</td><td class="num">0.50</td></tr>
+<tr data-search="monmouth (il) knox"><td>Monmouth (IL) @ Knox</td><td class="num">-4.8</td><td class="num">+4.8</td><td class="num">52.5</td><td class="num">38%</td><td class="num">0.50</td></tr>
+<tr data-search="washington michigan state"><td>Washington @ Michigan State</td><td class="num">-4.8</td><td class="num">+4.8</td><td class="num">47.0</td><td class="num">38%</td><td class="num">0.67</td></tr>
+<tr data-search="prairie view a&amp;m arkansas-pine bluff"><td>Prairie View A&amp;M @ Arkansas-Pine Bluff</td><td class="num">+4.8</td><td class="num">-4.8</td><td class="num">52.5</td><td class="num">62%</td><td class="num">0.69</td></tr>
+<tr data-search="suny cortland ithaca"><td>SUNY Cortland @ Ithaca</td><td class="num">-4.7</td><td class="num">+4.7</td><td class="num">52.3</td><td class="num">38%</td><td class="num">0.50</td></tr>
+<tr data-search="hillsdale ohio dominican"><td>Hillsdale @ Ohio Dominican</td><td class="num">-4.6</td><td class="num">+4.6</td><td class="num">52.5</td><td class="num">39%</td><td class="num">0.50</td></tr>
+<tr data-search="east texas baptist howard payne"><td>East Texas Baptist @ Howard Payne</td><td class="num">+4.5</td><td class="num">-4.5</td><td class="num">52.5</td><td class="num">61%</td><td class="num">0.50</td></tr>
+<tr data-search="springfield suny maritime"><td>Springfield @ SUNY Maritime</td><td class="num">-4.4</td><td class="num">+4.4</td><td class="num">52.5</td><td class="num">39%</td><td class="num">0.50</td></tr>
+<tr data-search="wisconsin stout wisconsin oshkosh"><td>Wisconsin Stout @ Wisconsin Oshkosh</td><td class="num">+4.4</td><td class="num">-4.4</td><td class="num">52.5</td><td class="num">61%</td><td class="num">0.50</td></tr>
+<tr data-search="troy south alabama"><td>Troy @ South Alabama</td><td class="num">+4.3</td><td class="num">-4.3</td><td class="num">59.6</td><td class="num">61%</td><td class="num">0.67</td></tr>
+<tr data-search="jackson state alabama state"><td class="dim">Jackson State @ Alabama State</td><td class="num">-4.3</td><td class="num">+4.3</td><td class="num">52.5</td><td class="num">39%</td><td class="num">0.30</td></tr>
+<tr data-search="illinois state youngstown state"><td>Illinois State @ Youngstown State</td><td class="num">-4.2</td><td class="num">+4.2</td><td class="num">52.5</td><td class="num">40%</td><td class="num">0.34</td></tr>
+<tr data-search="syracuse nc state"><td>Syracuse @ NC State</td><td class="num">+4.1</td><td class="num">-4.1</td><td class="num">62.7</td><td class="num">60%</td><td class="num">0.58</td></tr>
+<tr data-search="uab temple"><td>UAB @ Temple</td><td class="num">+4.1</td><td class="num">-4.1</td><td class="num">56.8</td><td class="num">60%</td><td class="num">0.75</td></tr>
+<tr data-search="wingate mars hill"><td>Wingate @ Mars Hill</td><td class="num">+4.0</td><td class="num">-4.0</td><td class="num">52.5</td><td class="num">60%</td><td class="num">0.50</td></tr>
+<tr data-search="mercyhurst duquesne"><td>Mercyhurst @ Duquesne</td><td class="num">+4.0</td><td class="num">-4.0</td><td class="num">52.5</td><td class="num">60%</td><td class="num">0.76</td></tr>
+<tr data-search="centre southwestern"><td>Centre @ Southwestern</td><td class="num">+4.0</td><td class="num">-4.0</td><td class="num">52.5</td><td class="num">60%</td><td class="num">0.50</td></tr>
+<tr data-search="ursinus carnegie mellon"><td>Ursinus @ Carnegie Mellon</td><td class="num">+3.9</td><td class="num">-3.9</td><td class="num">52.5</td><td class="num">60%</td><td class="num">0.50</td></tr>
+<tr data-search="norfolk state morgan state"><td>Norfolk State @ Morgan State</td><td class="num">+3.9</td><td class="num">-3.9</td><td class="num">52.5</td><td class="num">60%</td><td class="num">0.68</td></tr>
+<tr data-search="west virginia state charleston (wv)"><td>West Virginia State @ Charleston (WV)</td><td class="num">+3.8</td><td class="num">-3.8</td><td class="num">52.5</td><td class="num">60%</td><td class="num">0.50</td></tr>
+<tr data-search="idaho state montana"><td>Idaho State @ Montana</td><td class="num">-3.8</td><td class="num">+3.8</td><td class="num">52.5</td><td class="num">41%</td><td class="num">0.63</td></tr>
+<tr data-search="amherst williams"><td>Amherst @ Williams</td><td class="num">+3.8</td><td class="num">-3.8</td><td class="num">52.5</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr data-search="luther grinnell"><td>Luther @ Grinnell</td><td class="num">-3.7</td><td class="num">+3.7</td><td class="num">52.5</td><td class="num">41%</td><td class="num">0.50</td></tr>
+<tr data-search="ohio wesleyan kenyon"><td>Ohio Wesleyan @ Kenyon</td><td class="num">+3.6</td><td class="num">-3.6</td><td class="num">52.5</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr data-search="butler marist"><td>Butler @ Marist</td><td class="num">-3.6</td><td class="num">+3.6</td><td class="num">52.5</td><td class="num">41%</td><td class="num">0.44</td></tr>
+<tr data-search="wayne state (ne) augustana (sd)"><td>Wayne State (NE) @ Augustana (SD)</td><td class="num">+3.6</td><td class="num">-3.6</td><td class="num">52.5</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr data-search="north texas utsa"><td>North Texas @ UTSA</td><td class="num">+3.6</td><td class="num">-3.6</td><td class="num">74.4</td><td class="num">59%</td><td class="num">0.80</td></tr>
+<tr data-search="indianapolis upper iowa"><td>Indianapolis @ Upper Iowa</td><td class="num">+3.5</td><td class="num">-3.5</td><td class="num">52.5</td><td class="num">59%</td><td class="num">0.50</td></tr>
+<tr data-search="carson newman tusculum"><td>Carson Newman @ Tusculum</td><td class="num">-3.4</td><td class="num">+3.4</td><td class="num">52.5</td><td class="num">42%</td><td class="num">0.50</td></tr>
+<tr data-search="wabash depauw"><td>Wabash @ DePauw</td><td class="num">+3.4</td><td class="num">-3.4</td><td class="num">52.5</td><td class="num">58%</td><td class="num">0.50</td></tr>
+<tr data-search="bloomsburg california (pa)"><td>Bloomsburg @ California (PA)</td><td class="num">+3.3</td><td class="num">-3.3</td><td class="num">52.5</td><td class="num">58%</td><td class="num">0.50</td></tr>
+<tr data-search="uc davis idaho"><td>UC Davis @ Idaho</td><td class="num">-3.3</td><td class="num">+3.3</td><td class="num">52.5</td><td class="num">42%</td><td class="num">0.68</td></tr>
+<tr data-search="florida kentucky"><td>Florida @ Kentucky</td><td class="num">+3.3</td><td class="num">-3.3</td><td class="num">60.3</td><td class="num">58%</td><td class="num">0.75</td></tr>
+<tr data-search="louisville north carolina"><td>Louisville @ North Carolina</td><td class="num">-3.3</td><td class="num">+3.3</td><td class="num">59.6</td><td class="num">42%</td><td class="num">0.68</td></tr>
+<tr data-search="utah state san diego state"><td>Utah State @ San Diego State</td><td class="num">+3.2</td><td class="num">-3.2</td><td class="num">44.8</td><td class="num">58%</td><td class="num">0.62</td></tr>
+<tr data-search="kennesaw state sam houston state"><td>Kennesaw State @ Sam Houston State</td><td class="num">-3.2</td><td class="num">+3.2</td><td class="num">41.3</td><td class="num">42%</td><td class="num">0.57</td></tr>
+<tr data-search="manchester anderson (in)"><td>Manchester @ Anderson (IN)</td><td class="num">-3.1</td><td class="num">+3.1</td><td class="num">52.5</td><td class="num">42%</td><td class="num">0.50</td></tr>
+<tr data-search="wake forest smu"><td>Wake Forest @ SMU</td><td class="num">-3.1</td><td class="num">+3.1</td><td class="num">56.6</td><td class="num">42%</td><td class="num">0.86</td></tr>
+<tr data-search="bates hamilton"><td>Bates @ Hamilton</td><td class="num">+3.0</td><td class="num">-3.0</td><td class="num">52.5</td><td class="num">58%</td><td class="num">0.50</td></tr>
+<tr data-search="harvard pennsylvania"><td>Harvard @ Pennsylvania</td><td class="num">-3.0</td><td class="num">+3.0</td><td class="num">52.2</td><td class="num">42%</td><td class="num">0.55</td></tr>
+<tr data-search="findlay tiffin"><td>Findlay @ Tiffin</td><td class="num">-3.0</td><td class="num">+3.0</td><td class="num">52.5</td><td class="num">42%</td><td class="num">0.50</td></tr>
+<tr data-search="gustavus adolphus macalester"><td>Gustavus Adolphus @ Macalester</td><td class="num">+3.0</td><td class="num">-3.0</td><td class="num">52.5</td><td class="num">57%</td><td class="num">0.50</td></tr>
+<tr data-search="auburn mississippi state"><td>Auburn @ Mississippi State</td><td class="num">+2.9</td><td class="num">-2.9</td><td class="num">52.8</td><td class="num">57%</td><td class="num">0.74</td></tr>
+<tr data-search="greenville martin luther"><td>Greenville @ Martin Luther</td><td class="num">+2.8</td><td class="num">-2.8</td><td class="num">52.5</td><td class="num">57%</td><td class="num">0.50</td></tr>
+<tr data-search="central college simpson (ia)"><td>Central College @ Simpson (IA)</td><td class="num">+2.8</td><td class="num">-2.8</td><td class="num">52.5</td><td class="num">57%</td><td class="num">0.50</td></tr>
+<tr data-search="gardner-webb western illinois"><td>Gardner-Webb @ Western Illinois</td><td class="num">+2.8</td><td class="num">-2.8</td><td class="num">52.5</td><td class="num">57%</td><td class="num">0.61</td></tr>
+<tr data-search="arkansas state coastal carolina"><td>Arkansas State @ Coastal Carolina</td><td class="num">+2.7</td><td class="num">-2.7</td><td class="num">62.3</td><td class="num">57%</td><td class="num">0.67</td></tr>
+<tr data-search="kean the college of new jersey"><td>Kean @ The College of New Jersey</td><td class="num">-2.7</td><td class="num">+2.7</td><td class="num">52.5</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr data-search="misericordia king&#x27;s"><td>Misericordia @ King&#x27;s</td><td class="num">-2.7</td><td class="num">+2.7</td><td class="num">52.5</td><td class="num">43%</td><td class="num">0.50</td></tr>
+<tr data-search="buffalo ball state"><td>Buffalo @ Ball State</td><td class="num">-2.6</td><td class="num">+2.6</td><td class="num">46.9</td><td class="num">43%</td><td class="num">0.52</td></tr>
+<tr data-search="keystone monroe"><td>Keystone @ Monroe</td><td class="num">+2.6</td><td class="num">-2.6</td><td class="num">52.5</td><td class="num">56%</td><td class="num">0.50</td></tr>
+<tr data-search="new haven wagner"><td>New Haven @ Wagner</td><td class="num">-2.5</td><td class="num">+2.5</td><td class="num">52.3</td><td class="num">44%</td><td class="num">0.98</td></tr>
+<tr data-search="tennessee texas a&amp;m"><td>Tennessee @ Texas A&amp;M</td><td class="num">-2.5</td><td class="num">+2.5</td><td class="num">49.9</td><td class="num">44%</td><td class="num">0.87</td></tr>
+<tr data-search="fresno state texas state"><td>Fresno State @ Texas State</td><td class="num">+2.4</td><td class="num">-2.4</td><td class="num">60.9</td><td class="num">56%</td><td class="num">0.77</td></tr>
+<tr data-search="east tennessee state wofford"><td>East Tennessee State @ Wofford</td><td class="num">+2.4</td><td class="num">-2.4</td><td class="num">52.5</td><td class="num">56%</td><td class="num">0.98</td></tr>
+<tr data-search="lenoir rhyne catawba"><td>Lenoir Rhyne @ Catawba</td><td class="num">+2.4</td><td class="num">-2.4</td><td class="num">52.5</td><td class="num">56%</td><td class="num">0.50</td></tr>
+<tr data-search="campbell elon"><td>Campbell @ Elon</td><td class="num">+2.3</td><td class="num">-2.3</td><td class="num">52.5</td><td class="num">56%</td><td class="num">0.51</td></tr>
+<tr data-search="princeton yale"><td>Princeton @ Yale</td><td class="num">+2.3</td><td class="num">-2.3</td><td class="num">52.5</td><td class="num">56%</td><td class="num">0.70</td></tr>
+<tr data-search="muhlenberg dickinson"><td>Muhlenberg @ Dickinson</td><td class="num">+2.3</td><td class="num">-2.3</td><td class="num">51.7</td><td class="num">56%</td><td class="num">0.50</td></tr>
+<tr data-search="union rensselaer"><td>Union @ Rensselaer</td><td class="num">-2.3</td><td class="num">+2.3</td><td class="num">52.5</td><td class="num">44%</td><td class="num">0.50</td></tr>
+<tr data-search="whitworth puget sound"><td>Whitworth @ Puget Sound</td><td class="num">-2.2</td><td class="num">+2.2</td><td class="num">52.5</td><td class="num">45%</td><td class="num">0.50</td></tr>
+<tr data-search="emporia state fort hays"><td>Emporia State @ Fort Hays</td><td class="num">+2.1</td><td class="num">-2.1</td><td class="num">52.5</td><td class="num">55%</td><td class="num">0.50</td></tr>
+<tr data-search="stonehill robert morris"><td>Stonehill @ Robert Morris</td><td class="num">+2.1</td><td class="num">-2.1</td><td class="num">52.5</td><td class="num">55%</td><td class="num">0.64</td></tr>
+<tr data-search="new mexico state missouri state"><td>New Mexico State @ Missouri State</td><td class="num">+2.1</td><td class="num">-2.1</td><td class="num">49.6</td><td class="num">55%</td><td class="num">0.61</td></tr>
+<tr data-search="memphis south florida"><td>Memphis @ South Florida</td><td class="num">-1.9</td><td class="num">+1.9</td><td class="num">59.1</td><td class="num">45%</td><td class="num">0.91</td></tr>
+<tr data-search="brevard north carolina wesleyan"><td>Brevard @ North Carolina Wesleyan</td><td class="num">+1.9</td><td class="num">-1.9</td><td class="num">52.5</td><td class="num">55%</td><td class="num">0.50</td></tr>
+<tr data-search="delaware state howard"><td>Delaware State @ Howard</td><td class="num">+1.8</td><td class="num">-1.8</td><td class="num">52.3</td><td class="num">55%</td><td class="num">0.87</td></tr>
+<tr data-search="shippensburg edinboro"><td>Shippensburg @ Edinboro</td><td class="num">+1.8</td><td class="num">-1.8</td><td class="num">52.3</td><td class="num">54%</td><td class="num">0.50</td></tr>
+<tr data-search="south dakota mines chadron state"><td>South Dakota Mines @ Chadron State</td><td class="num">-1.7</td><td class="num">+1.7</td><td class="num">52.5</td><td class="num">46%</td><td class="num">0.50</td></tr>
+<tr data-search="belhaven huntingdon"><td>Belhaven @ Huntingdon</td><td class="num">+1.7</td><td class="num">-1.7</td><td class="num">52.5</td><td class="num">54%</td><td class="num">0.50</td></tr>
+<tr data-search="west chester gannon"><td>West Chester @ Gannon</td><td class="num">-1.7</td><td class="num">+1.7</td><td class="num">52.5</td><td class="num">46%</td><td class="num">0.50</td></tr>
+<tr data-search="chattanooga furman"><td>Chattanooga @ Furman</td><td class="num">+1.6</td><td class="num">-1.6</td><td class="num">52.5</td><td class="num">54%</td><td class="num">0.66</td></tr>
+<tr data-search="north carolina a&amp;t hampton"><td>North Carolina A&amp;T @ Hampton</td><td class="num">-1.6</td><td class="num">+1.6</td><td class="num">51.3</td><td class="num">46%</td><td class="num">0.89</td></tr>
+<tr data-search="averett bridgewater"><td>Averett @ Bridgewater</td><td class="num">-1.6</td><td class="num">+1.6</td><td class="num">52.5</td><td class="num">46%</td><td class="num">0.50</td></tr>
+<tr data-search="bemidji state of mary"><td>Bemidji State @ Of Mary</td><td class="num">-1.5</td><td class="num">+1.5</td><td class="num">52.5</td><td class="num">46%</td><td class="num">0.50</td></tr>
+<tr data-search="saint vincent hiram"><td>Saint Vincent @ Hiram</td><td class="num">+1.5</td><td class="num">-1.5</td><td class="num">52.5</td><td class="num">54%</td><td class="num">0.50</td></tr>
+<tr data-search="west liberty wheeling"><td>West Liberty @ Wheeling</td><td class="num">+1.5</td><td class="num">-1.5</td><td class="num">52.5</td><td class="num">54%</td><td class="num">0.50</td></tr>
+<tr data-search="alcorn state southern"><td>Alcorn State @ Southern</td><td class="num">+1.5</td><td class="num">-1.5</td><td class="num">52.5</td><td class="num">54%</td><td class="num">0.68</td></tr>
+<tr data-search="appalachian state marshall"><td>Appalachian State @ Marshall</td><td class="num">-1.5</td><td class="num">+1.5</td><td class="num">59.5</td><td class="num">46%</td><td class="num">0.71</td></tr>
+<tr data-search="bryant sacred heart"><td>Bryant @ Sacred Heart</td><td class="num">+1.5</td><td class="num">-1.5</td><td class="num">52.3</td><td class="num">54%</td><td class="num">0.65</td></tr>
+<tr data-search="cincinnati iowa state"><td>Cincinnati @ Iowa State</td><td class="num">+1.4</td><td class="num">-1.4</td><td class="num">57.7</td><td class="num">54%</td><td class="num">0.72</td></tr>
+<tr data-search="christopher newport salisbury"><td>Christopher Newport @ Salisbury</td><td class="num">+1.3</td><td class="num">-1.3</td><td class="num">52.5</td><td class="num">53%</td><td class="num">0.50</td></tr>
+<tr data-search="eastern illinois tennessee state"><td>Eastern Illinois @ Tennessee State</td><td class="num">+1.3</td><td class="num">-1.3</td><td class="num">52.5</td><td class="num">53%</td><td class="num">0.82</td></tr>
+<tr data-search="brockport utica"><td>Brockport @ Utica</td><td class="num">+1.3</td><td class="num">-1.3</td><td class="num">52.4</td><td class="num">53%</td><td class="num">0.50</td></tr>
+<tr data-search="tarleton state west florida"><td>Tarleton State @ West Florida</td><td class="num">-1.3</td><td class="num">+1.3</td><td class="num">52.5</td><td class="num">47%</td><td class="num">0.67</td></tr>
+<tr data-search="east stroudsburg lock haven"><td>East Stroudsburg @ Lock Haven</td><td class="num">+1.3</td><td class="num">-1.3</td><td class="num">52.5</td><td class="num">53%</td><td class="num">0.50</td></tr>
+<tr data-search="grambling bethune-cookman"><td>Grambling @ Bethune-Cookman</td><td class="num">-1.3</td><td class="num">+1.3</td><td class="num">51.8</td><td class="num">47%</td><td class="num">0.60</td></tr>
+<tr data-search="western carolina samford"><td>Western Carolina @ Samford</td><td class="num">+1.1</td><td class="num">-1.1</td><td class="num">52.5</td><td class="num">53%</td><td class="num">0.82</td></tr>
+<tr data-search="utah arizona"><td>Utah @ Arizona</td><td class="num">-1.1</td><td class="num">+1.1</td><td class="num">55.5</td><td class="num">47%</td><td class="num">0.95</td></tr>
+<tr data-search="villanova holy cross"><td>Villanova @ Holy Cross</td><td class="num">-1.1</td><td class="num">+1.1</td><td class="num">52.5</td><td class="num">47%</td><td class="num">0.89</td></tr>
+<tr data-search="alfred suny morrisville"><td>Alfred @ SUNY Morrisville</td><td class="num">-0.8</td><td class="num">+0.8</td><td class="num">51.7</td><td class="num">48%</td><td class="num">0.50</td></tr>
+<tr data-search="texas tech oklahoma state"><td>Texas Tech @ Oklahoma State</td><td class="num">-0.8</td><td class="num">+0.8</td><td class="num">62.3</td><td class="num">48%</td><td class="num">0.62</td></tr>
+<tr data-search="mcneese se louisiana"><td>McNeese @ SE Louisiana</td><td class="num">-0.6</td><td class="num">+0.6</td><td class="num">52.5</td><td class="num">49%</td><td class="num">0.73</td></tr>
+<tr data-search="southeast missouri state charleston southern"><td>Southeast Missouri State @ Charleston Southern</td><td class="num">+0.6</td><td class="num">-0.6</td><td class="num">52.5</td><td class="num">51%</td><td class="num">0.52</td></tr>
+<tr data-search="delaware valley widener"><td>Delaware Valley @ Widener</td><td class="num">+0.5</td><td class="num">-0.5</td><td class="num">52.1</td><td class="num">51%</td><td class="num">0.50</td></tr>
+<tr data-search="georgia southern georgia state"><td>Georgia Southern @ Georgia State</td><td class="num">+0.5</td><td class="num">-0.5</td><td class="num">62.5</td><td class="num">51%</td><td class="num">0.68</td></tr>
+<tr data-search="ohio northern capital"><td>Ohio Northern @ Capital</td><td class="num">-0.5</td><td class="num">+0.5</td><td class="num">52.5</td><td class="num">49%</td><td class="num">0.50</td></tr>
+<tr data-search="greensboro methodist"><td>Greensboro @ Methodist</td><td class="num">+0.4</td><td class="num">-0.4</td><td class="num">52.5</td><td class="num">51%</td><td class="num">0.50</td></tr>
+<tr data-search="case western reserve allegheny"><td>Case Western Reserve @ Allegheny</td><td class="num">-0.4</td><td class="num">+0.4</td><td class="num">52.5</td><td class="num">49%</td><td class="num">0.50</td></tr>
+<tr data-search="black hills state colorado mesa"><td>Black Hills State @ Colorado Mesa</td><td class="num">+0.4</td><td class="num">-0.4</td><td class="num">52.5</td><td class="num">51%</td><td class="num">0.50</td></tr>
+<tr data-search="wisconsin whitewater wisconsin eau claire"><td>Wisconsin Whitewater @ Wisconsin Eau Claire</td><td class="num">+0.3</td><td class="num">-0.3</td><td class="num">52.5</td><td class="num">51%</td><td class="num">0.50</td></tr>
+<tr data-search="central washington west texas"><td>Central Washington @ West Texas</td><td class="num">-0.3</td><td class="num">+0.3</td><td class="num">52.5</td><td class="num">49%</td><td class="num">0.50</td></tr>
+<tr data-search="william jewell lincoln (mo)"><td>William Jewell @ Lincoln (MO)</td><td class="num">+0.3</td><td class="num">-0.3</td><td class="num">52.5</td><td class="num">51%</td><td class="num">0.50</td></tr>
+<tr data-search="wesleyan (ct) trinity (ct)"><td>Wesleyan (CT) @ Trinity (CT)</td><td class="num">+0.3</td><td class="num">-0.3</td><td class="num">52.5</td><td class="num">51%</td><td class="num">0.50</td></tr>
+<tr data-search="ohio miami (oh)"><td>Ohio @ Miami (OH)</td><td class="num">-0.1</td><td class="num">+0.1</td><td class="num">47.4</td><td class="num">50%</td><td class="num">0.70</td></tr>
+<tr data-search="wilkes western connecticut state"><td>Wilkes @ Western Connecticut State</td><td class="num">+0.1</td><td class="num">-0.1</td><td class="num">52.5</td><td class="num">50%</td><td class="num">0.50</td></tr>
+<tr data-search="dartmouth cornell"><td>Dartmouth @ Cornell</td><td class="num">+0.0</td><td class="num">-0.0</td><td class="num">52.2</td><td class="num">50%</td><td class="num">0.67</td></tr>
+<tr data-search="kansas west virginia"><td>Kansas @ West Virginia</td><td class="num">+0.0</td><td class="num">-0.0</td><td class="num">66.3</td><td class="num">50%</td><td class="num">0.62</td></tr>
+</tbody></table></div></details>
+<footer>Model output, not betting advice. Stakes are fractional-Kelly units; one unit is 1% of bankroll by default. Edges are measured against the de-vigged market price at the quoted number.</footer>
+</div><script>
+(function () {
+  var btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  var root = document.documentElement;
+  try {
+    var saved = localStorage.getItem('cfbpicks-theme');
+    if (saved) root.setAttribute('data-theme', saved);
+  } catch (e) {}
+  btn.addEventListener('click', function () {
+    var dark = getComputedStyle(root).colorScheme.indexOf('dark') !== -1;
+    var next = dark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('cfbpicks-theme', next); } catch (e) {}
+  });
+})();
+
+(function () {
+  var box = document.getElementById('q');
+  if (!box) return;
+  var counter = document.getElementById('count');
+  var empty = document.getElementById('no-match');
+  var bets = Array.prototype.slice.call(document.querySelectorAll('.bet[data-search]'));
+  var rows = Array.prototype.slice.call(document.querySelectorAll('tr[data-search]'));
+  var total = bets.length;
+
+  function apply() {
+    // Every space-separated word must appear somewhere in the row, so
+    // "ohio under" finds the total on an Ohio State game.
+    var terms = box.value.toLowerCase().split(/\s+/).filter(Boolean);
+    var shown = 0;
+    bets.forEach(function (el) {
+      var hay = el.getAttribute('data-search');
+      var hit = terms.every(function (t) { return hay.indexOf(t) !== -1; });
+      el.hidden = !hit;
+      if (hit) shown++;
+    });
+    rows.forEach(function (el) {
+      var hay = el.getAttribute('data-search');
+      el.hidden = !terms.every(function (t) { return hay.indexOf(t) !== -1; });
+    });
+    if (empty) empty.hidden = shown !== 0 || total === 0;
+    if (counter) {
+      counter.textContent = terms.length
+        ? shown + ' of ' + total + ' bets'
+        : total + ' bets';
+    }
+  }
+
+  box.addEventListener('input', apply);
+  // Escape clears, which is what the native clear button does anyway.
+  box.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { box.value = ''; apply(); }
+  });
+  apply();
+})();
+</script></body></html>
